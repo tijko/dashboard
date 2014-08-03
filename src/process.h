@@ -1,0 +1,26 @@
+#ifndef PROC_H
+#define PROC_H
+
+#define PROCNAME_MAX 1024
+#define PROC "/proc"
+#define COMMLEN 0x20 
+
+typedef struct process_attr proc_t;
+
+struct process_attr {
+    char *name;
+    char *pid;
+    int cpuset;
+    float mempcent;
+    proc_t *next;
+};
+
+void current_procs(proc_t *procs);
+
+void free_procs(proc_t *procs);
+
+int is_pid(char *process_name);
+
+void name_pid(proc_t *procs);
+
+#endif
