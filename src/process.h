@@ -9,7 +9,9 @@ typedef struct process_attr proc_t;
 
 struct process_attr {
     char *name;
-    char *pid;
+    char *pidstr;
+    char *user;
+    int pid;
     int cpuset;
     float mempcent;
     proc_t *next;
@@ -20,6 +22,10 @@ void current_procs(proc_t *procs);
 void free_procs(proc_t *procs);
 
 int is_pid(char *process_name);
+
+void proc_user(proc_t *proc);
+
+int get_uid(int pid);
 
 void name_pid(proc_t *procs);
 
