@@ -65,7 +65,6 @@ void dashboard_loop(void)
                 break;
         }
         refresh();
-        clear();
         free_procs(processes); 
         processes = malloc(sizeof *processes);
         current_procs(processes);
