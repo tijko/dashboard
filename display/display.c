@@ -98,7 +98,7 @@ void update_screen(proc_t *processes, char *fstype)
 
     while (processes->next && cur_y < max_y - 1) {
         mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-        mvwprintw(stdscr, cur_y, LINE_X + 20, "%s   ", processes->pid);
+        mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
         mvwprintw(stdscr, cur_y++, LINE_X + 30, "%d   ", processes->cpuset);
         processes = processes->next;
     }
