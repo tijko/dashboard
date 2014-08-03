@@ -6,18 +6,16 @@
 
 // number of cpus sysconf(_NPROCESSORS_ONLN)
 
-int current_cpus(char *pid)
+int current_cpus(int pid)
 {
     int ret;
     int cpu_affinity;
-    int pid_int;
     size_t mask_size;
     cpu_set_t proc_cpus;
 
-    pid_int = atoi(pid);
     mask_size = sizeof proc_cpus;
 
-    ret = sched_getaffinity(pid_int, mask_size, &proc_cpus);
+    ret = sched_getaffinity(pid, mask_size, &proc_cpus);
 
     if (ret == -1)
         return errno;
