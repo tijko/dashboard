@@ -1,3 +1,3 @@
 
-int current_cpus(char *pid);
+int current_cpus(int pid);
 
