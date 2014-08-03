@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "../src/process.h"
 
+#define LINE_X 2 
+
 void init_screen(void);
 
 void dashboard_loop(void);
