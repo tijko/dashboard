@@ -83,12 +83,12 @@ void update_screen(proc_t *processes, char *fstype)
 {
     int max_y, max_x;
     int cur_y = 9;
-    cur_y = 9;
     getmaxyx(stdscr, max_y, max_x);
 
     attron(A_BOLD);
     mvwprintw(stdscr, 1, (max_x / 2) - 4, "DASHBOARD");
     attroff(A_BOLD);
+
     build_info(fstype);
 
     attron(A_REVERSE);
@@ -99,7 +99,6 @@ void update_screen(proc_t *processes, char *fstype)
     while (processes->next && cur_y < max_y - 1) {
         mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
         mvwprintw(stdscr, cur_y, LINE_X + 20, "%s   ", processes->pid);
-        processes->cpuset = current_cpus(processes->pid);
         mvwprintw(stdscr, cur_y++, LINE_X + 30, "%d   ", processes->cpuset);
         processes = processes->next;
     }
