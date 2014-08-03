@@ -6,8 +6,8 @@
 #include <dirent.h>
 #include <stdlib.h>
 
+#include "cpu.h"
 #include "process.h"
-
 /*
     List priority type e.g.(realtime, besteffort, idle, etc)
     List state type e.g.(running, interruptible, sleeping)
@@ -21,6 +21,7 @@ void current_procs(proc_t *procs)
         if (curr->d_type == DT_DIR && is_pid(curr->d_name)) {
             procs->pid = curr->d_name;
             name_pid(procs);
+            procs->cpuset = current_cpus(procs->pid);
             procs->next = malloc(sizeof *(procs->next));
             procs = procs->next;
         }
