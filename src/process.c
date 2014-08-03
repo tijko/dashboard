@@ -1,3 +1,4 @@
+#include <pwd.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -8,10 +9,7 @@
 
 #include "cpu.h"
 #include "process.h"
-/*
-    List priority type e.g.(realtime, besteffort, idle, etc)
-    List state type e.g.(running, interruptible, sleeping)
-*/
+
 
 void current_procs(proc_t *procs)
 {
@@ -19,7 +17,8 @@ void current_procs(proc_t *procs)
     struct dirent *curr = malloc(sizeof *curr);
     while ((curr = readdir(dir))) {
         if (curr->d_type == DT_DIR && is_pid(curr->d_name)) {
-            procs->pid = curr->d_name;
+            procs->pidstr = curr->d_name;
+            procs->pid = atoi(curr->d_name);
             name_pid(procs);
             procs->cpuset = current_cpus(procs->pid);
             procs->next = malloc(sizeof *(procs->next));
@@ -49,7 +48,7 @@ void name_pid(proc_t *proc)
 {
     char *process_name;
     char *comm = malloc(sizeof(char) * COMMLEN);
-    snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pid);
+    snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pidstr);
     int ofd = open(comm, O_RDONLY);
     void *buf = calloc(sizeof(char) * PROCNAME_MAX, sizeof(char));
     read(ofd, buf, 256);
@@ -61,6 +60,19 @@ void name_pid(proc_t *proc)
     proc->name = (char *) process_name;
     close(ofd);
 } 
+
+void proc_user(proc_t *proc)
+{
+    int uid;
+    uid = get_uid(proc->pid);
+    struct passwd *getuser = getpwuid(uid);
+    proc->user = getuser->pw_name;
+}    
+
+int get_uid(int pid)
+{
+    return pid;
+}   
 
 void free_procs(proc_t *procs)
 {
