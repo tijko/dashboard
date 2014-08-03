@@ -23,11 +23,6 @@ void init_screen(void)
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    int max_x;
-    max_x = getmaxx(stdscr);
-    attron(A_BOLD);
-    mvwprintw(stdscr, 1, (max_x / 2) - 4, "DASHBOARD");
-    attroff(A_BOLD);
     dashboard_loop();
 }
 
@@ -64,7 +59,7 @@ void dashboard_loop(void)
                 y = y + 10;
                 break;
             case (113):
-                LOOPING = 0;
+                RUNNING = 0;
                 break;
             default:
                 break;
@@ -87,12 +82,15 @@ void dashboard_loop(void)
 
 void update_screen(proc_t *processes, char *fstype)
 {
-    int max_y;
+    int max_y, max_x;
     int cur_y, cur_x;
     cur_x = 2;
     cur_y = 9;
-    max_y = getmaxy(stdscr);
+    getmaxyx(stdscr, max_y, max_x);
     build_info(fstype);
+    attron(A_BOLD);
+    mvwprintw(stdscr, 1, (max_x / 2) - 4, "DASHBOARD");
+    attroff(A_BOLD);
     attron(A_REVERSE);
     char *fieldbar = fieldbar_builder(); 
     mvwprintw(stdscr, cur_y, 1, fieldbar);
