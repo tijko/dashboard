@@ -98,20 +98,16 @@ void update_screen(proc_t *processes, char *fstype)
 
     ++cur_y;
     while (processes->next && cur_y < max_y - 1) {
-//    while (processes->pid && cur_y < max_y - 1) {
         mvwprintw(stdscr, cur_y, cur_x, "%s  ", processes->name);
         cur_x += 20;
         mvwprintw(stdscr, cur_y, cur_x, "%s   ", processes->pid);
-    ///XXX temp y increment
-        cur_y++;
-//        processes->cpuset = current_cpus(processes->pid);
-//        cur_x += 10;
-//        mvwprintw(stdscr, cur_y++, cur_x, "%d   ", processes->cpuset);
+        processes->cpuset = current_cpus(processes->pid);
+        cur_x += 10;
+        mvwprintw(stdscr, cur_y++, cur_x, "%d   ", processes->cpuset);
         processes = processes->next;
         cur_x = 2;
     }
     box(stdscr, 0, 0);
-//    refresh();
 }
 
 char *fieldbar_builder(void)
