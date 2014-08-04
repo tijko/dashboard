@@ -99,7 +99,8 @@ void update_screen(proc_t *processes, char *fstype)
     while (processes->next && cur_y < max_y - 1) {
         mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
         mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
-        mvwprintw(stdscr, cur_y++, LINE_X + 30, "%d   ", processes->cpuset);
+        mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
+        mvwprintw(stdscr, cur_y++, LINE_X + 40, "%s ", processes->user);
         processes = processes->next;
     }
     box(stdscr, 0, 0);
@@ -113,7 +114,8 @@ char *fieldbar_builder(void)
     fieldbar = add_space("", "NAME", 2, max_x);
     fieldbar = add_space(fieldbar, "PID", 13, max_x);
     fieldbar = add_space(fieldbar, "CPU", 7, max_x);
-    spaceleft = max_x - 27;
+    fieldbar = add_space(fieldbar, "USER", 9, max_x);
+    spaceleft = max_x - 36;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
@@ -121,13 +123,13 @@ char *fieldbar_builder(void)
 char *add_space(char *fieldbar, char *field, int spaces, size_t max)
 {
     int space;
-    char *temp = malloc(sizeof(char) * max);
+    char *tmp = malloc(sizeof(char) * max);
     for (space=0; space < spaces; ++space) {
-        snprintf(temp, max, "%s ", fieldbar); 
-        fieldbar = temp;
-        temp = malloc(sizeof(char) * max);
+        snprintf(tmp, max, "%s ", fieldbar); 
+        fieldbar = tmp;
+        tmp = malloc(sizeof(char) * max);
     }
-    snprintf(temp, max, "%s%s", fieldbar, field);
-    fieldbar = temp;
+    snprintf(tmp, max, "%s%s", fieldbar, field);
+    fieldbar = tmp;
     return fieldbar;
 }
