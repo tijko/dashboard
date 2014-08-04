@@ -25,7 +25,7 @@ int is_pid(char *process_name);
 
 void proc_user(proc_t *proc);
 
-int get_uid(int pid);
+int get_uid(char *pid);
 
 void name_pid(proc_t *procs);
 
