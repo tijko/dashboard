@@ -1,4 +1,5 @@
 #include <pwd.h>
+#include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -21,6 +22,7 @@ void current_procs(proc_t *procs)
             procs->pid = atoi(curr->d_name);
             name_pid(procs);
             procs->cpuset = current_cpus(procs->pid);
+            proc_user(procs);
             procs->next = malloc(sizeof *(procs->next));
             procs = procs->next;
         }
@@ -50,6 +52,8 @@ void name_pid(proc_t *proc)
     char *comm = malloc(sizeof(char) * COMMLEN);
     snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pidstr);
     int ofd = open(comm, O_RDONLY);
+    if (ofd == -1)
+        return;
     void *buf = calloc(sizeof(char) * PROCNAME_MAX, sizeof(char));
     read(ofd, buf, 256);
     process_name = (char *) buf;
@@ -64,22 +68,56 @@ void name_pid(proc_t *proc)
 void proc_user(proc_t *proc)
 {
     int uid;
-    uid = get_uid(proc->pid);
+    uid = get_uid(proc->pidstr);
     struct passwd *getuser = getpwuid(uid);
-    proc->user = getuser->pw_name;
+    if (getuser) {
+        proc->user = malloc(sizeof(char) * strlen(getuser->pw_name) + 1);
+        proc->user = strdup(getuser->pw_name);
+    }
 }    
 
-int get_uid(int pid)
+int get_uid(char *pid)
 {
-    return pid;
+    size_t n;
+    char *ln = malloc(sizeof(char) * 32);
+    char *path = malloc(sizeof(char) * 32);
+    char *uidstr = malloc(sizeof(char) * 4);
+    char *field = malloc(sizeof(char) * 8);
+    FILE *fp;
+    snprintf(path, 32, "/proc/%s/status", pid);
+    fp = fopen(path, "r");
+    if (fp == NULL)
+        return -1;
+    while (getline(&ln, &n, fp)) {
+        int i;
+        for (i=0; i < 3; i++)
+            *(field + i) = *(ln + i);
+        *(field + i) = '\0';
+        if (!(strcmp("Uid", field))) {
+            int l = 0;
+            for (;!(isdigit(*(ln + i))); i++)
+                ;
+            for (;!(isspace(*(ln + i))); i++) {
+                *(uidstr + l) = *(ln + i);
+                l++;
+            }
+            *(uidstr + l) = '\0';
+            free(path);
+            free(field);
+            free(ln);
+            fclose(fp);
+            return atoi(uidstr);
+        }
+    }
+    return -1;
 }   
 
 void free_procs(proc_t *procs)
 {
-    proc_t *temp;
+    proc_t *tmp;
     while (procs->next) {
-        temp = procs->next;
+        tmp = procs->next;
         free(procs);
-        procs = temp;
+        procs = tmp;
     }
 }
