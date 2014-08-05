@@ -1,5 +1,4 @@
 #include <pwd.h>
-#include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <fcntl.h>
@@ -9,10 +8,11 @@
 #include <stdlib.h>
 
 #include "cpu.h"
+#include "memory.h"
 #include "process.h"
 
 
-void current_procs(proc_t *procs)
+void current_procs(proc_t *procs, int memtotal)
 {
     DIR *dir = opendir(PROC);
     struct dirent *curr = malloc(sizeof *curr);
@@ -23,6 +23,7 @@ void current_procs(proc_t *procs)
             name_pid(procs);
             procs->cpuset = current_cpus(procs->pid);
             proc_user(procs);
+            memory_percentage(procs, memtotal);
             procs->next = malloc(sizeof *(procs->next));
             procs = procs->next;
         }
@@ -97,7 +98,7 @@ int get_uid(char *pid)
             int l = 0;
             for (;!(isdigit(*(ln + i))); i++)
                 ;
-            for (;!(isspace(*(ln + i))); i++) {
+            for (;(isdigit(*(ln + i))); i++) {
                 *(uidstr + l) = *(ln + i);
                 l++;
             }
