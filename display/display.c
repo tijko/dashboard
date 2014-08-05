@@ -7,6 +7,7 @@
 #include "display.h"
 #include "../src/cpu.h"
 #include "../src/disk.h"
+#include "../src/memory.h"
 #include "../src/process.h"
 #include "../system/header_stats.h"
 
@@ -28,8 +29,9 @@ void init_screen(void)
 
 void dashboard_loop(void)
 {
+    int memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
-    current_procs(processes);
+    current_procs(processes, memtotal);
 
     int key;
     int RUNNING = 1;
@@ -65,9 +67,10 @@ void dashboard_loop(void)
                 break;
         }
         refresh();
+        clear();
         free_procs(processes); 
         processes = malloc(sizeof *processes);
-        current_procs(processes);
+        current_procs(processes, memtotal);
     }
     endwin();
 }
@@ -100,7 +103,9 @@ void update_screen(proc_t *processes, char *fstype)
         mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
         mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
         mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
-        mvwprintw(stdscr, cur_y++, LINE_X + 40, "%s ", processes->user);
+        mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
+        mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f%", processes->mempcent);
+//        mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f", 0.0);
         processes = processes->next;
     }
     box(stdscr, 0, 0);
@@ -115,7 +120,8 @@ char *fieldbar_builder(void)
     fieldbar = add_space(fieldbar, "PID", 13, max_x);
     fieldbar = add_space(fieldbar, "CPU", 7, max_x);
     fieldbar = add_space(fieldbar, "USER", 9, max_x);
-    spaceleft = max_x - 36;
+    fieldbar = add_space(fieldbar, "MEM%%", 6, max_x);
+    spaceleft = max_x - 42;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
