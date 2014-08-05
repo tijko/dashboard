@@ -24,7 +24,10 @@ void memory_percentage(proc_t *procs, int totalmem)
     char *path = malloc(sizeof(char) * 256);
     snprintf(path, 256, "/proc/%d/status", procs->pid);
     char *percentage = proc_parser(path, "VmSize");
-    if (percentage != NULL)
+    if (percentage != NULL) {
         total_usage = (float) strtol(percentage, NULL, 10);
+        free(percentage);
+    }
     procs->mempcent = (total_usage / totalmem) * 100;
+    free(path);
 }
