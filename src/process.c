@@ -10,7 +10,7 @@
 #include "cpu.h"
 #include "memory.h"
 #include "process.h"
-#include "util/procparse.h"
+#include "util/parser.h"
 
 
 void current_procs(proc_t *procs, int memtotal)
@@ -82,10 +82,12 @@ int get_uid(char *pid)
 {
     char *path = malloc(sizeof(char) * 32);
     snprintf(path, 32, "/proc/%s/status", pid);
-    void *uid = proc_parser(path, "Uid");
+    char *uid = proc_parser(path, "Uid");
     free(path);
-    if (uid)
-        return *(int *) uid;
+    if (uid) {
+        int value = strtol(uid, NULL, 10);
+        return value;
+    }
     return -1;
 }   
 
