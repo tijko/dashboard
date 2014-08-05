@@ -33,6 +33,7 @@ char *proc_parser(char *path, char *field)
             return tmp;
         }
     }
+    free(tmp);
     fclose(fp);
     return NULL;
 }
