@@ -72,6 +72,7 @@ void dashboard_loop(void)
         processes = malloc(sizeof *processes);
         current_procs(processes, memtotal);
     }
+    free_procs(processes);
     endwin();
 }
 
@@ -105,7 +106,6 @@ void update_screen(proc_t *processes, char *fstype)
         mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
         mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
         mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f%", processes->mempcent);
-//        mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f", 0.0);
         processes = processes->next;
     }
     box(stdscr, 0, 0);
