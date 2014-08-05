@@ -4,14 +4,13 @@
 #include <string.h>
 
 
-void *proc_parser(char *path, char *field)
+char *proc_parser(char *path, char *field)
 {
     int i, j;
     FILE *fp;
     char *ln;
     size_t n;
     char *tmp;
-    void *value;
     size_t fieldlen;
 
     n = 0;
@@ -30,10 +29,10 @@ void *proc_parser(char *path, char *field)
             for (j=0; isdigit(*(ln + i)); j++, i++)
                 *(tmp + j) = *(ln + i);
             *(tmp + j) = '\0';
-            value = tmp;
-            break;
+            fclose(fp);
+            return tmp;
         }
     }
     fclose(fp);
-    return value;
+    return NULL;
 }
