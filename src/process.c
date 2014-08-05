@@ -64,6 +64,7 @@ void name_pid(proc_t *proc)
         ;
     *(process_name + i) = '\0'; 
     proc->name = (char *) process_name;
+    free(comm);
     close(ofd);
 } 
 
@@ -96,6 +97,8 @@ void free_procs(proc_t *procs)
     proc_t *tmp;
     while (procs->next) {
         tmp = procs->next;
+        free(procs->name);
+        free(procs->user);
         free(procs);
         procs = tmp;
     }
