@@ -66,7 +66,6 @@ void dashboard_loop(void)
             default:
                 break;
         }
-        refresh();
         clear();
         free_procs(processes); 
         processes = malloc(sizeof *processes);
@@ -109,6 +108,8 @@ void update_screen(proc_t *processes, char *fstype)
         processes = processes->next;
     }
     box(stdscr, 0, 0);
+    refresh();
+    free(fieldbar);
 }
 
 char *fieldbar_builder(void)
