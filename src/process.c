@@ -10,6 +10,7 @@
 #include "cpu.h"
 #include "memory.h"
 #include "process.h"
+#include "util/procparse.h"
 
 
 void current_procs(proc_t *procs, int memtotal)
@@ -79,37 +80,12 @@ void proc_user(proc_t *proc)
 
 int get_uid(char *pid)
 {
-    size_t n;
-    char *ln = malloc(sizeof(char) * 32);
     char *path = malloc(sizeof(char) * 32);
-    char *uidstr = malloc(sizeof(char) * 4);
-    char *field = malloc(sizeof(char) * 8);
-    FILE *fp;
     snprintf(path, 32, "/proc/%s/status", pid);
-    fp = fopen(path, "r");
-    if (fp == NULL)
-        return -1;
-    while (getline(&ln, &n, fp)) {
-        int i;
-        for (i=0; i < 3; i++)
-            *(field + i) = *(ln + i);
-        *(field + i) = '\0';
-        if (!(strcmp("Uid", field))) {
-            int l = 0;
-            for (;!(isdigit(*(ln + i))); i++)
-                ;
-            for (;(isdigit(*(ln + i))); i++) {
-                *(uidstr + l) = *(ln + i);
-                l++;
-            }
-            *(uidstr + l) = '\0';
-            free(path);
-            free(field);
-            free(ln);
-            fclose(fp);
-            return atoi(uidstr);
-        }
-    }
+    void *uid = proc_parser(path, "Uid");
+    free(path);
+    if (uid)
+        return *(int *) uid;
     return -1;
 }   
 
