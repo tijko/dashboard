@@ -29,11 +29,13 @@ void init_screen(void)
 
 void dashboard_loop(void)
 {
+    int nproc;
     int memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
-    current_procs(processes, memtotal);
+    nproc = current_procs(processes, memtotal);
 
     int key;
+    int max_y;
     int plineno = 0;
     int RUNNING = 1;
 
@@ -43,7 +45,7 @@ void dashboard_loop(void)
         fstype = "Unavailable";
 
     while (RUNNING) {
-        
+        max_y = getmaxy(stdscr) - PROCLN;
         update_screen(processes, fstype, plineno);
         key = wgetch(stdscr);
         switch (key) {
@@ -53,7 +55,9 @@ void dashboard_loop(void)
                 }
                 break;
             case (KEY_DOWN):
-                plineno++; 
+                if (plineno < (nproc - max_y)) {
+                    plineno++; 
+                }
                 break;
             case (113):
                 RUNNING = 0;
@@ -64,7 +68,7 @@ void dashboard_loop(void)
         clear();
         free_procs(processes); 
         processes = malloc(sizeof *processes);
-        current_procs(processes, memtotal);
+        nproc = current_procs(processes, memtotal);
     }
     free_procs(processes);
     endwin();
