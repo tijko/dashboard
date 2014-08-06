@@ -17,7 +17,7 @@ struct process_attr {
     proc_t *next;
 };
 
-void current_procs(proc_t *procs, int memtotal);
+int current_procs(proc_t *procs, int memtotal);
 
 void free_procs(proc_t *procs);
 
