@@ -2,6 +2,7 @@
 #include "../src/process.h"
 
 #define LINE_X 2 
+#define PROCLN 11
 
 void init_screen(void);
 
