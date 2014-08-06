@@ -9,7 +9,7 @@
 #include "../src/disk.h"
 #include "../src/memory.h"
 #include "../src/process.h"
-#include "../system/header_stats.h"
+#include "../system/sys_stats.h"
 
 
 void init_screen(void)
