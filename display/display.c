@@ -34,8 +34,8 @@ void dashboard_loop(void)
     current_procs(processes, memtotal);
 
     int key;
+    int plineno = 0;
     int RUNNING = 1;
-    int y = 3;
 
     char *fstype;
     fstype = filesystem_type();
@@ -44,21 +44,16 @@ void dashboard_loop(void)
 
     while (RUNNING) {
         
-        update_screen(processes, fstype);
+        update_screen(processes, fstype, plineno);
         key = wgetch(stdscr);
         switch (key) {
             case (KEY_UP):
-            //    scrollok(mywin, TRUE); // TRUE
-            //    idlok(mywin, FALSE);
-            //XXX have some kind of print for next in-line with linked list
-                scrl(-10);
-                y = y - 10;
+                if (plineno > 0) {
+                    plineno--;
+                }
                 break;
             case (KEY_DOWN):
-            //    scrollok(mywin, TRUE); // TRUE
-            //    idlok(mywin, FALSE);
-                scrl(10);
-                y = y + 10;
+                plineno++; 
                 break;
             case (113):
                 RUNNING = 0;
@@ -75,14 +70,7 @@ void dashboard_loop(void)
     endwin();
 }
 
-// XXX: only scrollok(stdscr, TRUE) set when input-key ("arrows") are received then
-//      reset back.
-//
-//      keep a count for how many lines are in screen(get screen size func)
-//      when printing loop for that many lines so "bunches" do not happen
-//
-
-void update_screen(proc_t *processes, char *fstype)
+void update_screen(proc_t *processes, char *fstype, int plineno)
 {
     int max_y, max_x;
     int cur_y = 9;
@@ -100,11 +88,15 @@ void update_screen(proc_t *processes, char *fstype)
     attroff(A_REVERSE);
 
     while (processes->next && cur_y < max_y - 1) {
-        mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-        mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
-        mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
-        mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
-        mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f%", processes->mempcent);
+        if (plineno == 0) {
+            mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
+            mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
+            mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
+            mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
+            mvwprintw(stdscr, cur_y++, LINE_X + 50, "%.2f%", processes->mempcent);
+        } else {
+            plineno--;
+        }
         processes = processes->next;
     }
     box(stdscr, 0, 0);
