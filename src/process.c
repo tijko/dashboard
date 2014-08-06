@@ -13,8 +13,9 @@
 #include "util/parser.h"
 
 
-void current_procs(proc_t *procs, int memtotal)
+int current_procs(proc_t *procs, int memtotal)
 {
+    int nproc = 0;
     DIR *dir = opendir(PROC);
     struct dirent *curr = malloc(sizeof *curr);
     while ((curr = readdir(dir))) {
@@ -27,10 +28,12 @@ void current_procs(proc_t *procs, int memtotal)
             memory_percentage(procs, memtotal);
             procs->next = malloc(sizeof *(procs->next));
             procs = procs->next;
+            nproc++;
         }
     }
     closedir(dir);
     procs->next = NULL;
+    return nproc;
 }
 
 int is_pid(char *process_name)
