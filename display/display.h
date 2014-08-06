@@ -7,7 +7,7 @@ void init_screen(void);
 
 void dashboard_loop(void);
 
-void update_screen(proc_t *processes, char *fstype);
+void update_screen(proc_t *processes, char *fstype, int plineno);
 
 char *fieldbar_builder(void);
 
