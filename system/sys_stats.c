@@ -56,6 +56,9 @@ void build_info(char *fstype)
     memsz = mem_avail(info->totalswap, info->mem_unit);
     mvwprintw(stdscr, --cur_y, cur_x, "Total Swap: %s", memsz);
 
+    memsz = mem_avail(info->loads[0], info->mem_unit);
+    mvwprintw(stdscr, cur_y, cur_x + inc_x, "AvgLoad: %s", memsz);
+
     memsz = mem_avail(info->freeswap, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "Free Swap: %s", memsz);
 
