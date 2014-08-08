@@ -26,6 +26,7 @@ int current_procs(proc_t *procs, int memtotal)
             procs->cpuset = current_cpus(procs->pid);
             proc_user(procs);
             memory_percentage(procs, memtotal);
+            procs->nice = nice(procs->pid);
             procs->next = malloc(sizeof *(procs->next));
             procs = procs->next;
             nproc++;
