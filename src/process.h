@@ -13,6 +13,7 @@ struct process_attr {
     char *user;
     int pid;
     int cpuset;
+    int nice;
     float mempcent;
     proc_t *next;
 };
