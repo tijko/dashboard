@@ -29,9 +29,6 @@ int current_cpus(int pid)
 int nice(int pid)
 {
     int niceness;
-    errno = 0;
     niceness = getpriority(PRIO_PROCESS, pid);
-    if (errno != 0)
-        return 100; // set-up an error display.
     return niceness;
 }
