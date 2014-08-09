@@ -15,6 +15,7 @@ struct process_attr {
     int cpuset;
     int nice;
     float mempcent;
+    proc_t *prev;
     proc_t *next;
 };
 
