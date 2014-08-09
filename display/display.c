@@ -32,6 +32,7 @@ void dashboard_loop(void)
     int nproc;
     int memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
+    processes->prev = NULL;
     nproc = current_procs(processes, memtotal);
 
     int key;
@@ -98,11 +99,11 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
             mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
             mvwprintw(stdscr, cur_y, LINE_X + 50, "%.2f%", processes->mempcent);
-            if (processes->nice >= 0 && processes->nice < 10)
+            if (processes->nice >= 0 && processes->nice < 10) 
                 mvwprintw(stdscr, cur_y++, LINE_X + 60, "%d", processes->nice);
-            else if (processes->nice >= 10)
+            else if (processes->nice >= 10) 
                 mvwprintw(stdscr, cur_y++, LINE_X + 59, "%d", processes->nice);
-            else
+            else 
                 mvwprintw(stdscr, cur_y++, LINE_X + 58, "%d", processes->nice);
         } else {
             plineno--;
