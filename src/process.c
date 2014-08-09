@@ -16,6 +16,7 @@
 int current_procs(proc_t *procs, int memtotal)
 {
     int nproc = 0;
+    proc_t *last;
     DIR *dir = opendir(PROC);
     struct dirent *curr = malloc(sizeof *curr);
     while ((curr = readdir(dir))) {
@@ -23,17 +24,34 @@ int current_procs(proc_t *procs, int memtotal)
             procs->pidstr = curr->d_name;
             procs->pid = atoi(curr->d_name);
             name_pid(procs);
+            if (!procs->name)
+                continue;
             procs->cpuset = current_cpus(procs->pid);
+            if (procs->cpuset < 1)
+                continue;
             proc_user(procs);
+            if (!procs->user)
+                continue;
             memory_percentage(procs, memtotal);
+            if (procs->mempcent == -1)
+                continue;
             procs->nice = nice(procs->pid);
+            if (procs->nice == 100)
+                continue;
             procs->next = malloc(sizeof *(procs->next));
+            last = procs;
             procs = procs->next;
+            procs->prev = last;
             nproc++;
         }
     }
     closedir(dir);
-    procs->next = NULL;
+    if (!procs->name || procs->cpuset < 1 || !procs->user || 
+        procs->mempcent == -1 || procs->nice == 100) {
+        procs->prev->next = NULL;
+    } else {
+        procs->next = NULL;
+    }
     return nproc;
 }
 
@@ -54,18 +72,27 @@ int is_pid(char *process_name)
 
 void name_pid(proc_t *proc)
 {
+    void *buf;
+    char *comm;
     char *process_name;
-    char *comm = malloc(sizeof(char) * COMMLEN);
+    comm = malloc(sizeof(char) * COMMLEN);
     snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pidstr);
+
     int ofd = open(comm, O_RDONLY);
-    if (ofd == -1)
+    if (ofd == -1) {
+        free(comm);
+        proc->name = NULL;
         return;
-    void *buf = calloc(sizeof(char) * PROCNAME_MAX, sizeof(char));
-    read(ofd, buf, 256);
+    }
+
+    buf = calloc(sizeof(char) * PROCNAME_MAX, sizeof(char));
+    read(ofd, buf, PROCNAME_MAX);
     process_name = (char *) buf;
+
     int i;
     for (i=0; *(process_name + i) != '\n'; ++i)
         ;
+
     *(process_name + i) = '\0'; 
     proc->name = (char *) process_name;
     free(comm);
@@ -80,7 +107,9 @@ void proc_user(proc_t *proc)
     if (getuser) {
         proc->user = malloc(sizeof(char) * strlen(getuser->pw_name) + 1);
         proc->user = strdup(getuser->pw_name);
+        return;
     }
+    proc->user = NULL;
 }    
 
 int get_uid(char *pid)
