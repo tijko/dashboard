@@ -39,7 +39,9 @@ int current_procs(proc_t *procs, int memtotal)
             procs->nice = nice(procs->pid);
             if (procs->nice == 100)
                 continue;
-            procs->ioprio = ioprio_get(procs->pid);
+            procs->ioprio = ioprio_class(procs->pid);
+            if (!procs->ioprio)
+                continue;
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
