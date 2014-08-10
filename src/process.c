@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "cpu.h"
+#include "disk.h"
 #include "memory.h"
 #include "process.h"
 #include "util/parser.h"
@@ -38,6 +39,7 @@ int current_procs(proc_t *procs, int memtotal)
             procs->nice = nice(procs->pid);
             if (procs->nice == 100)
                 continue;
+            procs->ioprio = ioprio_get(procs->pid);
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
