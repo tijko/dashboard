@@ -37,16 +37,16 @@ char *ioprio_class(int pid)
     char *class;
 
     char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
+    class = malloc(sizeof(char) * PRIOLEN);
     
     ioprio = ioprio_get(pid);
     ioprio >>= IOPRIO_SHIFT;
     if (ioprio != 0) {
-        class = ioprio_classes[ioprio];
+        snprintf(class, PRIOLEN, "%s", ioprio_classes[ioprio]);
     } else {
         int niceness;
         int ioprio_level;
 
-        class = malloc(sizeof(char) * PRIOLEN);
         ioprio = sched_getscheduler(pid);
         niceness = nice(pid);
         ioprio_level = (niceness + 20) / 5;
@@ -56,7 +56,7 @@ char *ioprio_class(int pid)
         else if (ioprio == SCHED_OTHER)
             snprintf(class, PRIOLEN, "%s/%d", ioprio_classes[2], ioprio_level);
         else
-            class = ioprio_classes[3];
+            snprintf(class, PRIOLEN, "%s", ioprio_classes[3]);
     }
     return class;
 }
