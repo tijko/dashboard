@@ -29,24 +29,44 @@ void init_screen(void)
 
 void dashboard_loop(void)
 {
+    int key;
+    int max_y;
+    int prev_y, prev_x;
+    int curr_y, curr_x;
+    int plineno;
+    int prevplineno;
+    char *fstype;
+    int RUNNING;
     int nproc;
-    int memtotal = total_memory();
+    int memtotal; 
+
+    memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
     processes->prev = NULL;
     nproc = current_procs(processes, memtotal);
 
-    int key;
-    int max_y;
-    int plineno = 0;
-    int RUNNING = 1;
+    plineno = 0;
+    RUNNING = 1;
 
-    char *fstype;
+    getmaxyx(stdscr, curr_y, curr_x);
+
     fstype = filesystem_type();
     if (!fstype)
         fstype = "Unavailable";
 
     while (RUNNING) {
-        max_y = getmaxy(stdscr) - PROCLN;
+
+        getmaxyx(stdscr, curr_y, curr_x);
+
+        if ((prev_y ^ curr_y) | (prev_x ^ curr_x) | (plineno ^ prevplineno)) 
+            clear();
+
+        prev_y = curr_y;
+        prev_x = curr_x;
+        prevplineno = plineno;
+        max_y = curr_y - PROCLN;
+
+
         update_screen(processes, fstype, plineno);
         key = wgetch(stdscr);
         switch (key) {
@@ -66,7 +86,7 @@ void dashboard_loop(void)
             default:
                 break;
         }
-        clear();
+
         free_procs(processes); 
         processes = malloc(sizeof *processes);
         nproc = current_procs(processes, memtotal);
