@@ -14,7 +14,7 @@ struct process_attr {
     int pid;
     int cpuset;
     int nice;
-    int ioprio;
+    char *ioprio;
     float mempcent;
     proc_t *prev;
     proc_t *next;
