@@ -136,6 +136,7 @@ void free_procs(proc_t *procs)
         tmp = procs->next;
         free(procs->name);
         free(procs->user);
+        free(procs->ioprio);
         free(procs);
         procs = tmp;
     }
