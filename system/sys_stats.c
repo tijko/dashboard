@@ -5,6 +5,8 @@
 #include <sys/sysinfo.h>
 
 #include "sys_stats.h"
+#include "../src/util/parser.h"
+
 
 char *mem_avail(unsigned long memory, unsigned long base)
 {
@@ -24,15 +26,24 @@ char *mem_avail(unsigned long memory, unsigned long base)
 void build_info(char *fstype)
 {
     char *memsz;
-    int cur_y, cur_x;
     int max_x;
+    int inc_x;
+    int cur_y, cur_x;
+    char *freemem = "MemFree";
+    char *meminfo = "/proc/meminfo";
+    char *totalfree_str;
+    long totalfree; 
+    struct sysinfo *info;
+
     max_x = getmaxx(stdscr);
     cur_y = 3;
     cur_x = 2;
-    int inc_x = max_x / 5; 
-    struct sysinfo *info = malloc(sizeof *info);
+    inc_x = max_x / 5; 
+    info = malloc(sizeof *info);
     sysinfo(info);
-
+    totalfree_str = malloc(sizeof(char) * 16);
+    totalfree_str = proc_parser(meminfo, freemem);
+    totalfree = atol(totalfree_str) * 1024;
     current_uptime(info->uptime, cur_y, cur_x);
     mvwprintw(stdscr, ++cur_y, cur_x, "Procs: %d", info->procs);
     cur_x += inc_x;
@@ -42,7 +53,7 @@ void build_info(char *fstype)
     memsz = mem_avail(info->totalram, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "TotalMem: %s", memsz);
 
-    memsz = mem_avail(info->freeram, info->mem_unit);
+    memsz = mem_avail(info->totalram - totalfree, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "FreeMem: %s", memsz);
 
     cur_x += inc_x;
@@ -63,10 +74,11 @@ void build_info(char *fstype)
     mvwprintw(stdscr, ++cur_y, cur_x, "Free Swap: %s", memsz);
 
     cur_x = 2;
-    memsz = mem_avail(info->totalram - info->freeram, info->mem_unit);
+    memsz = mem_avail(totalfree, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "UsedMem: %s", memsz); 
 
     free(info);
+    free(totalfree_str);
 }
 
 void current_uptime(unsigned long seconds, int y, int x)
