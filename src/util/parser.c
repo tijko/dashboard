@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parser.h"
+
 
 char *proc_parser(char *path, char *field)
 {
