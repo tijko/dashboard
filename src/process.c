@@ -42,6 +42,9 @@ int current_procs(proc_t *procs, int memtotal)
             procs->ioprio = ioprio_class(procs->pid);
             if (!procs->ioprio)
                 continue;
+            state(procs);
+            if (!procs->state)
+                continue;
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
