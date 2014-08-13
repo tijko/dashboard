@@ -1,11 +1,14 @@
 #define _GNU_SOURCE
 
+#include <stdio.h>
 #include <sched.h>
+#include <ctype.h>
 #include <errno.h>
+#include <string.h>
 #include <stdlib.h>
 #include <sys/resource.h>
 
-// number of cpus sysconf(_NPROCESSORS_ONLN)
+#include "process.h"
 
 int current_cpus(int pid)
 {
@@ -32,3 +35,41 @@ int nice(int pid)
     niceness = getpriority(PRIO_PROCESS, pid);
     return niceness;
 }
+
+void state(proc_t *procs)
+{
+    int i;
+    FILE *fp;
+    char *ln;
+    char *path;
+    char *field;
+    char *proc_state = NULL;
+    size_t n;
+    size_t fieldlen;
+
+    field = "State";
+    fieldlen = strlen(field);
+    path = malloc(sizeof(char) * MAXPATH);
+
+    snprintf(path, MAXPATH, "/proc/%s/status", procs->pidstr);
+    fp = fopen(path, "r");
+            
+    n = 0;
+    while (getline(&ln, &n, fp) != 0) {
+        *(ln + fieldlen) = '\0';
+        if (!strcmp(ln, field)) {
+            proc_state = malloc(sizeof(char) * 2);
+            for (i=0; !isspace(*(ln + i)); i++)
+                ;
+            for (; !isalpha(*(ln + i)); i++)
+                ;
+            *(proc_state + 0) = *(ln + i);
+            *(proc_state + 1) = '\0';
+            break;
+        }
+    }
+    procs->state = proc_state;
+    fclose(fp);
+    free(ln);
+    free(path);
+}    
