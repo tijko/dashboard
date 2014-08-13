@@ -125,7 +125,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
                 mvwprintw(stdscr, cur_y, LINE_X + 59, "%d", processes->nice);
             else 
                 mvwprintw(stdscr, cur_y, LINE_X + 58, "%d", processes->nice);
-            mvwprintw(stdscr, cur_y++, LINE_X + 65, "%s", processes->ioprio);
+            mvwprintw(stdscr, cur_y, LINE_X + 65, "%s", processes->ioprio);
+            mvwprintw(stdscr, cur_y++, LINE_X + 73, "%s", processes->state);
         } else {
             plineno--;
         }
@@ -148,7 +149,8 @@ char *fieldbar_builder(void)
     fieldbar = add_space(fieldbar, "MEM%%", 6, max_x);
     fieldbar = add_space(fieldbar, "NI", 5, max_x);
     fieldbar = add_space(fieldbar, "PRIO", 4, max_x);
-    spaceleft = max_x - 70;
+    fieldbar = add_space(fieldbar, "ST", 3, max_x);
+    spaceleft = max_x - 72;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
