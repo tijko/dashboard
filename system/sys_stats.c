@@ -53,7 +53,7 @@ void build_info(char *fstype)
     memsz = mem_avail(info->totalram, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "TotalMem: %s", memsz);
 
-    memsz = mem_avail(info->totalram - totalfree, info->mem_unit);
+    memsz = mem_avail(totalfree, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "FreeMem: %s", memsz);
 
     cur_x += inc_x;
@@ -74,7 +74,7 @@ void build_info(char *fstype)
     mvwprintw(stdscr, ++cur_y, cur_x, "Free Swap: %s", memsz);
 
     cur_x = 2;
-    memsz = mem_avail(totalfree, info->mem_unit);
+    memsz = mem_avail(info->totalram - totalfree, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "UsedMem: %s", memsz); 
 
     free(info);
