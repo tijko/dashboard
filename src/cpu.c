@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <sys/resource.h>
 
+#include "cpu.h"
 #include "process.h"
 
 int current_cpus(int pid)
