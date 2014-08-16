@@ -45,6 +45,7 @@ int current_procs(proc_t *procs, int memtotal)
             state(procs);
             if (!procs->state)
                 continue;
+            procs->vmem = get_vmem(procs->pidstr);
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
@@ -132,6 +133,20 @@ int get_uid(char *pid)
     return -1;
 }   
 
+int get_vmem(char *pid)
+{
+    char *path;
+    char *vmem;
+    int value;
+
+    path = malloc(sizeof(char) * 32);
+    snprintf(path, 32, "/proc/%s/status", pid);
+    vmem = proc_parser(path, "VmSize");
+    value = 0;
+    if (vmem) 
+        value = strtol(vmem, NULL, 10);        
+    return value;
+}
 void free_procs(proc_t *procs)
 {
     proc_t *tmp;
