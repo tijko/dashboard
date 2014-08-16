@@ -19,7 +19,6 @@ void init_screen(void)
     halfdelay(5);
     keypad(stdscr, TRUE);
     curs_set(0);
-    setscrreg(8, 50);    
 
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
@@ -80,7 +79,7 @@ void dashboard_loop(void)
                     plineno++; 
                 }
                 break;
-            case (113):
+            case (KEY_EXIT):
                 RUNNING = 0;
                 break;
             default:
