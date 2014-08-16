@@ -2,7 +2,12 @@
 #include "../src/process.h"
 
 #define LINE_X 2 
+
 #define PROCLN 11
+
+#define DELAY 5
+
+#define KEY_EXIT 113
 
 void init_screen(void);
 
