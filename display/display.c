@@ -16,7 +16,7 @@ void init_screen(void)
 {
     initscr();
     noecho();
-    halfdelay(5);
+    halfdelay(DELAY);
     keypad(stdscr, TRUE);
     curs_set(0);
 
