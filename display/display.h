@@ -7,7 +7,7 @@
 
 #define DELAY 5
 
-#define KEY_EXIT 113
+#define KEY_ESCAPE 113
 
 void init_screen(void);
 
