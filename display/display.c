@@ -79,7 +79,7 @@ void dashboard_loop(void)
                     plineno++; 
                 }
                 break;
-            case (KEY_EXIT):
+            case (KEY_ESCAPE):
                 RUNNING = 0;
                 break;
             default:
