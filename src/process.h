@@ -17,6 +17,7 @@ struct process_attr {
     char *ioprio;
     char *state;
     float mempcent;
+    int vmem;
     proc_t *prev;
     proc_t *next;
 };
@@ -30,6 +31,8 @@ int is_pid(char *process_name);
 void proc_user(proc_t *proc);
 
 int get_uid(char *pid);
+
+int get_vmem(char *pid);
 
 void name_pid(proc_t *procs);
 
