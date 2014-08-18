@@ -18,7 +18,7 @@ char *proc_parser(char *path, char *field)
     n = 0;
     fp = fopen(path, "r");
     fieldlen = strlen(field);
-    tmp = malloc(sizeof(char) * 32);
+    tmp = malloc(sizeof(char) * PATHLEN);
 
     if (fp == NULL)
         return NULL;
