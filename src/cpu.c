@@ -59,12 +59,12 @@ void state(proc_t *procs)
     while (getline(&ln, &n, fp) != 0) {
         *(ln + fieldlen) = '\0';
         if (!strcmp(ln, field)) {
-            proc_state = malloc(sizeof(char) * 2);
+            proc_state = malloc(sizeof(char) * STATE);
             for (i=0; !isspace(*(ln + i)); i++)
                 ;
             for (; !isalpha(*(ln + i)); i++)
                 ;
-            *(proc_state + 0) = *(ln + i);
+            *proc_state = *(ln + i);
             *(proc_state + 1) = '\0';
             break;
         }
