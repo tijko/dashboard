@@ -122,9 +122,13 @@ void proc_user(proc_t *proc)
 
 int get_uid(char *pid)
 {
-    char *path = malloc(sizeof(char) * 32);
-    snprintf(path, 32, "/proc/%s/status", pid);
-    char *uid = proc_parser(path, "Uid");
+    char *path;
+    char *uid;
+
+    path = malloc(sizeof(char) * MAXPROCPATH);
+    snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
+
+    uid = proc_parser(path, "Uid");
     free(path);
     if (uid) {
         int value = strtol(uid, NULL, 10);
@@ -139,8 +143,8 @@ int get_vmem(char *pid)
     char *vmem;
     int value;
 
-    path = malloc(sizeof(char) * 32);
-    snprintf(path, 32, "/proc/%s/status", pid);
+    path = malloc(sizeof(char) * MAXPROCPATH);
+    snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
     vmem = proc_parser(path, "VmSize");
     value = 0;
     if (vmem) 
