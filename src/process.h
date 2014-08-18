@@ -2,6 +2,7 @@
 #define PROC_H
 
 #define PROCNAME_MAX 1024
+#define MAXPROCPATH 2048
 #define PROC "/proc"
 #define COMMLEN 0x20 
 
