@@ -13,6 +13,7 @@ int total_memory(void)
     char *memory = proc_parser(mempath, "MemTotal");
     if (memory != NULL) {
         int value = strtol(memory, NULL, 10);
+        free(memory);
         return value;
     }
     return -1;
