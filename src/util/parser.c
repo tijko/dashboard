@@ -31,10 +31,12 @@ char *proc_parser(char *path, char *field)
             for (j=0; isdigit(*(ln + i)); j++, i++)
                 *(tmp + j) = *(ln + i);
             *(tmp + j) = '\0';
+            free(ln);
             fclose(fp);
             return tmp;
         }
     }
+    free(ln);
     free(tmp);
     fclose(fp);
     return NULL;
