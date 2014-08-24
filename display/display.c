@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -160,10 +161,12 @@ char *add_space(char *fieldbar, char *field, int spaces, size_t max)
     char *tmp = malloc(sizeof(char) * max);
     for (space=0; space < spaces; ++space) {
         snprintf(tmp, max, "%s ", fieldbar); 
-        fieldbar = tmp;
+        fieldbar = strdup(tmp);
+        free(tmp);
         tmp = malloc(sizeof(char) * max);
     }
     snprintf(tmp, max, "%s%s", fieldbar, field);
-    fieldbar = tmp;
+    fieldbar = strdup(tmp);
+    free(tmp);
     return fieldbar;
 }
