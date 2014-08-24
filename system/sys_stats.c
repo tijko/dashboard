@@ -75,6 +75,7 @@ void build_info(char *fstype)
 
     free(info);
     free(totalfree_str);
+    free(memsz);
 }
 
 void current_uptime(unsigned long seconds, int y, int x)
