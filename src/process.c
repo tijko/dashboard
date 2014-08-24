@@ -149,6 +149,7 @@ int get_vmem(char *pid)
     value = 0;
     if (vmem) 
         value = strtol(vmem, NULL, 10);        
+    free(path);
     return value;
 }
 void free_procs(proc_t *procs)
