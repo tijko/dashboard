@@ -163,6 +163,7 @@ void free_procs(proc_t *procs)
         free(procs->name);
         free(procs->user);
         free(procs->ioprio);
+        free(procs->state);
         free(procs);
         procs = tmp;
     }
