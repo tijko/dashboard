@@ -132,6 +132,7 @@ int get_uid(char *pid)
     free(path);
     if (uid) {
         int value = strtol(uid, NULL, 10);
+        free(uid);
         return value;
     }
     return -1;
@@ -147,8 +148,10 @@ int get_vmem(char *pid)
     snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
     vmem = proc_parser(path, "VmSize");
     value = 0;
-    if (vmem) 
+    if (vmem) { 
         value = strtol(vmem, NULL, 10);        
+        free(vmem);
+    }
     free(path);
     return value;
 }
