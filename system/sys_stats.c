@@ -12,14 +12,12 @@ char *mem_avail(unsigned long memory, unsigned long base)
 {
     float total;
     int high;
-    int div;
     char *size_names[5] = {"B", "kB", "mB", "gB", "tB"};
     total = (float) (memory * base);
-    div = 1024;
-    for (high=0; total > div; high++, total /= div)
+    for (high=0; total > BASE; high++, total /= BASE)
         ;
-    char *memsz = malloc(sizeof(char) * 16);
-    snprintf(memsz, 16, "%.2f %s\n", total, size_names[high]);
+    char *memsz = malloc(sizeof(char) * MAXTOT);
+    snprintf(memsz, MAXTOT, "%.2f %s\n", total, size_names[high]);
     return memsz;
 }
 
@@ -29,8 +27,6 @@ void build_info(char *fstype)
     int max_x;
     int inc_x;
     int cur_y, cur_x;
-    char *freemem = "MemFree";
-    char *meminfo = "/proc/meminfo";
     char *totalfree_str;
     long totalfree; 
     struct sysinfo *info;
@@ -41,9 +37,9 @@ void build_info(char *fstype)
     inc_x = max_x / 5; 
     info = malloc(sizeof *info);
     sysinfo(info);
-    totalfree_str = malloc(sizeof(char) * 16);
-    totalfree_str = proc_parser(meminfo, freemem);
-    totalfree = atol(totalfree_str) * 1024;
+    totalfree_str = malloc(sizeof(char) * MAXTOT);
+    totalfree_str = proc_parser(MEMINFO, MEMFREE);
+    totalfree = atol(totalfree_str) * BASE;
     current_uptime(info->uptime, cur_y, cur_x);
     mvwprintw(stdscr, ++cur_y, cur_x, "Procs: %d", info->procs);
     cur_x += inc_x;
@@ -83,13 +79,11 @@ void build_info(char *fstype)
 
 void current_uptime(unsigned long seconds, int y, int x)
 {
-    int base = 60;
-
     int hour = 0;
     int minute = 0;
     
-    while (seconds >= 60) {
-        seconds -= base;
+    while (seconds >= SECS) {
+        seconds -= SECS;
         minute++;
         if (minute > 60) {
             hour++;
