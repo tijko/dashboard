@@ -139,18 +139,16 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
 
 char *fieldbar_builder(void)
 {
-    int spaceleft;
+    int spaceleft, i;
     int max_x = getmaxx(stdscr);
     char *fieldbar;
+    char *fieldattrs[8] = {"PID", "CPU", "USER", "MEM%%", 
+                           "NI", "PRIO", "ST", "VMEM"};
+    int attrspace[8] = {13, 7, 9, 6, 5, 4, 3, 3};
     fieldbar = add_space("", "NAME", 2, max_x);
-    fieldbar = add_space(fieldbar, "PID", 13, max_x);
-    fieldbar = add_space(fieldbar, "CPU", 7, max_x);
-    fieldbar = add_space(fieldbar, "USER", 9, max_x);
-    fieldbar = add_space(fieldbar, "MEM%%", 6, max_x);
-    fieldbar = add_space(fieldbar, "NI", 5, max_x);
-    fieldbar = add_space(fieldbar, "PRIO", 4, max_x);
-    fieldbar = add_space(fieldbar, "ST", 3, max_x);
-    fieldbar = add_space(fieldbar, "VMEM", 3, max_x);
+    for (i=0; i < 8; i++) 
+        fieldbar = add_space(fieldbar, fieldattrs[i], 
+                             attrspace[i], max_x);
     spaceleft = max_x - 79;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
