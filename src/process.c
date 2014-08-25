@@ -45,7 +45,9 @@ int current_procs(proc_t *procs, int memtotal)
             state(procs);
             if (!procs->state)
                 continue;
-            procs->vmem = get_vmem(procs->pidstr);
+            procs->pte = get_field(procs->pidstr, PTE);
+            procs->rss = get_field(procs->pidstr, RSS);
+            procs->vmem = get_field(procs->pidstr, VMEM);
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
@@ -109,52 +111,36 @@ void name_pid(proc_t *proc)
 
 void proc_user(proc_t *proc)
 {
-    int uid;
-    uid = get_uid(proc->pidstr);
-    struct passwd *getuser = getpwuid(uid);
+    proc->uid = get_field(proc->pidstr, UID);
+    struct passwd *getuser = getpwuid(proc->uid);
     if (getuser) {
         proc->user = malloc(sizeof(char) * strlen(getuser->pw_name) + 1);
         proc->user = strdup(getuser->pw_name);
         return;
     }
     proc->user = NULL;
-}    
+}
 
-int get_uid(char *pid)
+int get_field(char *pid, char *field)
 {
     char *path;
-    char *uid;
-
-    path = malloc(sizeof(char) * MAXPROCPATH);
-    snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
-
-    uid = proc_parser(path, "Uid");
-    free(path);
-    if (uid) {
-        int value = strtol(uid, NULL, 10);
-        free(uid);
-        return value;
-    }
-    return -1;
-}   
-
-int get_vmem(char *pid)
-{
-    char *path;
-    char *vmem;
+    char *field_str_value;
     int value;
 
     path = malloc(sizeof(char) * MAXPROCPATH);
     snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
-    vmem = proc_parser(path, "VmSize");
-    value = 0;
-    if (vmem) { 
-        value = strtol(vmem, NULL, 10);        
-        free(vmem);
-    }
+    
+    field_str_value = proc_parser(path, field);
     free(path);
+
+    value = 0;
+    if (field_str_value) {
+        value = strtol(field_str_value, NULL, 10);
+        free(field_str_value);
+    }
     return value;
 }
+            
 void free_procs(proc_t *procs)
 {
     proc_t *tmp;
