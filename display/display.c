@@ -115,19 +115,21 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
     while (processes->next && cur_y < max_y - 1) {
         if (plineno == 0) {
             mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-            mvwprintw(stdscr, cur_y, LINE_X + 20, "%d   ", processes->pid);
-            mvwprintw(stdscr, cur_y, LINE_X + 30, "%d   ", processes->cpuset);
-            mvwprintw(stdscr, cur_y, LINE_X + 40, "%s ", processes->user);
-            mvwprintw(stdscr, cur_y, LINE_X + 50, "%.2f%", processes->mempcent);
+            mvwprintw(stdscr, cur_y, LINE_X + 19, "%d   ", processes->pid);
+            mvwprintw(stdscr, cur_y, LINE_X + 26, "%s   ", processes->user);
+            mvwprintw(stdscr, cur_y, LINE_X + 36, "%d ", processes->cpuset);
+            mvwprintw(stdscr, cur_y, LINE_X + 40, "%.2f%", processes->mempcent);
             if (processes->nice >= 0 && processes->nice < 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + 60, "%d", processes->nice);
+                mvwprintw(stdscr, cur_y, LINE_X + 50, "%d", processes->nice);
             else if (processes->nice >= 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + 59, "%d", processes->nice);
+                mvwprintw(stdscr, cur_y, LINE_X + 49, "%d", processes->nice);
             else 
-                mvwprintw(stdscr, cur_y, LINE_X + 58, "%d", processes->nice);
-            mvwprintw(stdscr, cur_y, LINE_X + 65, "%s", processes->ioprio);
-            mvwprintw(stdscr, cur_y, LINE_X + 73, "%s", processes->state);
-            mvwprintw(stdscr, cur_y++, LINE_X + 77, "%d", processes->vmem);
+                mvwprintw(stdscr, cur_y, LINE_X + 48, "%d", processes->nice);
+            mvwprintw(stdscr, cur_y, LINE_X + 55, "%s", processes->ioprio);
+            mvwprintw(stdscr, cur_y, LINE_X + 63, "%s", processes->state);
+            mvwprintw(stdscr, cur_y, LINE_X + 67, "%d", processes->vmem);
+            mvwprintw(stdscr, cur_y, LINE_X + 75, "%d", processes->pte);
+            mvwprintw(stdscr, cur_y++, LINE_X + 82, "%d", processes->rss); 
         } else {
             plineno--;
         }
@@ -143,14 +145,14 @@ char *fieldbar_builder(void)
     int spaceleft, i;
     int max_x = getmaxx(stdscr);
     char *fieldbar;
-    char *fieldattrs[8] = {"PID", "CPU", "USER", "MEM%%", 
-                           "NI", "PRIO", "ST", "VMEM"};
-    int attrspace[8] = {13, 7, 9, 6, 5, 4, 3, 3};
+    char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
+                           "PRIO", "ST", "VMEM", "PTE", "RES"};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4};
     fieldbar = add_space("", "NAME", 2, max_x);
-    for (i=0; i < 8; i++) 
+    for (i=0; i < FIELDS; i++) 
         fieldbar = add_space(fieldbar, fieldattrs[i], 
                              attrspace[i], max_x);
-    spaceleft = max_x - 79;
+    spaceleft = max_x - 61;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
