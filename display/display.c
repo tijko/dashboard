@@ -84,38 +84,45 @@ void dashboard_loop(void)
                 break;
 
             case (KEY_C):
+                if (sort != KEY_C)
+                    clear();
                 sort = KEY_C;
-                clear();
                 break;
 
             case (KEY_E):
+                if (sort != KEY_E)
+                    clear();
                 sort = KEY_E;
-                clear();
                 break;
 
             case (KEY_M):
+                if (sort != KEY_M)
+                    clear();
                 sort = KEY_M;
-                clear();
                 break;
 
             case (KEY_N):
+                if (sort != KEY_N)
+                    clear();
                 sort = KEY_N;
-                clear();
                 break;
 
             case (KEY_P):
+                if (sort != KEY_P)
+                    clear();
                 sort = KEY_P;
-                clear();
                 break;
 
             case (KEY_R):
+                if (sort != KEY_R)
+                    clear();
                 sort = KEY_R;
-                clear();
                 break;
 
             case (KEY_V):
+                if (sort != KEY_V)
+                    clear();
                 sort = KEY_V;
-                clear();
                 break;
 
             case (KEY_ESCAPE):
