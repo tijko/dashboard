@@ -9,6 +9,8 @@
 
 #define KEY_ESCAPE 113
 
+#define FIELDS 10
+
 void init_screen(void);
 
 void dashboard_loop(void);
