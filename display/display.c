@@ -85,30 +85,37 @@ void dashboard_loop(void)
 
             case (KEY_C):
                 sort = KEY_C;
+                clear();
                 break;
 
             case (KEY_E):
                 sort = KEY_E;
+                clear();
                 break;
 
             case (KEY_M):
                 sort = KEY_M;
+                clear();
                 break;
 
             case (KEY_N):
                 sort = KEY_N;
+                clear();
                 break;
 
             case (KEY_P):
                 sort = KEY_P;
+                clear();
                 break;
 
             case (KEY_R):
                 sort = KEY_R;
+                clear();
                 break;
 
             case (KEY_V):
                 sort = KEY_V;
+                clear();
                 break;
 
             case (KEY_ESCAPE):
