@@ -11,6 +11,7 @@
 #include "../src/memory.h"
 #include "../src/process.h"
 #include "../system/sys_stats.h"
+#include "../src/util/sort_fields.h"
 
 
 void init_screen(void)
@@ -39,12 +40,14 @@ void dashboard_loop(void)
     int RUNNING;
     int nproc;
     int memtotal; 
+    int sort;
 
     memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
     processes->prev = NULL;
     nproc = current_procs(processes, memtotal);
 
+    sort = 0;
     plineno = 0;
     RUNNING = 1;
 
@@ -71,18 +74,47 @@ void dashboard_loop(void)
         key = wgetch(stdscr);
         switch (key) {
             case (KEY_UP):
-                if (plineno > 0) {
+                if (plineno > 0) 
                     plineno--;
-                }
                 break;
+
             case (KEY_DOWN):
-                if (plineno < (nproc - max_y)) {
+                if (plineno < (nproc - max_y)) 
                     plineno++; 
-                }
                 break;
+
+            case (KEY_C):
+                sort = KEY_C;
+                break;
+
+            case (KEY_E):
+                sort = KEY_E;
+                break;
+
+            case (KEY_M):
+                sort = KEY_M;
+                break;
+
+            case (KEY_N):
+                sort = KEY_N;
+                break;
+
+            case (KEY_P):
+                sort = KEY_P;
+                break;
+
+            case (KEY_R):
+                sort = KEY_R;
+                break;
+
+            case (KEY_V):
+                sort = KEY_V;
+                break;
+
             case (KEY_ESCAPE):
                 RUNNING = 0;
                 break;
+
             default:
                 break;
         }
@@ -90,6 +122,8 @@ void dashboard_loop(void)
         free_procs(processes); 
         processes = malloc(sizeof *processes);
         nproc = current_procs(processes, memtotal);
+        if (sort)
+            processes = sort_by_field(processes, sort, nproc);
     }
     free_procs(processes);
     endwin();
