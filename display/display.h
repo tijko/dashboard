@@ -7,6 +7,13 @@
 
 #define DELAY 5
 
+#define KEY_C 99
+#define KEY_E 101
+#define KEY_M 109
+#define KEY_N 110
+#define KEY_P 112
+#define KEY_R 114
+#define KEY_V 118
 #define KEY_ESCAPE 113
 
 #define FIELDS 10
