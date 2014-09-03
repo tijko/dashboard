@@ -13,3 +13,11 @@ UTIL = $(wildcard src/util/*.c)
 $(TARGET): $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL)
 	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS)
 
+install:
+	cp $(TARGET) /usr/bin
+
+uninstall:
+	rm /usr/bin/$(TARGET)
+
+clean:
+	rm $(TARGET)
