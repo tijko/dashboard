@@ -1,6 +1,6 @@
 CC = gcc
 
-FLAGS = -g -lcurses -lpthread -Wall
+FLAGS = -g -lcurses -Wall -Wextra
 
 TARGET = dashboard 
 DASH = dashboard.c
