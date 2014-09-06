@@ -1,6 +1,6 @@
 #include "display/display.h"
 
-int main(int argc, char *argv[])
+int main(void)
 {
     init_screen();    
     return 0;
