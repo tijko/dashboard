@@ -42,14 +42,15 @@ char *ioprio_class(int pid)
     int ioprio;
     char *class;
 
-    class = malloc(sizeof(char) * PRIOLEN);
     
     ioprio = ioprio_get(pid);
     ioprio >>= IOPRIO_SHIFT;
-    if (ioprio != 0) 
+    if (ioprio != 0) { 
+        class = malloc(sizeof(char) * PRIOLEN);
         snprintf(class, PRIOLEN, "%s", ioprio_classes[ioprio]);
-    else 
+    } else {
         class = ioprio_class_nice(pid);
+    }
     return class;
 }
 
@@ -215,7 +216,6 @@ void proc_io(proc_t *procs)
     procs->io_write = 1;
 
     return;
-
     error:
         procs->io_read = 0;
         procs->io_write = 0;
