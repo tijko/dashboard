@@ -1,6 +1,8 @@
 #ifndef PROC_H
 #define PROC_H
 
+#include <stdint.h>
+
 #define PROCNAME_MAX 1024
 
 #define MAXPROCPATH 2048
@@ -30,6 +32,8 @@ struct process_attr {
     int vmem;
     int pte;
     int rss;
+    uint64_t io_read;
+    uint64_t io_write;
     proc_t *prev;
     proc_t *next;
 };
