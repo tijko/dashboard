@@ -118,6 +118,7 @@ int get_family_id(int conn)
         return -1;
 
     nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
+    nla = (struct nlattr *) ((char *) nla + NLA_ALIGN(nla->nla_len));
     family_id = *(int *) NLA_DATA(nla);
     return family_id;
 }
@@ -168,7 +169,7 @@ int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
         }
     }
 
-    return 1;
+    return 0;
 }
 
 int nl_recv(int conn, struct nl_msg *req)
@@ -180,7 +181,7 @@ int nl_recv(int conn, struct nl_msg *req)
     if (bytes_recv == -1)
         return -1;
 
-    return 1;
+    return 0;
 }
 
 void proc_io(proc_t *procs)
