@@ -30,6 +30,8 @@ int ioprio_get(int pid);
 
 char *ioprio_class(int pid);
 
+char *ioprio_class_nice(int pid);
+
 int create_conn(void);
 
 int get_family_id(int conn);
