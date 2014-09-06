@@ -48,6 +48,7 @@ int current_procs(proc_t *procs, int memtotal)
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
+            proc_io(procs);
             procs->next = malloc(sizeof *(procs->next));
             last = procs;
             procs = procs->next;
@@ -68,8 +69,8 @@ int current_procs(proc_t *procs, int memtotal)
 int is_pid(char *process_name)
 {
     char letter;
-    int strpos;
-    size_t proclen;
+    signed int strpos;
+    ssize_t proclen;
     proclen = strlen(process_name);
     for (strpos=0; strpos < proclen; ++strpos) {
         letter = *(process_name + strpos);
