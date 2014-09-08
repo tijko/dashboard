@@ -160,7 +160,7 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
     mvwprintw(stdscr, cur_y++, 1, fieldbar);
     attroff(A_REVERSE);
 
-    while (processes->next && cur_y < max_y - 1) {
+    while (processes && cur_y < max_y - 1) {
         if (plineno == 0) {
             mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
             mvwprintw(stdscr, cur_y, LINE_X + 19, "%d   ", processes->pid);
