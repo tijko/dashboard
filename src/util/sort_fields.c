@@ -22,9 +22,9 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
         cur_fields(proc_arr, cur, j, field, cmp_fields);
         while (j >= 0 && cmp_fields[0] > cmp_fields[1]) {
             proc_arr[j + 1] = proc_arr[j];
-            proc_arr[j] = cur;
-            j--;
-            cur_fields(proc_arr, cur, j, field, cmp_fields);
+            proc_arr[j--] = cur;
+            if (j >= 0)
+                cur_fields(proc_arr, cur, j, field, cmp_fields);
         }
         proc_arr[j + 1] = cur;
     }
