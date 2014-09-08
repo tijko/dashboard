@@ -214,11 +214,12 @@ void proc_io(proc_t *procs)
 
     procs->io_read = 1;    
     procs->io_write = 1;
-
+    close(conn);
     return;
     error:
         procs->io_read = 0;
         procs->io_write = 0;
+    close(conn);
     return;
 }    
     
