@@ -58,8 +58,9 @@ int current_procs(proc_t *procs, int memtotal)
     }
     closedir(dir);
     if (!procs->name || procs->cpuset < 1 || !procs->user || 
-        procs->mempcent == -1 || procs->nice == 100) {
+        procs->mempcent == -1 || procs->nice == 100 || !procs->state) {
         procs->prev->next = NULL;
+        free(procs);
     } else {
         procs->next = NULL;
     }
