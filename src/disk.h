@@ -41,4 +41,6 @@ int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
 
 int nl_recv(int conn, struct nl_msg *req);
 
+int taskstats_reply(struct nl_msg *reply, proc_t *procs);
+
 void proc_io(proc_t *procs);
