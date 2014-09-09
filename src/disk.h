@@ -9,6 +9,7 @@
 #endif
 
 #define GENLMSG_DATA(nlh) (void *) (NLMSG_DATA(nlh) + GENL_HDRLEN)
+#define NLA_MSG(nlh) (struct nlattr *) (GENLMSG_DATA(nlh))
 #define NLA_DATA(nla) (void *) ((char *) nla + NLA_HDRLEN)
 #define IOPRIO_WHO_PROCESS 1
 
