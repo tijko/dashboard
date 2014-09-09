@@ -185,6 +185,31 @@ int nl_recv(int conn, struct nl_msg *req)
     return 0;
 }
 
+int taskstats_reply(struct nl_msg *reply, proc_t *procs)
+{
+    struct nlattr *nla;
+    struct taskstats *io;
+    nla = (struct nlattr *) GENLMSG_DATA(reply);
+    if (nla->nla_type == TASKSTATS_TYPE_AGGR_PID) {
+
+        nla = (struct nlattr *) NLA_DATA(nla);
+
+        if (nla->nla_type == TASKSTATS_TYPE_PID) {
+            nla = (struct nlattr *) ((char *) nla + NLA_ALIGN(nla->nla_len));
+            if (nla->nla_type == TASKSTATS_TYPE_STATS) {
+                io = (struct taskstats *) NLA_DATA(nla);
+                procs->io_read = io->read_bytes;
+                procs->io_write = io->write_bytes;
+            } else {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
+    }
+    return 0;
+}
+
 void proc_io(proc_t *procs)
 {
     int req;
@@ -209,17 +234,20 @@ void proc_io(proc_t *procs)
 
     memset(&io_req, 0, sizeof(io_req));
     req = nl_recv(conn, &io_req);
-    if (req == -1)
+    if (req == -1 || io_req.nlh.nlmsg_type == NLMSG_ERROR)
         goto error;
 
-    procs->io_read = 1;    
-    procs->io_write = 1;
+    req = taskstats_reply(&io_req, procs);
+    if (req == -1)
+        goto error;
     close(conn);
     return;
+
     error:
         procs->io_read = 0;
         procs->io_write = 0;
     close(conn);
+
     return;
 }    
     
