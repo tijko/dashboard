@@ -118,8 +118,8 @@ int get_family_id(int conn)
     if (req == -1)
         return -1;
 
-    nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
-    nla = (struct nlattr *) ((char *) nla + NLA_ALIGN(nla->nla_len));
+    nla = (struct nlattr *) ((char *) NLA_MSG(&fam_msg) + 
+                     NLA_ALIGN((NLA_MSG(&fam_msg))->nla_len));
     family_id = *(int *) NLA_DATA(nla);
     return family_id;
 }
