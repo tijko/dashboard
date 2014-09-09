@@ -125,7 +125,19 @@ void dashboard_loop(void)
                 sort = KEY_V;
                 break;
 
-            case (KEY_ESCAPE):
+            case (KEY_I):
+                if (sort != KEY_I)
+                    clear();
+                sort = KEY_I;
+                break;
+
+            case (KEY_O):
+                if (sort != KEY_O)
+                    clear();
+                sort = KEY_O;
+                break;
+
+            case (KEY_ESCAPE):  
                 RUNNING = 0;
                 break;
 
@@ -178,7 +190,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 67, "%d", processes->vmem);
             mvwprintw(stdscr, cur_y, LINE_X + 75, "%d", processes->pte);
             mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
-            mvwprintw(stdscr, cur_y++, LINE_X + 90, "%llu", processes->io_read);
+            mvwprintw(stdscr, cur_y, LINE_X + 89, "%llu", processes->io_read);
+            mvwprintw(stdscr, cur_y++, LINE_X + 101, "%llu", processes->io_write);
         } else {
             plineno--;
         }
@@ -194,14 +207,14 @@ char *fieldbar_builder(void)
     int spaceleft, i;
     int max_x = getmaxx(stdscr);
     char *fieldbar;
-    char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
-                           "PRIO", "ST", "VMEM", "PTE", "RES", "I/O"};
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4};
+    char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", "PRIO", 
+                                "ST", "VMEM", "PTE", "RES", "READ", "WRITE"};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8};
     fieldbar = add_space("", "NAME", 2, max_x);
     for (i=0; i < FIELDS; i++) 
         fieldbar = add_space(fieldbar, fieldattrs[i], 
                              attrspace[i], max_x);
-    spaceleft = max_x - 57;
+    spaceleft = max_x - 50;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
