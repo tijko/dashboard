@@ -36,3 +36,12 @@ keybinding from largest to smallest:
 6. `r` - the processes current rss size in kB.
 
 7. `v` - the processes current virtual memory size in kB. 
+
+8. `o` - current total of bytes read by the process.
+
+9. `i` - current total of bytes written by the process.
+
+###### NOTE:  
+
+In order to obtain and display the i/o stats (READ/WRITE fields in the header 
+bar) you will need elavated privileges, run as dashboard as root.
