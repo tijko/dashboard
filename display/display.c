@@ -177,7 +177,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 63, "%s", processes->state);
             mvwprintw(stdscr, cur_y, LINE_X + 67, "%d", processes->vmem);
             mvwprintw(stdscr, cur_y, LINE_X + 75, "%d", processes->pte);
-            mvwprintw(stdscr, cur_y++, LINE_X + 82, "%d", processes->rss); 
+            mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
+            mvwprintw(stdscr, cur_y++, LINE_X + 90, "%llu", processes->io_read);
         } else {
             plineno--;
         }
@@ -194,13 +195,13 @@ char *fieldbar_builder(void)
     int max_x = getmaxx(stdscr);
     char *fieldbar;
     char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
-                           "PRIO", "ST", "VMEM", "PTE", "RES"};
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4};
+                           "PRIO", "ST", "VMEM", "PTE", "RES", "I/O"};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4};
     fieldbar = add_space("", "NAME", 2, max_x);
     for (i=0; i < FIELDS; i++) 
         fieldbar = add_space(fieldbar, fieldattrs[i], 
                              attrspace[i], max_x);
-    spaceleft = max_x - 61;
+    spaceleft = max_x - 57;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
