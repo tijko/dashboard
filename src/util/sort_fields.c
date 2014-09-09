@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "sort_fields.h"
 
 
@@ -9,7 +7,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
     proc_t *head, *cur, *prev;
     proc_t *proc_arr[nproc + 1];
    
-    int cmp_fields[2];
+    uint64_t cmp_fields[2];
  
     for (i=0; i < nproc; i++) {
         proc_arr[i] = procs;
@@ -44,7 +42,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
 }
 
 void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index, 
-                int field, int cmp_fields[])
+                int field, uint64_t cmp_fields[])
 {
         switch (field) {
             
@@ -82,5 +80,16 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[0] = cur->vmem;
                 cmp_fields[1] = proc_arr[proc_index]->vmem;
                 break;
+            
+            case (KEY_I):
+                cmp_fields[0] = cur->io_write;
+                cmp_fields[1] = proc_arr[proc_index]->io_write;
+                break;
+
+            case (KEY_O):
+                cmp_fields[0] = cur->io_read;
+                cmp_fields[1] = proc_arr[proc_index]->io_read;
+                break;
+
         }
 }
