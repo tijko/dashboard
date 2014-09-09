@@ -16,7 +16,7 @@
 #define KEY_V 118
 #define KEY_ESCAPE 113
 
-#define FIELDS 10
+#define FIELDS 11
 
 void init_screen(void);
 
