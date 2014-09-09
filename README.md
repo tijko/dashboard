@@ -44,4 +44,4 @@ keybinding from largest to smallest:
 ###### NOTE:  
 
 In order to obtain and display the i/o stats (READ/WRITE fields in the header 
-bar) you will need elavated privileges, run as dashboard as root.
+bar) you will need elavated privileges, run dashboard as root.
