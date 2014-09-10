@@ -99,6 +99,8 @@ int get_family_id(int conn)
 {
     int req;
     int family_id;
+    int msgleft;
+    char *name;
     char *taskstats_genl_name;
     uint16_t name_len;
     struct nlattr *nla;
@@ -118,9 +120,25 @@ int get_family_id(int conn)
     if (req == -1)
         return -1;
 
-    nla = (struct nlattr *) ((char *) NLA_MSG(&fam_msg) + 
-                     NLA_ALIGN((NLA_MSG(&fam_msg))->nla_len));
-    family_id = *(int *) NLA_DATA(nla);
+    msgleft = NLA_PAYLOAD((struct nlmsghdr *) &fam_msg);
+    family_id = -1;
+    nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
+    while (msgleft) {
+        switch (nla->nla_type) {
+            case (CTRL_ATTR_FAMILY_ID):
+                family_id = *((int *) NLA_DATA(nla));                
+                break;
+
+            case (CTRL_ATTR_FAMILY_NAME):
+                name = NLA_DATA(nla);
+                if (strcmp(TASKSTATS_GENL_NAME, name))
+                    return family_id;
+                break;
+        }
+        msgleft -= NLA_ALIGN(nla->nla_len);
+        nla = NLA_ALIGNED_MSG(nla);
+    }
+
     return family_id;
 }
 
