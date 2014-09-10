@@ -8,9 +8,12 @@
 #define IOPRIO_GET 252
 #endif
 
-#define GENLMSG_DATA(nlh) (void *) (NLMSG_DATA(nlh) + GENL_HDRLEN)
-#define NLA_MSG(nlh) (struct nlattr *) (GENLMSG_DATA(nlh))
-#define NLA_DATA(nla) (void *) ((char *) nla + NLA_HDRLEN)
+#define GENLMSG_DATA(nlh) ((void *) (NLMSG_DATA(nlh) + GENL_HDRLEN))
+#define NLA_ALIGNED_MSG(nla) ((struct nlattr *) (((char *) nla) + \
+                                                   NLA_ALIGN(nla->nla_len)))
+#define GENLMSG_PAYLOAD(nlh) (NLMSG_PAYLOAD(nlh, 0) - GENL_HDRLEN)
+#define NLA_PAYLOAD(nlh) (GENLMSG_PAYLOAD(nlh))
+#define NLA_DATA(nla) ((void *) ((char *) nla + NLA_HDRLEN))
 #define IOPRIO_WHO_PROCESS 1
 
 #define MAX_MSG_SZ 1024
