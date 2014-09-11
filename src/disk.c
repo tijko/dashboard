@@ -1,10 +1,10 @@
+#include <stdio.h>
 #include <fstab.h>
 #include <sched.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <ncurses.h>
 #include <sys/socket.h>
 #include <sys/syscall.h>
 #include <linux/taskstats.h>
@@ -205,24 +205,29 @@ int nl_recv(int conn, struct nl_msg *req)
 
 int taskstats_reply(struct nl_msg *reply, proc_t *procs)
 {
+    int msgleft;
     struct nlattr *nla;
     struct taskstats *io;
     nla = (struct nlattr *) GENLMSG_DATA(reply);
-    if (nla->nla_type == TASKSTATS_TYPE_AGGR_PID) {
+    msgleft = NLA_PAYLOAD((struct nlmsghdr *) reply);
+    while (msgleft) {
+        switch (nla->nla_type) {
+            case (TASKSTATS_TYPE_AGGR_PID):
+                nla = (struct nlattr *) NLA_DATA(nla);
+                msgleft -= NLA_HDRLEN;
+                break;
 
-        nla = (struct nlattr *) NLA_DATA(nla);
+            case (TASKSTATS_TYPE_PID):
+                msgleft -= nla->nla_len;
+                nla = NLA_ALIGNED_MSG(nla);
+                break;
 
-        if (nla->nla_type == TASKSTATS_TYPE_PID) {
-            nla = (struct nlattr *) ((char *) nla + NLA_ALIGN(nla->nla_len));
-            if (nla->nla_type == TASKSTATS_TYPE_STATS) {
+            case (TASKSTATS_TYPE_STATS):
+                msgleft -= nla->nla_len;
                 io = (struct taskstats *) NLA_DATA(nla);
                 procs->io_read = io->read_bytes;
                 procs->io_write = io->write_bytes;
-            } else {
-                return -1;
-            }
-        } else {
-            return -1;
+                break;
         }
     }
     return 0;
