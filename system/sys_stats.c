@@ -23,11 +23,9 @@ char *mem_avail(unsigned long memory, unsigned long base)
 
 void build_info(char *fstype)
 {
-    char *memsz;
-    int max_x;
-    int inc_x;
-    int cur_y, cur_x;
-    char *totalfree_str;
+    int cur_y, cur_x, max_x, inc_x;
+    char *totalfree_str, *memsz;
+
     long totalfree; 
     struct sysinfo *info;
 
@@ -35,12 +33,16 @@ void build_info(char *fstype)
     cur_y = 3;
     cur_x = 2;
     inc_x = max_x / 5; 
+
     info = malloc(sizeof *info);
     sysinfo(info);
+
     totalfree_str = malloc(sizeof(char) * MAXTOT);
     totalfree_str = proc_parser(MEMINFO, MEMFREE);
     totalfree = atol(totalfree_str) * BASE;
+
     current_uptime(info->uptime, cur_y, cur_x);
+
     mvwprintw(stdscr, ++cur_y, cur_x, "Procs: %d", info->procs);
     cur_x += inc_x;
     mvwprintw(stdscr, cur_y, cur_x, "FileSystem: %s", fstype);
@@ -80,16 +82,14 @@ void build_info(char *fstype)
 
 void current_uptime(unsigned long seconds, int y, int x)
 {
-    int hour = 0;
-    int minute = 0;
-    
-    while (seconds >= SECS) {
-        seconds -= SECS;
-        minute++;
-        if (minute > 60) {
-            hour++;
+    int hour, minute;
+
+    for (hour=0, minute=0; seconds >= SECS; seconds -= SECS, minute++) {
+        if (minute > SECS) {
+            hour++; 
             minute = 0;
         }
     }
+
     mvwprintw(stdscr, y, x, "Hrs: %d Mins: %d Secs: %lu\n", hour, minute, seconds);    
 }
