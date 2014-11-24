@@ -148,6 +148,7 @@ void dashboard_loop(void)
         free_procs(processes); 
         processes = malloc(sizeof *processes);
         nproc = current_procs(processes, memtotal);
+
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
     }
