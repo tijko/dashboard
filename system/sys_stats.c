@@ -11,12 +11,16 @@
 char *mem_avail(unsigned long memory, unsigned long base)
 {
     float total;
+    char *memsz;
     int high;
     char *size_names[5] = {"B", "kB", "mB", "gB", "tB"};
+
     total = (float) (memory * base);
+
     for (high=0; total > BASE; high++, total /= BASE)
         ;
-    char *memsz = malloc(sizeof(char) * MAXTOT);
+
+    memsz = malloc(sizeof(char) * MAXTOT);
     snprintf(memsz, MAXTOT, "%.2f %s\n", total, size_names[high]);
     return memsz;
 }
@@ -50,26 +54,33 @@ void build_info(char *fstype)
 
     memsz = mem_avail(info->totalram, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "TotalMem: %s", memsz);
+    free(memsz);
 
     memsz = mem_avail(totalfree, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "FreeMem: %s", memsz);
+    free(memsz);
 
     cur_x += inc_x;
     memsz = mem_avail(info->bufferram, info->mem_unit);
     mvwprintw(stdscr, --cur_y, cur_x, "Buffer: %s", memsz);
+    free(memsz);
 
     memsz = mem_avail(info->sharedram, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "Shared: %s", memsz);
+    free(memsz);
 
     cur_x += inc_x;
     memsz = mem_avail(info->totalswap, info->mem_unit);
     mvwprintw(stdscr, --cur_y, cur_x, "Total Swap: %s", memsz);
+    free(memsz);
 
     memsz = mem_avail(info->loads[0], info->mem_unit);
     mvwprintw(stdscr, cur_y, cur_x + inc_x, "AvgLoad: %s", memsz);
+    free(memsz);
 
     memsz = mem_avail(info->freeswap, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "Free Swap: %s", memsz);
+    free(memsz);
 
     cur_x = 2;
     memsz = mem_avail(info->totalram - totalfree, info->mem_unit);
