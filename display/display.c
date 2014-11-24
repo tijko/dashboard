@@ -209,8 +209,11 @@ char *fieldbar_builder(void)
     char *fieldbar;
     char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", "PRIO", 
                                 "ST", "VMEM", "PTE", "RES", "READ", "WRITE"};
+
     int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8};
-    fieldbar = add_space("", "NAME", 2, max_x);
+
+    fieldbar = malloc(sizeof(char) * 10);
+    snprintf(fieldbar, 10, "  NAME");
     for (i=0; i < FIELDS; i++) 
         fieldbar = add_space(fieldbar, fieldattrs[i], 
                              attrspace[i], max_x);
@@ -219,18 +222,20 @@ char *fieldbar_builder(void)
     return fieldbar;
 }
     
-char *add_space(char *fieldbar, char *field, int spaces, size_t max)
+char *add_space(char *curbar, char *field, int spaces, size_t max)
 {
     int space;
-    char *tmp = malloc(sizeof(char) * max);
+    char *bar = malloc(sizeof(char) * max);
+
     for (space=0; space < spaces; ++space) {
-        snprintf(tmp, max, "%s ", fieldbar); 
-        fieldbar = strdup(tmp);
-        free(tmp);
-        tmp = malloc(sizeof(char) * max);
+        snprintf(bar, max, "%s ", curbar); 
+        free(curbar);
+        curbar = strdup(bar);
+        free(bar);
+        bar = malloc(sizeof(char) * max);
     }
-    snprintf(tmp, max, "%s%s", fieldbar, field);
-    fieldbar = strdup(tmp);
-    free(tmp);
-    return fieldbar;
+
+    snprintf(bar, max, "%s%s", curbar, field);
+    free(curbar);
+    return bar;
 }
