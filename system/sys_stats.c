@@ -41,7 +41,6 @@ void build_info(char *fstype)
     info = malloc(sizeof *info);
     sysinfo(info);
 
-    totalfree_str = malloc(sizeof(char) * MAXTOT);
     totalfree_str = proc_parser(MEMINFO, MEMFREE);
     totalfree = atol(totalfree_str) * BASE;
 
