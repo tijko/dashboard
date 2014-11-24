@@ -16,10 +16,15 @@
 
 int current_procs(proc_t *procs, int memtotal)
 {
-    int nproc = 0;
+    int nproc;
+    DIR *dir;
     proc_t *last;
-    DIR *dir = opendir(PROC);
-    struct dirent *curr = malloc(sizeof *curr);
+    struct dirent *curr;
+
+    nproc = 0;
+
+    dir = opendir(PROC);
+
     while ((curr = readdir(dir))) {
         if (curr->d_type == DT_DIR && is_pid(curr->d_name)) {
             procs->pidstr = curr->d_name;
@@ -45,17 +50,21 @@ int current_procs(proc_t *procs, int memtotal)
             state(procs);
             if (!procs->state)
                 continue;
+
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
             proc_io(procs);
+
             procs->next = malloc(sizeof *(procs->next));
+
             last = procs;
             procs = procs->next;
             procs->prev = last;
             nproc++;
         }
     }
+
     closedir(dir);
     if (!procs->name || procs->cpuset < 1 || !procs->user || 
         procs->mempcent == -1 || procs->nice == 100 || !procs->state) {
@@ -64,6 +73,7 @@ int current_procs(proc_t *procs, int memtotal)
     } else {
         procs->next = NULL;
     }
+
     return nproc;
 }
 
@@ -115,12 +125,9 @@ void proc_user(proc_t *proc)
 {
     proc->uid = get_field(proc->pidstr, UID);
     struct passwd *getuser = getpwuid(proc->uid);
-    if (getuser) {
-        proc->user = malloc(sizeof(char) * strlen(getuser->pw_name) + 1);
-        proc->user = strdup(getuser->pw_name);
-        return;
-    }
     proc->user = NULL;
+    if (getuser) 
+        proc->user = strdup(getuser->pw_name);
 }
 
 int get_field(char *pid, char *field)
