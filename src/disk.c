@@ -139,6 +139,7 @@ int get_family_id(int conn)
         nla = NLA_ALIGNED_MSG(nla);
     }
 
+    free(taskstats_genl_name);
     return family_id;
 }
 
@@ -273,4 +274,3 @@ void proc_io(proc_t *procs)
 
     return;
 }    
-    
