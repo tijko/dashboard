@@ -69,7 +69,6 @@ int current_procs(proc_t *procs, int memtotal)
 
     if (!procs->name || procs->cpuset < 1 || !procs->user || 
         procs->mempcent == -1 || procs->nice == 100 || !procs->state) {
-        //free(procs->prev->next);// = NULL;
         free(procs);
     }  
 
