@@ -97,11 +97,8 @@ int create_conn(void)
 
 int get_family_id(int conn)
 {
-    int req;
-    int family_id;
-    int msgleft;
-    char *name;
-    char *taskstats_genl_name;
+    int req, family_id, msgleft;
+    char *name, *taskstats_genl_name;
     uint16_t name_len;
     struct nlattr *nla;
     struct nl_msg fam_msg;
@@ -123,6 +120,7 @@ int get_family_id(int conn)
     msgleft = NLA_PAYLOAD((struct nlmsghdr *) &fam_msg);
     family_id = -1;
     nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
+
     while (msgleft) {
         switch (nla->nla_type) {
             case (CTRL_ATTR_FAMILY_ID):
@@ -135,6 +133,7 @@ int get_family_id(int conn)
                     return family_id;
                 break;
         }
+
         msgleft -= NLA_ALIGN(nla->nla_len);
         nla = NLA_ALIGNED_MSG(nla);
     }
@@ -146,7 +145,7 @@ int get_family_id(int conn)
 int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
     uint16_t nla_type, void *nla_data, uint16_t nla_len)
 {
-    int pid;
+    int pid, bytes_sent;
     struct nl_msg req;
     struct nlattr *nla;
     struct sockaddr_nl nladdr;
@@ -154,7 +153,6 @@ int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
     char *buf;
     ssize_t buflen;
     socklen_t nladdr_len;
-    int bytes_sent;
 
     pid = getpid();
     req.nlh.nlmsg_type = nl_type;
@@ -209,8 +207,10 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs)
     int msgleft;
     struct nlattr *nla;
     struct taskstats *io;
+
     nla = (struct nlattr *) GENLMSG_DATA(reply);
     msgleft = NLA_PAYLOAD((struct nlmsghdr *) reply);
+
     while (msgleft) {
         switch (nla->nla_type) {
             case (TASKSTATS_TYPE_AGGR_PID):
@@ -236,16 +236,15 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs)
 
 void proc_io(proc_t *procs)
 {
-    int req;
-    int pid;
-    int conn;
-    int family_id;
+    int req, pid, conn, family_id;
     struct nl_msg io_req;
     conn = create_conn();
+
     if (conn == -1) 
         goto error;
 
     family_id = get_family_id(conn);
+
     if (family_id == -1) 
         goto error;
 
@@ -258,13 +257,16 @@ void proc_io(proc_t *procs)
 
     memset(&io_req, 0, sizeof(io_req));
     req = nl_recv(conn, &io_req);
+
     if (req == -1 || io_req.nlh.nlmsg_type == NLMSG_ERROR)
         goto error;
 
     req = taskstats_reply(&io_req, procs);
+
     if (req == -1)
         goto error;
     close(conn);
+
     return;
 
     error:
