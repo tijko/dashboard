@@ -10,34 +10,32 @@ char *proc_parser(char *path, char *field)
 {
     int i, j;
     FILE *fp;
-    char *ln;
-    size_t n;
-    char *tmp;
-    size_t fieldlen;
+    char *ln, *tmp;
+    size_t fieldlen, n;
 
-    n = 0;
     fp = fopen(path, "r");
     fieldlen = strlen(field);
-    tmp = malloc(sizeof(char) * PATHLEN);
 
     if (fp == NULL)
         return NULL;
 
-    while (getline(&ln, &n, fp) != -1) {
+    for (n=0, tmp=NULL; getline(&ln, &n, fp) != -1;) {
         *(ln + fieldlen) = '\0';
         if (!(strcmp(ln, field))) {
             for (i=0; !(isdigit(*(ln + i))); i++)
                 ;
+
+            tmp = malloc(sizeof(char) * PATHLEN);
+
             for (j=0; isdigit(*(ln + i)); j++, i++)
                 *(tmp + j) = *(ln + i);
+
             *(tmp + j) = '\0';
-            free(ln);
-            fclose(fp);
-            return tmp;
+            break;
         }
     }
+
     free(ln);
-    free(tmp);
     fclose(fp);
-    return NULL;
+    return tmp;
 }
