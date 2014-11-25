@@ -30,23 +30,30 @@ int current_procs(proc_t *procs, int memtotal)
             procs->pidstr = curr->d_name;
             procs->pid = atoi(curr->d_name);
             name_pid(procs);
+
             if (!procs->name)
                 continue;
+
             procs->cpuset = current_cpus(procs->pid);
             if (procs->cpuset < 1)
                 continue;
+
             proc_user(procs);
             if (!procs->user)
                 continue;
+
             memory_percentage(procs, memtotal);
             if (procs->mempcent == -1)
                 continue;
+
             procs->nice = nice(procs->pid);
             if (procs->nice == 100)
                 continue;
+
             procs->ioprio = ioprio_class(procs->pid);
             if (!procs->ioprio)
                 continue;
+
             state(procs);
             if (!procs->state)
                 continue;
@@ -66,12 +73,10 @@ int current_procs(proc_t *procs, int memtotal)
     }
 
     closedir(dir);
-
-    if (!procs->name || procs->cpuset < 1 || !procs->user || 
-        procs->mempcent == -1 || procs->nice == 100 || !procs->state) {
-        free(procs);
-    }  
-
+   
+    last->next = NULL; 
+    free(procs);
+ 
     return nproc;
 }
 
@@ -80,25 +85,27 @@ int is_pid(char *process_name)
     char letter;
     signed int strpos;
     ssize_t proclen;
+
     proclen = strlen(process_name);
     for (strpos=0; strpos < proclen; ++strpos) {
         letter = *(process_name + strpos);
-        if (!isdigit(letter)) {
+        if (!isdigit(letter)) 
             return 0;
-        }
     }
+
     return 1;
 }
 
 void name_pid(proc_t *proc)
 {
+    int ofd, i;
     void *buf;
-    char *comm;
-    char *process_name;
+    char *comm, *process_name;
+
     comm = malloc(sizeof(char) * COMMLEN);
     snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pidstr);
 
-    int ofd = open(comm, O_RDONLY);
+    ofd = open(comm, O_RDONLY);
     if (ofd == -1) {
         free(comm);
         proc->name = NULL;
@@ -109,7 +116,6 @@ void name_pid(proc_t *proc)
     read(ofd, buf, PROCNAME_MAX);
     process_name = (char *) buf;
 
-    int i;
     for (i=0; *(process_name + i) != '\n'; ++i)
         ;
 
@@ -130,8 +136,7 @@ void proc_user(proc_t *proc)
 
 int get_field(char *pid, char *field)
 {
-    char *path;
-    char *field_str_value;
+    char *path, *field_str_value;
     int value;
 
     path = malloc(sizeof(char) * MAXPROCPATH);
@@ -141,18 +146,21 @@ int get_field(char *pid, char *field)
     free(path);
 
     value = 0;
+
     if (field_str_value) {
         value = strtol(field_str_value, NULL, 10);
         free(field_str_value);
     }
+
     return value;
 }
             
 void free_procs(proc_t *procs)
 {
     proc_t *tmp;
-    while (procs->next) {
-        tmp = procs->next;
+    tmp = procs->next;
+
+    for (; procs->next != NULL; tmp=procs->next) {
         free(procs->name);
         free(procs->user);
         free(procs->ioprio);
