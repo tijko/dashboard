@@ -13,8 +13,7 @@
 
 int current_cpus(int pid)
 {
-    int ret;
-    int cpu_affinity;
+    int ret, cpu_affinity;
     size_t mask_size;
     cpu_set_t proc_cpus;
 
@@ -41,12 +40,9 @@ void state(proc_t *procs)
 {
     int i;
     FILE *fp;
-    char *ln;
-    char *path;
-    char *field;
+    char *ln, *path, *field;
     char *proc_state = NULL;
-    size_t n;
-    size_t fieldlen;
+    size_t n, fieldlen;
 
     field = "State";
     fieldlen = strlen(field);
@@ -55,8 +51,7 @@ void state(proc_t *procs)
     snprintf(path, MAXPATH, "/proc/%s/status", procs->pidstr);
     fp = fopen(path, "r");
             
-    n = 0;
-    while (getline(&ln, &n, fp) != 0) {
+    for (n=0; getline(&ln, &n, fp) !=0;) {
         *(ln + fieldlen) = '\0';
         if (!strcmp(ln, field)) {
             proc_state = malloc(sizeof(char) * STATE);
@@ -69,6 +64,7 @@ void state(proc_t *procs)
             break;
         }
     }
+
     procs->state = proc_state;
     fclose(fp);
     free(ln);
