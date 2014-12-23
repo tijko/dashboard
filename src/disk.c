@@ -114,7 +114,7 @@ int get_family_id(int conn)
 
     memset(&fam_msg, 0, sizeof(fam_msg));
     req = nl_recv(conn, &fam_msg);
-    if (req == -1)
+    if (!req)
         return -1;
 
     msgleft = NLA_PAYLOAD((struct nlmsghdr *) &fam_msg);
@@ -190,16 +190,16 @@ int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
     return 0;
 }
 
-int nl_recv(int conn, struct nl_msg *req)
+bool nl_recv(int conn, struct nl_msg *req)
 {
     int bytes_recv;
     size_t msg_size = sizeof(*req);
 
     bytes_recv = recv(conn, req, msg_size, 0);
     if (bytes_recv == -1)
-        return -1;
+        return false;
 
-    return 0;
+    return true;
 }
 
 int taskstats_reply(struct nl_msg *reply, proc_t *procs)
@@ -258,7 +258,7 @@ void proc_io(proc_t *procs)
     memset(&io_req, 0, sizeof(io_req));
     req = nl_recv(conn, &io_req);
 
-    if (req == -1 || io_req.nlh.nlmsg_type == NLMSG_ERROR)
+    if (!req || io_req.nlh.nlmsg_type == NLMSG_ERROR)
         goto error;
 
     req = taskstats_reply(&io_req, procs);
