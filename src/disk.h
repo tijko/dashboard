@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 
+#include <stdbool.h>
 #include <linux/genetlink.h>
 
 #ifdef __i386__
@@ -43,7 +44,7 @@ int get_family_id(int conn);
 int nl_req(int conn, uint32_t nl_type, uint32_t gnl_cmd,
     uint16_t nla_type, void *nla_data, uint16_t nla_len);
 
-int nl_recv(int conn, struct nl_msg *req);
+bool nl_recv(int conn, struct nl_msg *req);
 
 int taskstats_reply(struct nl_msg *reply, proc_t *procs);
 
