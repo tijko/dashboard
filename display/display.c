@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include <pthread.h>
 
 #include "display.h"
 #include "../src/cpu.h"
@@ -69,9 +68,9 @@ void dashboard_loop(void)
         prevplineno = plineno;
         max_y = curr_y - PROCLN;
 
-
         update_screen(processes, fstype, plineno);
         key = wgetch(stdscr);
+
         switch (key) {
             case (KEY_UP):
                 if (plineno > 0) 
@@ -152,6 +151,7 @@ void dashboard_loop(void)
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
     }
+
     free_procs(processes);
     endwin();
 }
@@ -192,7 +192,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 75, "%d", processes->pte);
             mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
             mvwprintw(stdscr, cur_y, LINE_X + 89, "%llu", processes->io_read);
-            mvwprintw(stdscr, cur_y++, LINE_X + 101, "%llu", processes->io_write);
+            mvwprintw(stdscr, cur_y, LINE_X + 101, "%llu", processes->io_write);
+            mvwprintw(stdscr, cur_y++, LINE_X + 105, "%d", processes->open_fds);
         } else {
             plineno--;
         }
@@ -208,10 +209,11 @@ char *fieldbar_builder(void)
     int spaceleft, i;
     int max_x = getmaxx(stdscr);
     char *fieldbar;
-    char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", "PRIO", 
-                                "ST", "VMEM", "PTE", "RES", "READ", "WRITE"};
+    char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
+                                "PRIO", "ST", "VMEM", "PTE", "RES", 
+                                "READ", "WRITE", "FDS"};
 
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 4};
 
     fieldbar = malloc(sizeof(char) * 10);
     snprintf(fieldbar, 10, "  NAME");
