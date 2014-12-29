@@ -162,31 +162,31 @@ int get_field(char *pid, char *field)
 void current_fds(proc_t *proc)
 {
     char *path;
-    size_t pidlen;
-    unsigned fd_count;   
 
     struct dirent *fd_file;
     DIR *fd_dir;
 
-    pidlen = strlen(proc->pidstr);
-    path = malloc(sizeof(char) * pidlen);
+    path = malloc(sizeof(char) * MAXPROCPATH);
     snprintf(path, MAXPROCPATH, "/proc/%s/fd/", proc->pidstr);
-    
-    fd_count = 0;
+   
+    proc->open_fds = 0;
+ 
     fd_dir = opendir(path);
-    if (fd_dir == NULL) {
-        proc->open_fds = 0;
-        return;
-    }
+    if (fd_dir == NULL) 
+        goto free_path;
 
     while ((fd_file = readdir(fd_dir))) {
         if (!isdigit(fd_file->d_name[0]))
             continue;
         else
-            fd_count++;
+            proc->open_fds++;
     }
 
-    proc->open_fds = fd_count;
+    closedir(fd_dir);
+    
+    free_path:
+        free(path);
+
     return;
 }
             
