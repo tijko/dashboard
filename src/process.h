@@ -27,6 +27,7 @@ struct process_attr {
     int uid;
     int cpuset;
     int nice;
+    int open_fds;
     char *ioprio;
     char *state;
     float mempcent;
@@ -48,6 +49,8 @@ bool is_pid(char *process_name);
 void proc_user(proc_t *proc);
 
 int get_field(char *pid, char *field);
+
+void current_fds(proc_t *proc);
 
 void name_pid(proc_t *procs);
 
