@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ncurses.h>
 #include "../src/process.h"
 
 #define LINE_X 2 
@@ -8,6 +9,7 @@
 #define DELAY 5
 
 #define KEY_C 99
+#define KEY_D 100
 #define KEY_E 101
 #define KEY_I 105
 #define KEY_M 109
@@ -18,7 +20,7 @@
 #define KEY_V 118
 #define KEY_ESCAPE 113
 
-#define FIELDS 12
+#define FIELDS 13
 
 void init_screen(void);
 
