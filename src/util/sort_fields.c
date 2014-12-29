@@ -51,6 +51,11 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[1] = proc_arr[proc_index]->cpuset;
                 break;
 
+            case (KEY_D):
+                cmp_fields[0] = cur->open_fds;
+                cmp_fields[1] = proc_arr[proc_index]->open_fds;
+                break;
+
             case (KEY_E):
                 cmp_fields[0] = cur->pte;
                 cmp_fields[1] = proc_arr[proc_index]->pte;
