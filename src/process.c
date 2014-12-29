@@ -73,14 +73,14 @@ int current_procs(proc_t *procs, int memtotal)
     }
 
     closedir(dir);
-   
-    last->next = NULL; 
-    free(procs);
+  
+    procs->prev->next = NULL; 
+    free(procs); 
  
     return nproc;
 }
 
-int is_pid(char *process_name)
+bool is_pid(char *process_name)
 {
     char letter;
     signed int strpos;
@@ -90,10 +90,10 @@ int is_pid(char *process_name)
     for (strpos=0; strpos < proclen; ++strpos) {
         letter = *(process_name + strpos);
         if (!isdigit(letter)) 
-            return 0;
+            return false;
     }
 
-    return 1;
+    return true;
 }
 
 void name_pid(proc_t *proc)
@@ -160,7 +160,7 @@ void free_procs(proc_t *procs)
     proc_t *tmp;
     tmp = procs->next;
 
-    for (; procs->next != NULL; tmp=procs->next) {
+    for (; procs->next; tmp=procs->next) {
         free(procs->name);
         free(procs->user);
         free(procs->ioprio);
