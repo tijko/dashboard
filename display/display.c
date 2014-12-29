@@ -88,6 +88,12 @@ void dashboard_loop(void)
                 sort = KEY_C;
                 break;
 
+            case (KEY_D):
+                if (sort != KEY_D)
+                    clear();
+                sort = KEY_D;
+                break;
+
             case (KEY_E):
                 if (sort != KEY_E)
                     clear();
@@ -193,7 +199,7 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
             mvwprintw(stdscr, cur_y, LINE_X + 89, "%llu", processes->io_read);
             mvwprintw(stdscr, cur_y, LINE_X + 101, "%llu", processes->io_write);
-            mvwprintw(stdscr, cur_y++, LINE_X + 105, "%d", processes->open_fds);
+            mvwprintw(stdscr, cur_y++, LINE_X + 112, "%d", processes->open_fds);
         } else {
             plineno--;
         }
@@ -213,7 +219,7 @@ char *fieldbar_builder(void)
                                 "PRIO", "ST", "VMEM", "PTE", "RES", 
                                 "READ", "WRITE", "FDS"};
 
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 4};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 6};
 
     fieldbar = malloc(sizeof(char) * 10);
     snprintf(fieldbar, 10, "  NAME");
