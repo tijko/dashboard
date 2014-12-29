@@ -2,6 +2,7 @@
 #define PROC_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define PROCNAME_MAX 1024
 
@@ -42,7 +43,7 @@ int current_procs(proc_t *procs, int memtotal);
 
 void free_procs(proc_t *procs);
 
-int is_pid(char *process_name);
+bool is_pid(char *process_name);
 
 void proc_user(proc_t *proc);
 
