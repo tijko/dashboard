@@ -58,6 +58,10 @@ int current_procs(proc_t *procs, int memtotal)
             if (!procs->state)
                 continue;
 
+            current_fds(procs);
+            if (!procs->open_fds)
+                continue;
+
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
@@ -153,6 +157,37 @@ int get_field(char *pid, char *field)
     }
 
     return value;
+}
+
+void current_fds(proc_t *proc)
+{
+    char *path;
+    size_t pidlen;
+    unsigned fd_count;   
+
+    struct dirent *fd_file;
+    DIR *fd_dir;
+
+    pidlen = strlen(proc->pidstr);
+    path = malloc(sizeof(char) * pidlen);
+    snprintf(path, MAXPROCPATH, "/proc/%s/fd/", proc->pidstr);
+    
+    fd_count = 0;
+    fd_dir = opendir(path);
+    if (fd_dir == NULL) {
+        proc->open_fds = 0;
+        return;
+    }
+
+    while ((fd_file = readdir(fd_dir))) {
+        if (!isdigit(fd_file->d_name[0]))
+            continue;
+        else
+            fd_count++;
+    }
+
+    proc->open_fds = fd_count;
+    return;
 }
             
 void free_procs(proc_t *procs)
