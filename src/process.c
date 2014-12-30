@@ -29,17 +29,17 @@ int current_procs(proc_t *procs, int memtotal)
         if (curr->d_type == DT_DIR && is_pid(curr->d_name)) {
             procs->pidstr = curr->d_name;
             procs->pid = atoi(curr->d_name);
-            name_pid(procs);
 
+            name_pid(procs);
             if (!procs->name)
                 continue;
 
             procs->cpuset = current_cpus(procs->pid);
-            if (procs->cpuset < 1)
+            if (procs->cpuset < 1) 
                 continue;
 
             proc_user(procs);
-            if (!procs->user)
+            if (!procs->user) 
                 continue;
 
             memory_percentage(procs, memtotal);
@@ -51,11 +51,11 @@ int current_procs(proc_t *procs, int memtotal)
                 continue;
 
             procs->ioprio = ioprio_class(procs->pid);
-            if (!procs->ioprio)
+            if (!procs->ioprio) 
                 continue;
 
             state(procs);
-            if (!procs->state)
+            if (!procs->state) 
                 continue;
 
             current_fds(procs);
@@ -74,9 +74,9 @@ int current_procs(proc_t *procs, int memtotal)
     }
 
     closedir(dir);
-  
-    procs->prev->next = NULL; 
-    free(procs); 
+
+    free(last->next);
+    last->next = NULL;
  
     return nproc;
 }
