@@ -59,9 +59,6 @@ int current_procs(proc_t *procs, int memtotal)
                 continue;
 
             current_fds(procs);
-            if (!procs->open_fds)
-                continue;
-
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
