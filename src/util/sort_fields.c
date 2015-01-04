@@ -7,7 +7,8 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
     proc_t *head, *cur, *prev;
     proc_t *proc_arr[nproc + 1];
    
-    uint64_t cmp_fields[2];
+    //uint64_t cmp_fields[2];
+    float cmp_fields[2];
  
     for (i=0; i < nproc; i++) {
         proc_arr[i] = procs;
@@ -42,7 +43,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
 }
 
 void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index, 
-                int field, uint64_t cmp_fields[])
+                int field, float cmp_fields[])
 {
         switch (field) {
             
