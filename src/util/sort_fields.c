@@ -4,11 +4,10 @@
 proc_t *sort_by_field(proc_t *procs, int field, int nproc)
 {
     int i, j;
-    proc_t *head, *cur, *prev;
+    proc_t *head, *cur;
     proc_t *proc_arr[nproc + 1];
    
-    //uint64_t cmp_fields[2];
-    float cmp_fields[2];
+    uint64_t cmp_fields[2];
  
     for (i=0; i < nproc; i++) {
         proc_arr[i] = procs;
@@ -28,22 +27,12 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
         proc_arr[j + 1] = cur;
     }
 
-    head = proc_arr[0];
-    head->prev = NULL;
-    cur = head;
-    for (i=1; i < nproc; i++) {
-        cur->next = proc_arr[i];
-        prev = cur;
-        cur = cur->next;
-        cur->prev = prev;
-    }
-    cur->next = NULL;
-
-    return head; 
+    head = NULL;
+    return reorder(proc_arr, head, nproc);
 }
 
 void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index, 
-                int field, float cmp_fields[])
+                int field, uint64_t cmp_fields[])
 {
         switch (field) {
             
@@ -63,8 +52,8 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
             case (KEY_M):
-                cmp_fields[0] = cur->mempcent;
-                cmp_fields[1] = proc_arr[proc_index]->mempcent;
+                cmp_fields[0] = cur->mempcent * 100;
+                cmp_fields[1] = proc_arr[proc_index]->mempcent * 100;
                 break;
 
             case (KEY_N):
@@ -98,4 +87,23 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
         }
+}
+
+proc_t *reorder(proc_t *proc_arr[], proc_t *head, int nproc)
+{
+    proc_t *cur, *prev;
+    int i;
+
+    head = proc_arr[0];
+    head->prev = NULL;
+    cur = head;
+    for (i=1; i < nproc; i++) {
+        cur->next = proc_arr[i];
+        prev = cur;
+        cur = cur->next;
+        cur->prev = prev;
+    }
+    cur->next = NULL;
+
+    return head;
 }
