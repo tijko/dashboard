@@ -6,14 +6,10 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
     int i, j;
     proc_t *head, *cur;
     proc_t *proc_arr[nproc + 1];
-   
     uint64_t cmp_fields[2];
+
+    init_process_array(proc_arr, procs, nproc);
  
-    for (i=0; i < nproc; i++) {
-        proc_arr[i] = procs;
-        procs = procs->next;
-    }
-    
     for (i=0; i < nproc - 1; i++) {
         cur = proc_arr[i + 1];
         j = i;
@@ -50,8 +46,16 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[0] = cur->pte;
                 cmp_fields[1] = proc_arr[proc_index]->pte;
                 break;
+            
+            /*
+             * When ordering based on memory percentage used, multiple the
+             * current value by 100.  The memory percentage values  are only 
+             * set to the hundreths place and when casted to `uint64_t` the 
+             * decimal value is cut out.  On reordering, the original values
+             * are maintained and ordered correctly.
+             */
 
-            case (KEY_M):
+            case (KEY_M):   
                 cmp_fields[0] = cur->mempcent * 100;
                 cmp_fields[1] = proc_arr[proc_index]->mempcent * 100;
                 break;
@@ -97,13 +101,24 @@ proc_t *reorder(proc_t *proc_arr[], proc_t *head, int nproc)
     head = proc_arr[0];
     head->prev = NULL;
     cur = head;
+
     for (i=1; i < nproc; i++) {
         cur->next = proc_arr[i];
         prev = cur;
         cur = cur->next;
         cur->prev = prev;
     }
-    cur->next = NULL;
 
+    cur->next = NULL;
     return head;
 }
+
+void init_process_array(proc_t *proc_arr[], proc_t *procs, int nproc)
+{
+    int i;
+
+    for (i=0; i < nproc; i++) {
+        proc_arr[i] = procs;
+        procs = procs->next;
+    }
+}    
