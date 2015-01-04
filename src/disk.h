@@ -47,7 +47,7 @@ int get_family_id(int conn);
 char *build_req(uint32_t nl_type, uint8_t gnl_cmd, uint16_t nla_type, 
                                     void *nla_data, uint16_t nla_len);
 
-int nl_req(int conn, char *buf, int buflen);
+bool nl_req(int conn, char *buf, int buflen);
 
 bool nl_recv(int conn, struct nl_msg *req);
 
