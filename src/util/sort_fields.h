@@ -10,3 +10,5 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 int field, uint64_t cmp_fields[]);
 
 proc_t *reorder(proc_t *proc_arr[], proc_t *head, int nproc);
+
+void init_process_array(proc_t *proc_arr[], proc_t *procs, int nproc);
