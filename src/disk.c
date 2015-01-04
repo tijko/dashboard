@@ -169,7 +169,7 @@ char *build_req(uint32_t nl_type, uint8_t gnl_cmd,
     return (char *) &req;
 }
             
-int nl_req(int conn, char *buf, int buflen)
+bool nl_req(int conn, char *buf, int buflen)
 {
     int bytes_sent;
     struct sockaddr_nl nladdr;
@@ -186,11 +186,11 @@ int nl_req(int conn, char *buf, int buflen)
             buf += bytes_sent;
             buflen -= bytes_sent;
         } else if (bytes_sent == -1) {
-            return -1;
+            return false;
         }
     }
 
-    return 0;
+    return true;
 }
 
 bool nl_recv(int conn, struct nl_msg *req)
@@ -240,46 +240,34 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs)
 void proc_io(proc_t *procs)
 {
     char *nlreq_msg;
-    int req, pid, conn, family_id, req_len;
+    int pid, conn, family_id, req_len;
     struct nl_msg io_req;
     conn = create_conn();
 
     if (conn == -1) 
-        goto error;
+        goto close_conn;
 
     family_id = get_family_id(conn);
 
     if (family_id == -1) 
-        goto error;
+        goto close_conn;
 
     pid = procs->pid;
     nlreq_msg = build_req(family_id, TASKSTATS_CMD_GET, 
                           TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
     req_len = GET_REQUEST_LENGTH(nlreq_msg);
-    req = nl_req(conn, nlreq_msg, req_len);
-
-    if (req == -1)
-        goto error;
+    if (!nl_req(conn, nlreq_msg, req_len))
+        goto close_conn;
 
     memset(&io_req, 0, sizeof(io_req));
-    req = nl_recv(conn, &io_req);
+    if (!nl_recv(conn, &io_req) || io_req.nlh.nlmsg_type == NLMSG_ERROR)
+        goto close_conn;
 
-    if (!req || io_req.nlh.nlmsg_type == NLMSG_ERROR)
-        goto error;
+    taskstats_reply(&io_req, procs);
 
-    req = taskstats_reply(&io_req, procs);
-
-    if (req == -1)
-        goto error;
-    close(conn);
-
-    return;
-
-    error:
-        procs->io_read = 0;
-        procs->io_write = 0;
-    close(conn);
+    close_conn:
+        close(conn);
 
     return;
 }    
