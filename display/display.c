@@ -41,6 +41,7 @@ void dashboard_loop(void)
     int memtotal; 
     int sort;
 
+    egid = getegid();
     memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
     processes->prev = NULL;
