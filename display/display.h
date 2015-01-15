@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <ncurses.h>
 #include "../src/process.h"
+
 
 #define LINE_X 2 
 
@@ -21,6 +23,8 @@
 #define KEY_ESCAPE 113
 
 #define FIELDS 13
+
+gid_t egid;
 
 void init_screen(void);
 
