@@ -12,6 +12,7 @@
 #include "memory.h"
 #include "process.h"
 #include "util/parser.h"
+#include "../display/display.h"
 
 
 int current_procs(proc_t *procs, int memtotal)
@@ -62,7 +63,13 @@ int current_procs(proc_t *procs, int memtotal)
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
-            proc_io(procs);
+
+            if (egid == 0) {
+                proc_io(procs);
+            } else {
+                procs->io_read = 0;
+                procs->io_write = 0;
+            }
 
             procs->next = malloc(sizeof *(procs->next));
 
