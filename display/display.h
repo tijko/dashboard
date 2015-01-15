@@ -24,7 +24,7 @@
 
 #define FIELDS 13
 
-gid_t egid;
+uid_t euid;
 
 void init_screen(void);
 
