@@ -64,7 +64,7 @@ int current_procs(proc_t *procs, int memtotal)
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
 
-            if (egid == 0) {
+            if (euid == 0) {
                 proc_io(procs);
             } else {
                 procs->io_read = 0;
