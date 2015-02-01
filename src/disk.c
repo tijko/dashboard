@@ -39,18 +39,17 @@ int ioprio_get(int pid)
 
 char *ioprio_class(int pid)
 {
-    int ioprio;
+    int ioprio, ioprio_index;
     char *class;
 
     ioprio = ioprio_get(pid);
-    ioprio >>= IOPRIO_SHIFT;
-    if (ioprio != 0) { 
+    ioprio_index = ioprio >> IOPRIO_CLASS_SHIFT;
+    if (ioprio_index != 0) { 
         class = malloc(sizeof(char) * PRIOLEN);
-        snprintf(class, PRIOLEN, "%s", ioprio_classes[ioprio]);
-    } else {
+        snprintf(class, PRIOLEN, "%s/%ld", ioprio_classes[ioprio_index], 
+                                           ioprio & IOPRIO_PRIO_MASK);
+    } else 
         class = ioprio_class_nice(pid);
-    }
-
     return class;
 }
 
@@ -64,7 +63,7 @@ char *ioprio_class_nice(int pid)
         return NULL;
         
     prio = sched_getscheduler(pid);
-    niceness = nice(pid);
+    niceness = getpriority(PRIO_PROCESS, pid);
     ioprio_level = (niceness + 20) / 5;
     
     if (prio == SCHED_FIFO || prio == SCHED_RR)
