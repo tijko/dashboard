@@ -39,15 +39,15 @@ int ioprio_get(int pid)
 
 char *ioprio_class(int pid)
 {
-    int ioprio, ioprio_index;
+    int ioprio;
     char *class;
 
     ioprio = ioprio_get(pid);
-    ioprio_index = ioprio >> IOPRIO_CLASS_SHIFT;
-    if (ioprio_index != 0) { 
+    if (ioprio >> IOPRIO_CLASS_SHIFT != 0) { 
         class = malloc(sizeof(char) * PRIOLEN);
-        snprintf(class, PRIOLEN, "%s/%ld", ioprio_classes[ioprio_index], 
-                                           ioprio & IOPRIO_PRIO_MASK);
+        snprintf(class, PRIOLEN, "%s/%ld", 
+                 ioprio_classes[ioprio >> IOPRIO_CLASS_SHIFT], 
+                 ioprio & IOPRIO_PRIO_MASK);
     } else 
         class = ioprio_class_nice(pid);
     return class;
