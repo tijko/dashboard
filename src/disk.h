@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include <stdbool.h>
+#include <sys/resource.h>
 #include <linux/genetlink.h>
 
 #ifdef __i386__
@@ -20,7 +21,8 @@
 
 #define MAX_MSG_SZ 1024
 
-#define IOPRIO_SHIFT 13
+#define IOPRIO_CLASS_SHIFT (13)
+#define IOPRIO_PRIO_MASK ((1UL << IOPRIO_CLASS_SHIFT) - 1)
 
 #define PRIOLEN 8
 
