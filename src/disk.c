@@ -165,7 +165,7 @@ void build_req(void *req, uint32_t nl_type, uint8_t gnl_cmd,
     nlreq.genlh.cmd = gnl_cmd;
     nlreq.genlh.version = 0x1;
 
-    nla = (struct nlattr *) GENLMSG_DATA(&req);
+    nla = (struct nlattr *) GENLMSG_DATA(&nlreq);
     nla->nla_type = nla_type;
     nla->nla_len = nla_len + 1 + NLA_HDRLEN;
     memcpy(NLA_DATA(nla), nla_data, nla->nla_len);
