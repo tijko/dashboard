@@ -106,13 +106,14 @@ int get_family_id(int conn)
     name_len = strlen(TASKSTATS_GENL_NAME) + 1;
     taskstats_genl_name = strndup(TASKSTATS_GENL_NAME, name_len);
 
-    nlreq_msg = build_req(GENL_ID_CTRL, CTRL_CMD_GETFAMILY, 
-                         CTRL_ATTR_FAMILY_NAME, taskstats_genl_name, name_len);
+    nlreq_msg = malloc(sizeof(struct nl_msg));
+    build_req(nlreq_msg, GENL_ID_CTRL, CTRL_CMD_GETFAMILY, 
+              CTRL_ATTR_FAMILY_NAME, taskstats_genl_name, name_len);
 
     req_len = GET_REQUEST_LENGTH(nlreq_msg);
     req = nl_req(conn, nlreq_msg, req_len);
 
-    if (req == -1)
+    if (!req)
         return -1;
 
     memset(&fam_msg, 0, sizeof(fam_msg));
@@ -133,7 +134,7 @@ int get_family_id(int conn)
             case (CTRL_ATTR_FAMILY_NAME):
                 name = NLA_DATA(nla);
                 if (strcmp(TASKSTATS_GENL_NAME, name))
-                    return family_id;
+                    msgleft = 0;
                 break;
         }
 
@@ -142,33 +143,35 @@ int get_family_id(int conn)
     }
 
     free(taskstats_genl_name);
+    free(nlreq_msg);
+
     return family_id;
 }
 
-char *build_req(uint32_t nl_type, uint8_t gnl_cmd,
-    uint16_t nla_type, void *nla_data, uint16_t nla_len)
+void build_req(void *req, uint32_t nl_type, uint8_t gnl_cmd,
+               uint16_t nla_type, void *nla_data, uint16_t nla_len)
 {
     int pid;
-    struct nl_msg req;
+    struct nl_msg nlreq;
     struct nlattr *nla;
 
     pid = getpid();
-    req.nlh.nlmsg_type = nl_type;
-    req.nlh.nlmsg_flags = NLM_F_REQUEST;
-    req.nlh.nlmsg_seq = 0;
-    req.nlh.nlmsg_pid = pid;
-    req.nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
+    nlreq.nlh.nlmsg_type = nl_type;
+    nlreq.nlh.nlmsg_flags = NLM_F_REQUEST;
+    nlreq.nlh.nlmsg_seq = 0;
+    nlreq.nlh.nlmsg_pid = pid;
+    nlreq.nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
 
-    req.genlh.cmd = gnl_cmd;
-    req.genlh.version = 0x1;
+    nlreq.genlh.cmd = gnl_cmd;
+    nlreq.genlh.version = 0x1;
 
     nla = (struct nlattr *) GENLMSG_DATA(&req);
     nla->nla_type = nla_type;
     nla->nla_len = nla_len + 1 + NLA_HDRLEN;
     memcpy(NLA_DATA(nla), nla_data, nla->nla_len);
-    req.nlh.nlmsg_len += NLA_ALIGN(nla->nla_len);
+    nlreq.nlh.nlmsg_len += NLA_ALIGN(nla->nla_len);
 
-    return (char *) &req;
+    memcpy(req, &nlreq, sizeof(nlreq));
 }
             
 bool nl_req(int conn, char *buf, int buflen)
@@ -255,8 +258,9 @@ void proc_io(proc_t *procs)
         goto close_conn;
 
     pid = procs->pid;
-    nlreq_msg = build_req(family_id, TASKSTATS_CMD_GET, 
-                          TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
+    nlreq_msg = malloc(sizeof(struct nl_msg));
+    build_req(nlreq_msg, family_id, TASKSTATS_CMD_GET, 
+              TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
     req_len = GET_REQUEST_LENGTH(nlreq_msg);
     if (!nl_req(conn, nlreq_msg, req_len))
@@ -268,8 +272,15 @@ void proc_io(proc_t *procs)
 
     taskstats_reply(&io_req, procs);
 
+    free(nlreq_msg);
+    close(conn);
+
+    return; 
+
     close_conn:
         close(conn);
+        procs->io_read = 0;
+        procs->io_write = 0;
 
     return;
 }    
