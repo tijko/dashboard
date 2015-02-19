@@ -19,7 +19,10 @@ char *proc_parser(char *path, char *field)
     if (fp == NULL)
         return NULL;
 
-    for (n=0, tmp=NULL; getline(&ln, &n, fp) != -1;) {
+    n = 0;
+    tmp = NULL;
+
+    for (n=0, tmp=NULL, ln=NULL; getline(&ln, &n, fp) != -1;) {
         *(ln + fieldlen) = '\0';
         if (!(strcmp(ln, field))) {
             for (i=0; !(isdigit(*(ln + i))); i++)
