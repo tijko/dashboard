@@ -48,14 +48,16 @@ void dashboard_loop(void)
     nproc = current_procs(processes, memtotal);
 
     sort = 0;
-    plineno = 0;
-    RUNNING = 1;
-
+    prev_y = 0, prev_x = 0;
+    curr_y = 0, curr_x = 0;
+    plineno = 0, prevplineno = 0;
     getmaxyx(stdscr, curr_y, curr_x);
 
     fstype = filesystem_type();
     if (!fstype)
         fstype = "Unavailable";
+
+    RUNNING = 1;
 
     while (RUNNING) {
 
