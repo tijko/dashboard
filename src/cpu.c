@@ -65,8 +65,9 @@ void state(proc_t *procs)
         }
     }
 
-    procs->state = proc_state;
+    procs->state = strdup(proc_state);
     fclose(fp);
     free(ln);
     free(path);
+    free(proc_state);
 }    
