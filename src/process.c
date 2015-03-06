@@ -66,9 +66,11 @@ int current_procs(proc_t *procs, int memtotal)
 
             if (euid == 0) {
                 proc_io(procs);
+                ctxt_switch(procs);
             } else {
                 procs->io_read = 0;
                 procs->io_write = 0;
+                procs->invol_sw = 0;
             }
 
             procs->next = malloc(sizeof *(procs->next));
