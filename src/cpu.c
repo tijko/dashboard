@@ -10,6 +10,8 @@
 
 #include "cpu.h"
 #include "process.h"
+#include "util/taskstats.h"
+
 
 int current_cpus(int pid)
 {
@@ -34,6 +36,11 @@ int nice(int pid)
     int niceness;
     niceness = getpriority(PRIO_PROCESS, pid);
     return niceness;
+}
+
+void ctxt_switch(proc_t *procs)
+{
+    task_req(procs, 's');
 }
 
 void state(proc_t *procs)
