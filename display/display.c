@@ -127,6 +127,12 @@ void dashboard_loop(void)
                 sort = KEY_R;
                 break;
 
+            case (KEY_S):
+                if (sort != KEY_S)
+                    clear();
+                sort = KEY_S;
+                break;
+
             case (KEY_V):
                 if (sort != KEY_V)
                     clear();
@@ -185,7 +191,7 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
     while (processes && cur_y < max_y - 1) {
         if (plineno == 0) {
             mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-            mvwprintw(stdscr, cur_y, LINE_X + 19, "%d   ", processes->pid);
+            mvwprintw(stdscr, cur_y, LINE_X + 18, "%d   ", processes->pid);
             mvwprintw(stdscr, cur_y, LINE_X + 26, "%s   ", processes->user);
             mvwprintw(stdscr, cur_y, LINE_X + 36, "%d ", processes->cpuset);
             mvwprintw(stdscr, cur_y, LINE_X + 40, "%.2f%", processes->mempcent);
@@ -202,7 +208,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
             mvwprintw(stdscr, cur_y, LINE_X + 89, "%llu", processes->io_read);
             mvwprintw(stdscr, cur_y, LINE_X + 101, "%llu", processes->io_write);
-            mvwprintw(stdscr, cur_y++, LINE_X + 112, "%d", processes->open_fds);
+            mvwprintw(stdscr, cur_y, LINE_X + 112, "%d", processes->open_fds);
+            mvwprintw(stdscr, cur_y++, LINE_X + 119, "%d", processes->invol_sw);
         } else {
             plineno--;
         }
@@ -220,16 +227,16 @@ char *fieldbar_builder(void)
     char *fieldbar;
     char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
                                 "PRIO", "ST", "VMEM", "PTE", "RES", 
-                                "READ", "WRITE", "FDS"};
+                                "READ", "WRITE", "FDS", "NIVCSW"};
 
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 6};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 6, 4};
 
     fieldbar = malloc(sizeof(char) * 10);
     snprintf(fieldbar, 10, "  NAME");
     for (i=0; i < FIELDS; i++) 
         fieldbar = add_space(fieldbar, fieldattrs[i], 
                              attrspace[i], max_x);
-    spaceleft = max_x - 50;
+    spaceleft = max_x - 42;
     fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
     return fieldbar;
 }
