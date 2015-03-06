@@ -74,6 +74,11 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[0] = cur->rss;
                 cmp_fields[1] = proc_arr[proc_index]->rss;
                 break;
+            
+            case (KEY_S):
+                cmp_fields[0] = cur->invol_sw;
+                cmp_fields[1] = proc_arr[proc_index]->invol_sw;
+                break;
 
             case (KEY_V):
                 cmp_fields[0] = cur->vmem;
