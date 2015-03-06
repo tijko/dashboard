@@ -19,10 +19,11 @@
 #define KEY_O 111
 #define KEY_P 112
 #define KEY_R 114
+#define KEY_S 115
 #define KEY_V 118
 #define KEY_ESCAPE 113
 
-#define FIELDS 13
+#define FIELDS 14
 
 uid_t euid;
 
