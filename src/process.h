@@ -28,6 +28,7 @@ struct process_attr {
     int cpuset;
     int nice;
     int open_fds;
+    int invol_sw;
     char *ioprio;
     char *state;
     float mempcent;
