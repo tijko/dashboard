@@ -8,3 +8,5 @@ int current_cpus(int pid);
 int nice(int pid);
 
 void state(proc_t *procs);
+
+void ctxt_switch(proc_t *procs);
