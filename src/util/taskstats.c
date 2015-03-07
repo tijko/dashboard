@@ -184,7 +184,7 @@ void task_req(proc_t *procs, char field)
 {
     char *nlreq_msg;
     int pid, conn, family_id, req_len;
-    struct nl_msg io_req;
+    struct nl_msg req;
     conn = create_conn();
 
     if (conn == -1) 
@@ -204,11 +204,11 @@ void task_req(proc_t *procs, char field)
     if (!nl_req(conn, nlreq_msg, req_len))
         goto close_conn;
 
-    memset(&io_req, 0, sizeof(io_req));
-    if (!nl_recv(conn, &io_req) || io_req.nlh.nlmsg_type == NLMSG_ERROR)
+    memset(&req, 0, sizeof(req));
+    if (!nl_recv(conn, &req) || req.nlh.nlmsg_type == NLMSG_ERROR)
         goto close_conn;
 
-    taskstats_reply(&io_req, procs, field);
+    taskstats_reply(&req, procs, field);
 
     free(nlreq_msg);
     close(conn);
