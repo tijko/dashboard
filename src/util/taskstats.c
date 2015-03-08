@@ -27,20 +27,20 @@ int create_conn(void)
 int get_family_id(int conn)
 {
     int req, family_id, msgleft, req_len;
-    char *nlreq_msg, *name, *taskstats_genl_name;
+    char *name, *taskstats_genl_name;
     uint16_t name_len;
     struct nlattr *nla;
-    struct nl_msg fam_msg;
+    struct nl_msg fam_msg, *nlreq_msg;
    
     name_len = strlen(TASKSTATS_GENL_NAME) + 1;
     taskstats_genl_name = strndup(TASKSTATS_GENL_NAME, name_len);
 
-    nlreq_msg = malloc(sizeof(struct nl_msg));
+    nlreq_msg = malloc(sizeof *nlreq_msg);
     build_req(nlreq_msg, GENL_ID_CTRL, CTRL_CMD_GETFAMILY, 
               CTRL_ATTR_FAMILY_NAME, taskstats_genl_name, name_len);
 
     req_len = GET_REQUEST_LENGTH(nlreq_msg);
-    req = nl_req(conn, nlreq_msg, req_len);
+    req = nl_req(conn, (char *) nlreq_msg, req_len);
 
     if (!req)
         return -1;
@@ -182,9 +182,8 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field)
 
 void task_req(proc_t *procs, char field)
 {
-    char *nlreq_msg;
     int pid, conn, family_id, req_len;
-    struct nl_msg req;
+    struct nl_msg req, *nlreq_msg;
     conn = create_conn();
 
     if (conn == -1) 
@@ -196,12 +195,12 @@ void task_req(proc_t *procs, char field)
         goto close_conn;
 
     pid = procs->pid;
-    nlreq_msg = malloc(sizeof(struct nl_msg));
+    nlreq_msg = malloc(sizeof *nlreq_msg);
     build_req(nlreq_msg, family_id, TASKSTATS_CMD_GET, 
               TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
     req_len = GET_REQUEST_LENGTH(nlreq_msg);
-    if (!nl_req(conn, nlreq_msg, req_len))
+    if (!nl_req(conn, (char *) nlreq_msg, req_len))
         goto close_conn;
 
     memset(&req, 0, sizeof(req));
