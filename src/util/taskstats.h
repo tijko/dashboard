@@ -29,7 +29,7 @@ int create_conn(void);
 
 int get_family_id(int conn);
 
-void build_req(void *req, uint32_t nl_type, uint8_t gnl_cmd, 
+void build_req(struct nl_msg *req, uint32_t nl_type, uint8_t gnl_cmd, 
                uint16_t nla_type, void *nla_data, uint16_t nla_len);
 
 bool nl_req(int conn, char *buf, int buflen);
