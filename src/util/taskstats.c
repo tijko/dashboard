@@ -185,6 +185,7 @@ void task_req(proc_t *procs, char field)
     int pid, conn, family_id, req_len;
     struct nl_msg req, *nlreq_msg;
     conn = create_conn();
+    nlreq_msg = malloc(sizeof *nlreq_msg);
 
     if (conn == -1) 
         goto close_conn;
@@ -195,7 +196,6 @@ void task_req(proc_t *procs, char field)
         goto close_conn;
 
     pid = procs->pid;
-    nlreq_msg = malloc(sizeof *nlreq_msg);
     build_req(nlreq_msg, family_id, TASKSTATS_CMD_GET, 
               TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
@@ -215,6 +215,7 @@ void task_req(proc_t *procs, char field)
     return; 
 
     close_conn:
+        free(nlreq_msg);
         close(conn);
         
         switch (field) {
