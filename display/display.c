@@ -201,15 +201,15 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
                 mvwprintw(stdscr, cur_y, LINE_X + 49, "%d", processes->nice);
             else 
                 mvwprintw(stdscr, cur_y, LINE_X + 48, "%d", processes->nice);
-            mvwprintw(stdscr, cur_y, LINE_X + 55, "%s", processes->ioprio);
+            mvwprintw(stdscr, cur_y, LINE_X + 54, "%s", processes->ioprio);
             mvwprintw(stdscr, cur_y, LINE_X + 63, "%s", processes->state);
-            mvwprintw(stdscr, cur_y, LINE_X + 67, "%d", processes->vmem);
-            mvwprintw(stdscr, cur_y, LINE_X + 75, "%d", processes->pte);
-            mvwprintw(stdscr, cur_y, LINE_X + 82, "%d", processes->rss); 
-            mvwprintw(stdscr, cur_y, LINE_X + 89, "%llu", processes->io_read);
-            mvwprintw(stdscr, cur_y, LINE_X + 101, "%llu", processes->io_write);
-            mvwprintw(stdscr, cur_y, LINE_X + 112, "%d", processes->open_fds);
-            mvwprintw(stdscr, cur_y++, LINE_X + 119, "%d", processes->invol_sw);
+            mvwprintw(stdscr, cur_y, LINE_X + 69, "%d", processes->vmem);
+            mvwprintw(stdscr, cur_y, LINE_X + 79, "%d", processes->pte);
+            mvwprintw(stdscr, cur_y, LINE_X + 88, "%d", processes->rss); 
+            mvwprintw(stdscr, cur_y, LINE_X + 97, "%llu", processes->io_read);
+            mvwprintw(stdscr, cur_y, LINE_X + 111, "%llu", processes->io_write);
+            mvwprintw(stdscr, cur_y, LINE_X + 124, "%d", processes->open_fds);
+            mvwprintw(stdscr, cur_y++, LINE_X + 134, "%d", processes->invol_sw);
         } else {
             plineno--;
         }
@@ -226,10 +226,10 @@ char *fieldbar_builder(void)
     int max_x = getmaxx(stdscr);
     char *fieldbar;
     char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
-                                "PRIO", "ST", "VMEM", "PTE", "RES", 
+                                "IO", "ST", "VMEM", "PTE", "RES", 
                                 "READ", "WRITE", "FDS", "NIVCSW"};
 
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 3, 3, 4, 4, 4, 8, 6, 4};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 5, 5, 6, 6, 6, 10, 8, 6};
 
     fieldbar = malloc(sizeof(char) * 10);
     snprintf(fieldbar, 10, "  NAME");
