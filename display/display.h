@@ -4,6 +4,8 @@
 #include "../src/process.h"
 
 
+#define REFRESH_RATE 10
+
 #define LINE_X 2 
 
 #define PROCLN 11
