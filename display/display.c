@@ -39,9 +39,11 @@ void dashboard_loop(int log_opt, char attr_sort)
     int RUNNING;
     int nproc;
     int memtotal; 
+    int refresh_rate;
     int sort = attr_sort;
     
     euid = geteuid();
+    refresh_rate = REFRESH_RATE;
     memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
     processes->prev = NULL;
@@ -164,7 +166,13 @@ void dashboard_loop(int log_opt, char attr_sort)
 
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
-
+        if (refresh_rate == REFRESH_RATE) {
+            clear();
+            --refresh_rate;
+        } else if (refresh_rate == 0)
+            refresh_rate = REFRESH_RATE;
+        else
+            --refresh_rate;
     }
 
     free_procs(processes);
