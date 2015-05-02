@@ -80,6 +80,9 @@ int main(int argc, char *argv[])
                 if (optarg)
                     attr_sort = set_sort_option(optarg);
                 break;
+            case('?'):
+                print_usage();
+                return 0;
             default:
                 break;
         }
