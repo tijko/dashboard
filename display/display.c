@@ -13,7 +13,7 @@
 #include "../src/util/sort_fields.h"
 
 
-void init_screen(int log_opt, char *attr_sort)
+void init_screen(int log_opt, char attr_sort)
 {
     initscr();
     noecho();
@@ -24,10 +24,10 @@ void init_screen(int log_opt, char *attr_sort)
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    dashboard_loop();
+    dashboard_loop(log_opt, attr_sort);
 }
 
-void dashboard_loop(void)
+void dashboard_loop(int log_opt, char attr_sort)
 {
     int key;
     int max_y;
