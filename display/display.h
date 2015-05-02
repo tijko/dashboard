@@ -27,9 +27,9 @@
 
 uid_t euid;
 
-void init_screen(int log_opt, char *attr_sort);
+void init_screen(int log_opt, char attr_sort);
 
-void dashboard_loop(void);
+void dashboard_loop(int log_opt, char attr_sort);
 
 void update_screen(proc_t *processes, char *fstype, int plineno);
 
