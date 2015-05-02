@@ -39,15 +39,14 @@ void dashboard_loop(int log_opt, char attr_sort)
     int RUNNING;
     int nproc;
     int memtotal; 
-    int sort;
-
+    int sort = attr_sort;
+    
     euid = geteuid();
     memtotal = total_memory();
     proc_t *processes = malloc(sizeof *processes);
     processes->prev = NULL;
     nproc = current_procs(processes, memtotal);
 
-    sort = 0;
     prev_y = 0, prev_x = 0;
     curr_y = 0, curr_x = 0;
     plineno = 0, prevplineno = 0;
@@ -165,6 +164,7 @@ void dashboard_loop(int log_opt, char attr_sort)
 
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
+
     }
 
     free_procs(processes);
