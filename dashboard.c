@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <string.h>
 #include "display/display.h"
 
 
@@ -33,10 +34,27 @@ void print_usage(void)
             o, output               The total output done by the process.\n\n");
 }
 
+char set_sort_option(char *opt)
+{
+    int i;
+    int num_opts = 12;
+
+    char *opts[] = {"cpu", "fds", "pte", "mem", "nice", "pid",
+                    "rss", "invol", "vmem", "write", "output"}; 
+
+    char opts_char[] = {'c', 'd', 'e', 'm', 'n', 'p', 
+                        'r', 's', 'v', 'i', 'o'};
+
+    for (i=0; i < num_opts; i++)
+        if (!strcmp(opt, opts[i]))
+            return opts_char[i];
+    return 'z';
+}
+
 int main(int argc, char *argv[])
 {
     int lopt, log_opt;
-    char *attr_sort;
+    char attr_sort;
 
     struct option lopts[] = {
         {"help", 0, NULL, 'h'},
@@ -48,7 +66,7 @@ int main(int argc, char *argv[])
     const char *sopts = "hls:";
 
     log_opt = 0;
-    attr_sort = NULL;
+    attr_sort = 'z';
 
     while ((lopt = getopt_long_only(argc, argv, sopts, lopts, NULL)) != -1) {
         switch (lopt) {
@@ -59,7 +77,8 @@ int main(int argc, char *argv[])
                 log_opt = 1;
                 break;
             case('s'):
-                attr_sort = optarg;               
+                if (optarg)
+                    attr_sort = set_sort_option(optarg);
                 break;
             default:
                 break;
@@ -67,5 +86,6 @@ int main(int argc, char *argv[])
     }
 
     init_screen(log_opt, attr_sort);
+
     return 0;
 }
