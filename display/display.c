@@ -13,7 +13,7 @@
 #include "../src/util/sort_fields.h"
 
 
-void init_screen(void)
+void init_screen(int log_opt, char *attr_sort)
 {
     initscr();
     noecho();
