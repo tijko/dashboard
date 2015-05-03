@@ -123,9 +123,12 @@ int nr_ptys(void)
         return -1;
 
     r_bytes = read(o_rd, buf, bufsiz);   
-    if (r_bytes == -1)
+    if (r_bytes == -1) {
+        close(o_rd);
         return -1;
+    }
 
     ptys = strtol(buf, NULL, 10);
+    close(o_rd);
     return ptys;
 }
