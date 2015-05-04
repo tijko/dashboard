@@ -194,16 +194,19 @@ void current_fds(proc_t *proc)
             
 void free_procs(proc_t *procs)
 {
-    proc_t *tmp;
+    proc_t *tmp = NULL;
 
     while (procs) {
-
+        if (tmp)
+            free(tmp);
         free(procs->name);        
         free(procs->user);
         free(procs->ioprio);
         free(procs->state);
-        tmp = procs->next;
-        free(procs);
-        procs = tmp;
+        tmp = procs;
+        procs = procs->next;
     }
+
+    if (tmp)
+        free(tmp);
 }
