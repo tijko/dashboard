@@ -57,11 +57,11 @@ void dashboard_loop(int log_opt, char attr_sort)
         fstype = "Unavailable";
 
     RUNNING = 1;
-    processes = malloc(sizeof *processes);
-    processes->prev = NULL;
 
     while (RUNNING) {
 
+        processes = malloc(sizeof *processes);
+        processes->prev = NULL;
         nproc = current_procs(processes, memtotal);
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
@@ -175,7 +175,7 @@ void dashboard_loop(int log_opt, char attr_sort)
             --refresh_rate;
     }
 
-    free_procs(processes);
+    //free_procs(processes);
     endwin();
 }
 
