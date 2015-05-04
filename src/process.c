@@ -19,7 +19,6 @@ int current_procs(proc_t *procs, int memtotal)
 {
     int nproc;
     DIR *dir;
-    proc_t *last;
     struct dirent *curr;
 
     nproc = 0;
@@ -74,18 +73,15 @@ int current_procs(proc_t *procs, int memtotal)
             }
 
             procs->next = malloc(sizeof *(procs->next));
-
-            last = procs;
+            procs->next->prev = procs;
             procs = procs->next;
-            procs->prev = last;
             nproc++;
         }
     }
 
     closedir(dir);
-
-    free(last->next);
-    last->next = NULL;
+    free(procs);
+    procs = NULL;
  
     return nproc;
 }
@@ -199,13 +195,14 @@ void current_fds(proc_t *proc)
 void free_procs(proc_t *procs)
 {
     proc_t *tmp;
-    tmp = procs->next;
 
-    for (; procs->next; tmp=procs->next) {
-        free(procs->name);
+    while (procs) {
+
+        free(procs->name);        
         free(procs->user);
         free(procs->ioprio);
         free(procs->state);
+        tmp = procs->next;
         free(procs);
         procs = tmp;
     }
