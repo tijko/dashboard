@@ -6,7 +6,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
     int i, j;
     proc_t *head, *cur;
     proc_t *proc_arr[nproc + 1];
-    uint64_t cmp_fields[2];
+    uint64_t cmp_fields[2] = {0, 0};
 
     init_process_array(proc_arr, procs, nproc);
  
