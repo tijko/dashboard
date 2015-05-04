@@ -41,13 +41,11 @@ void dashboard_loop(int log_opt, char attr_sort)
     int memtotal; 
     int refresh_rate;
     int sort = attr_sort;
+    proc_t *processes;
     
     euid = geteuid();
     refresh_rate = REFRESH_RATE;
     memtotal = total_memory();
-    proc_t *processes = malloc(sizeof *processes);
-    processes->prev = NULL;
-    nproc = current_procs(processes, memtotal);
 
     prev_y = 0, prev_x = 0;
     curr_y = 0, curr_x = 0;
@@ -59,9 +57,15 @@ void dashboard_loop(int log_opt, char attr_sort)
         fstype = "Unavailable";
 
     RUNNING = 1;
+    processes = malloc(sizeof *processes);
+    processes->prev = NULL;
 
     while (RUNNING) {
 
+        nproc = current_procs(processes, memtotal);
+        if (sort)
+            processes = sort_by_field(processes, sort, nproc);
+        
         getmaxyx(stdscr, curr_y, curr_x);
 
         if ((prev_y ^ curr_y) | (prev_x ^ curr_x) | (plineno ^ prevplineno)) 
@@ -161,11 +165,7 @@ void dashboard_loop(int log_opt, char attr_sort)
         }
 
         free_procs(processes); 
-        processes = malloc(sizeof *processes);
-        nproc = current_procs(processes, memtotal);
 
-        if (sort)
-            processes = sort_by_field(processes, sort, nproc);
         if (refresh_rate == REFRESH_RATE) {
             clear();
             --refresh_rate;
