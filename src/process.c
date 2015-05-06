@@ -72,7 +72,7 @@ int current_procs(proc_t *procs, int memtotal)
                 procs->invol_sw = 0;
             }
 
-            procs->next = malloc(sizeof *(procs->next));
+            procs->next = create_proc();
             procs->next->prev = procs;
             procs = procs->next;
             nproc++;
@@ -80,7 +80,7 @@ int current_procs(proc_t *procs, int memtotal)
     }
 
     closedir(dir);
-    free(procs);
+    free(procs->prev->next);
     procs = NULL;
  
     return nproc;
@@ -190,6 +190,31 @@ void current_fds(proc_t *proc)
         free(path);
 
     return;
+}
+
+proc_t *create_proc(void)
+{
+    proc_t *p = malloc(sizeof *p);
+    p->name = NULL;
+    p->pidstr = NULL;
+    p->user = NULL;
+    p->pid = 0;
+    p->uid = 0;
+    p->cpuset = 0;
+    p->nice = 0;
+    p->open_fds = 0;
+    p->invol_sw = 0;
+    p->ioprio = NULL;
+    p->state = NULL;
+    p->mempcent = 0;
+    p->vmem = 0;
+    p->pte = 0;
+    p->rss = 0;
+    p->io_read = 0;
+    p->io_write = 0;
+    p->prev = NULL;
+    p->next = NULL;
+    return p;
 }
             
 void free_procs(proc_t *procs)
