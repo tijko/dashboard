@@ -19,6 +19,8 @@
 
 typedef struct process_attr proc_t;
 
+int nproc;
+
 struct process_attr {
     char *name;
     char *pidstr;
