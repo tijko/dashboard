@@ -19,7 +19,6 @@ int current_procs(proc_t *procs, int memtotal)
 {
     DIR *dir;
     struct dirent *curr;
-    proc_t *tmp;
 
     nproc = 0;
 
@@ -80,9 +79,8 @@ int current_procs(proc_t *procs, int memtotal)
     }
 
     closedir(dir);
-    tmp = procs->prev;
+    procs->prev->next = NULL;
     free(procs);
-    tmp->next = NULL;
  
     return nproc;
 }
