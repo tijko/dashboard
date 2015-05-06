@@ -33,8 +33,7 @@ void dashboard_loop(int log_opt, char attr_sort)
     int max_y;
     int prev_y, prev_x;
     int curr_y, curr_x;
-    int plineno;
-    int prevplineno;
+    int plineno, prevplineno;
     char *fstype;
     int RUNNING;
     int nproc;
@@ -63,6 +62,7 @@ void dashboard_loop(int log_opt, char attr_sort)
         processes = malloc(sizeof *processes);
         processes->prev = NULL;
         nproc = current_procs(processes, memtotal);
+
         if (sort)
             processes = sort_by_field(processes, sort, nproc);
         
@@ -175,7 +175,6 @@ void dashboard_loop(int log_opt, char attr_sort)
             --refresh_rate;
     }
 
-    //free_procs(processes);
     endwin();
 }
 
