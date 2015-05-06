@@ -48,7 +48,7 @@ char set_sort_option(char *opt)
     for (i=0; i < num_opts; i++)
         if (!strcmp(opt, opts[i]))
             return opts_char[i];
-    return 'z';
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     const char *sopts = "hls:";
 
     log_opt = 0;
-    attr_sort = 'z';
+    attr_sort = 0;
 
     while ((lopt = getopt_long_only(argc, argv, sopts, lopts, NULL)) != -1) {
         switch (lopt) {
