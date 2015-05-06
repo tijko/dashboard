@@ -29,6 +29,7 @@ struct process_attr {
     int nice;
     int open_fds;
     int invol_sw;
+    int proc_no;
     char *ioprio;
     char *state;
     float mempcent;
@@ -42,6 +43,8 @@ struct process_attr {
 };
 
 int current_procs(proc_t *procs, int memtotal);
+
+proc_t *create_proc(void);
 
 void free_procs(proc_t *procs);
 
