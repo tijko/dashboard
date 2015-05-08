@@ -12,7 +12,6 @@
 #include "disk.h"
 #include "memory.h"
 #include "process.h"
-#include "util/parser.h"
 #include "../display/display.h"
 
 
@@ -108,8 +107,7 @@ void name_pid(proc_t *proc)
     void *buf;
     char *comm, *process_name;
 
-    comm = malloc(sizeof(char) * COMMLEN);
-    snprintf(comm, COMMLEN, "/proc/%s/comm", proc->pidstr);
+    comm = construct_path(3, PROC, proc->pidstr, COMM);
 
     ofd = open(comm, O_RDONLY);
     if (ofd == -1) {
@@ -145,8 +143,7 @@ int get_field(char *pid, char *field)
     char *path, *field_str_value;
     int value;
 
-    path = malloc(sizeof(char) * MAXPROCPATH);
-    snprintf(path, MAXPROCPATH, "/proc/%s/status", pid);
+    path = construct_path(3, PROC, pid, STATUS);
     
     field_str_value = proc_parser(path, field);
     free(path);
