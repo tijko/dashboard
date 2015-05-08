@@ -4,11 +4,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "util/file_utils.h"
+
+
 #define PROCNAME_MAX 1024
 
 #define MAXPROCPATH 2048
 
-#define PROC "/proc"
+#define STATUS "/status"
+#define PROC "/proc/"
+#define COMM "/comm"
+#define FD "/fd"
 
 #define COMMLEN 0x20 
 
