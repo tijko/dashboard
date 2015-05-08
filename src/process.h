@@ -56,8 +56,6 @@ void proc_user(proc_t *proc);
 
 int get_field(char *pid, char *field);
 
-void current_fds(proc_t *proc);
-
 void name_pid(proc_t *procs);
 
 #endif
