@@ -13,11 +13,7 @@ void current_fds(proc_t *proc)
     struct dirent *fd_file;
     DIR *fd_dir;
 
-    path = malloc(sizeof(char) * MAXPROCPATH);
-    if (path == NULL)
-        return;
-
-    snprintf(path, MAXPROCPATH, "/proc/%s/fd/", proc->pidstr);
+    path = construct_path(3, PROC, proc->pidstr, FD);
    
     proc->open_fds = 0;
  
