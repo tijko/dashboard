@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 #include "memory.h"
-#include "util/parser.h"
 
 
 int total_memory(void)
@@ -25,8 +24,7 @@ void memory_percentage(proc_t *procs, int totalmem)
     char *percentage;
     char *path;
 
-    path = malloc(sizeof(char) * MAXFILE);
-    snprintf(path, MAXFILE, "/proc/%d/status", procs->pid);
+    path = construct_path(3, PROC, procs->pidstr, STATUS);
 
     percentage = proc_parser(path, VMEM);
 
