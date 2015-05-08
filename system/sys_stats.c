@@ -7,7 +7,7 @@
 #include <sys/sysinfo.h>
 
 #include "sys_stats.h"
-#include "../src/util/parser.h"
+#include "../src/util/file_utils.h"
 
 
 char *mem_avail(unsigned long memory, unsigned long base)
