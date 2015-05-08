@@ -53,9 +53,8 @@ void state(proc_t *procs)
 
     field = "State";
     fieldlen = strlen(field);
-    path = malloc(sizeof(char) * MAXPATH);
 
-    snprintf(path, MAXPATH, "/proc/%s/status", procs->pidstr);
+    path = construct_path(3, PROC, procs->pidstr, STATUS);
     fp = fopen(path, "r");
             
     for (n=0, ln=NULL; getline(&ln, &n, fp) !=0;) {
