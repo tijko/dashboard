@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -59,7 +60,9 @@ void dashboard_loop(int log_opt, char attr_sort)
 
     while (RUNNING) {
 
-        processes = malloc(sizeof *processes);
+        if ((processes = malloc(sizeof *processes)) == NULL)
+            return;
+        
         processes->prev = NULL;
         nproc = current_procs(processes, memtotal);
 
@@ -76,7 +79,8 @@ void dashboard_loop(int log_opt, char attr_sort)
         prevplineno = plineno;
         max_y = curr_y - PROCLN;
 
-        update_screen(processes, fstype, plineno);
+        if ((update_screen(processes, fstype, plineno)) < 0)
+            return;
         key = wgetch(stdscr);
 
         switch (key) {
@@ -178,7 +182,7 @@ void dashboard_loop(int log_opt, char attr_sort)
     endwin();
 }
 
-void update_screen(proc_t *processes, char *fstype, int plineno)
+int update_screen(proc_t *processes, char *fstype, int plineno)
 {
     int max_y, max_x;
     int cur_y = 9;
@@ -192,6 +196,8 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
 
     attron(A_REVERSE);
     char *fieldbar = fieldbar_builder(); 
+    if (fieldbar == NULL)
+        return -ENOMEM;
     mvwprintw(stdscr, cur_y++, 1, fieldbar);
     attroff(A_REVERSE);
 
@@ -225,6 +231,7 @@ void update_screen(proc_t *processes, char *fstype, int plineno)
     box(stdscr, 0, 0);
     refresh();
     free(fieldbar);
+    return 0;
 }
 
 char *fieldbar_builder(void)
@@ -238,20 +245,26 @@ char *fieldbar_builder(void)
 
     int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 5, 5, 6, 6, 6, 10, 8, 6};
 
-    fieldbar = malloc(sizeof(char) * 10);
+    if ((fieldbar = malloc(sizeof(char) * 10)) == NULL)
+        return NULL;
     snprintf(fieldbar, 10, "  NAME");
     for (i=0; i < FIELDS; i++) 
-        fieldbar = add_space(fieldbar, fieldattrs[i], 
-                             attrspace[i], max_x);
+        if ((fieldbar = add_space(fieldbar, fieldattrs[i], 
+                               attrspace[i], max_x)) == NULL)
+            return NULL;
     spaceleft = max_x - 42;
-    fieldbar = add_space(fieldbar, " ", spaceleft, max_x);
+    if ((fieldbar = add_space(fieldbar, " ", spaceleft, max_x)) == NULL)
+        return NULL;
     return fieldbar;
 }
     
 char *add_space(char *curbar, char *field, int spaces, size_t max)
 {
     int space;
-    char *bar = malloc(sizeof(char) * max);
+    char *bar;
+
+    if ((bar = malloc(sizeof(char) * max)) == NULL)
+        return NULL;
 
     for (space=0; space < spaces; ++space) {
         snprintf(bar, max, "%s ", curbar); 
