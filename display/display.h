@@ -33,7 +33,7 @@ void init_screen(int log_opt, char attr_sort);
 
 void dashboard_loop(int log_opt, char attr_sort);
 
-void update_screen(proc_t *processes, char *fstype, int plineno);
+int update_screen(proc_t *processes, char *fstype, int plineno);
 
 char *fieldbar_builder(void);
 
