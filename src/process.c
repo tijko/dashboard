@@ -87,18 +87,10 @@ int current_procs(proc_t *procs, int memtotal)
 
 bool is_pid(char *process_name)
 {
-    char letter;
-    signed int strpos;
-    ssize_t proclen;
-
-    proclen = strlen(process_name);
-    for (strpos=0; strpos < proclen; ++strpos) {
-        letter = *(process_name + strpos);
-        if (!isdigit(letter)) 
-            return false;
-    }
-
-    return true;
+    unsigned int pos;
+    for (pos=0; pos < strlen(process_name) && 
+         isdigit(process_name[pos]); pos++);
+    return pos == strlen(process_name) ? true : false;
 }
 
 void name_pid(proc_t *proc)
