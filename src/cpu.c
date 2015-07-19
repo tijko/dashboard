@@ -56,6 +56,11 @@ void state(proc_t *procs)
 
     path = construct_path(3, PROC, procs->pidstr, STATUS);
     fp = fopen(path, "r");
+    if (fp == NULL) {
+        free(path);
+        procs->state = NULL;
+        return;
+    }
             
     for (n=0, ln=NULL; getline(&ln, &n, fp) !=0;) {
         *(ln + fieldlen) = '\0';
