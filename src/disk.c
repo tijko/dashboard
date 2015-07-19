@@ -44,6 +44,9 @@ char *ioprio_class(int pid)
     char *class;
 
     ioprio = ioprio_get(pid);
+    if (ioprio == -1)
+        return NULL;
+
     if (ioprio >> IOPRIO_CLASS_SHIFT != 0) { 
         class = malloc(sizeof(char) * PRIOLEN);
         snprintf(class, PRIOLEN, "%s/%ld", 
