@@ -1,6 +1,8 @@
 dashboard
 =========
 
+[![Build Status](https://travis-ci.org/tijko/dashboard.svg?branch=master)](https://travis-ci.org/tijko/dashboard)
+
 Emulation of top command line tool
 
 ![ScreenShot](/screenshots/dashboard.jpg)
