@@ -19,9 +19,10 @@
 #define COMMLEN 0x20 
 
 #define UID "Uid"
-#define VMEM "VmSize"
 #define PTE "VmPTE"
 #define RSS "VmRSS"
+#define VMEM "VmSize"
+#define THRS "Threads"
 
 typedef struct process_attr proc_t;
 
@@ -44,6 +45,7 @@ struct process_attr {
     int vmem;
     int pte;
     int rss;
+    int thrcnt;
     uint64_t io_read;
     uint64_t io_write;
     proc_t *prev;
