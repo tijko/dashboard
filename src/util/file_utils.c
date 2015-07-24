@@ -21,7 +21,7 @@ char *construct_path(int pathparts, ...)
         if (pathname == NULL)
             pathname = calloc(sizeof(char) * strlen(path_part) + 1, sizeof(char));
         else 
-            pathname = realloc(pathname, strlen(pathname) + strlen(path_part) + 1);
+            pathname = realloc(pathname, strlen(pathname) + strlen(path_part) + 1); // XXX fix
         strcat(pathname, path_part);
     }
 
