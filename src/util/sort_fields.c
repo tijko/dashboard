@@ -47,6 +47,11 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[1] = proc_arr[proc_index]->pte;
                 break;
             
+            case (KEY_I):
+                cmp_fields[0] = cur->io_write;
+                cmp_fields[1] = proc_arr[proc_index]->io_write;
+                break;
+
             /*
              * When ordering based on memory percentage used, multiple the
              * current value by 100.  The memory percentage values  are only 
@@ -70,6 +75,11 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[1] = proc_arr[proc_index]->pid;
                 break;
 
+            case (KEY_O):
+                cmp_fields[0] = cur->io_read;
+                cmp_fields[1] = proc_arr[proc_index]->io_read;
+                break;
+
             case (KEY_R):
                 cmp_fields[0] = cur->rss;
                 cmp_fields[1] = proc_arr[proc_index]->rss;
@@ -80,21 +90,15 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[1] = proc_arr[proc_index]->invol_sw;
                 break;
 
+            case (KEY_T):
+                cmp_fields[0] = cur->thrcnt;
+                cmp_fields[1] = proc_arr[proc_index]->thrcnt;
+                break;
+
             case (KEY_V):
                 cmp_fields[0] = cur->vmem;
                 cmp_fields[1] = proc_arr[proc_index]->vmem;
                 break;
-            
-            case (KEY_I):
-                cmp_fields[0] = cur->io_write;
-                cmp_fields[1] = proc_arr[proc_index]->io_write;
-                break;
-
-            case (KEY_O):
-                cmp_fields[0] = cur->io_read;
-                cmp_fields[1] = proc_arr[proc_index]->io_read;
-                break;
-
         }
 }
 
