@@ -112,6 +112,12 @@ void dashboard_loop(int log_opt, char attr_sort)
                 sort = KEY_E;
                 break;
 
+            case (KEY_I):
+                if (sort != KEY_I)
+                    clear();
+                sort = KEY_I;
+                break;
+
             case (KEY_M):
                 if (sort != KEY_M)
                     clear();
@@ -122,6 +128,12 @@ void dashboard_loop(int log_opt, char attr_sort)
                 if (sort != KEY_N)
                     clear();
                 sort = KEY_N;
+                break;
+
+            case (KEY_O):
+                if (sort != KEY_O)
+                    clear();
+                sort = KEY_O;
                 break;
 
             case (KEY_P):
@@ -142,22 +154,16 @@ void dashboard_loop(int log_opt, char attr_sort)
                 sort = KEY_S;
                 break;
 
+            case (KEY_T):
+                if (sort != KEY_T)
+                    clear();
+                sort = KEY_T;
+                break;
+
             case (KEY_V):
                 if (sort != KEY_V)
                     clear();
                 sort = KEY_V;
-                break;
-
-            case (KEY_I):
-                if (sort != KEY_I)
-                    clear();
-                sort = KEY_I;
-                break;
-
-            case (KEY_O):
-                if (sort != KEY_O)
-                    clear();
-                sort = KEY_O;
                 break;
 
             case (KEY_ESCAPE):  
@@ -222,7 +228,8 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
             mvwprintw(stdscr, cur_y, LINE_X + 97, "%llu", processes->io_read);
             mvwprintw(stdscr, cur_y, LINE_X + 111, "%llu", processes->io_write);
             mvwprintw(stdscr, cur_y, LINE_X + 124, "%d", processes->open_fds);
-            mvwprintw(stdscr, cur_y++, LINE_X + 134, "%d", processes->invol_sw);
+            mvwprintw(stdscr, cur_y, LINE_X + 134, "%d", processes->invol_sw);
+            mvwprintw(stdscr, cur_y++, LINE_X + 144, "%d", processes->thrcnt);
         } else {
             plineno--;
         }
@@ -241,9 +248,9 @@ char *fieldbar_builder(void)
     char *fieldbar;
     char *fieldattrs[FIELDS] = {"PID", "USER", "CPU", "MEM%%", "NI", 
                                 "IO", "ST", "VMEM", "PTE", "RES", 
-                                "READ", "WRITE", "FDS", "NIVCSW"};
+                                "READ", "WRITE", "FDS", "NIVCSW", "THRS"};
 
-    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 5, 5, 6, 6, 6, 10, 8, 6};
+    int attrspace[FIELDS] = {13, 5, 5, 2, 5, 4, 5, 5, 6, 6, 6, 10, 8, 6, 4};
 
     if ((fieldbar = malloc(sizeof(char) * 10)) == NULL)
         return NULL;
@@ -252,7 +259,7 @@ char *fieldbar_builder(void)
         if ((fieldbar = add_space(fieldbar, fieldattrs[i], 
                                attrspace[i], max_x)) == NULL)
             return NULL;
-    spaceleft = max_x - 42;
+    spaceleft = max_x - 38; // XXX fix
     if ((fieldbar = add_space(fieldbar, " ", spaceleft, max_x)) == NULL)
         return NULL;
     return fieldbar;
