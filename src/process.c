@@ -61,6 +61,7 @@ int current_procs(proc_t *procs, int memtotal)
             procs->pte = get_field(procs->pidstr, PTE);
             procs->rss = get_field(procs->pidstr, RSS);
             procs->vmem = get_field(procs->pidstr, VMEM);
+            procs->thrcnt = get_field(procs->pidstr, THRS);
 
             if (euid == 0) {
                 proc_io(procs);
@@ -130,7 +131,7 @@ void proc_user(proc_t *proc)
         proc->user = strdup(getuser->pw_name);
 }
 
-int get_field(char *pid, char *field)
+int get_field(char *pid, char *field) // XXX fix
 {
     char *path, *field_str_value;
     int value;
@@ -168,6 +169,7 @@ proc_t *create_proc(void)
     p->state = NULL;
     p->mempcent = 0;
     p->vmem = 0;
+    p->thrcnt = 0;
     p->pte = 0;
     p->rss = 0;
     p->io_read = 0;
