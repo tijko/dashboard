@@ -1,6 +1,6 @@
 CC = gcc
 
-FLAGS = -g -lcurses -Wall -Wextra
+FLAGS = -g -lcurses -Wall -Wextra -std=c11
 
 TARGET = dashboard 
 DASH = dashboard.c
