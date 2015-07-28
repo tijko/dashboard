@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200890L
+
 #include <pwd.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -6,6 +8,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "ipc.h"
 #include "cpu.h"
@@ -19,13 +22,22 @@ int current_procs(proc_t *procs, int memtotal)
 {
     DIR *dir;
     struct dirent *curr;
+    struct stat currp;
+    char *cp;
+
+    if ((cp = calloc(sizeof(char), sizeof(char) * MAXPROCPATH)) == NULL)
+        return -1;
 
     nproc = 0;
 
     dir = opendir(PROC);
 
     while ((curr = readdir(dir))) {
-        if (curr->d_type == DT_DIR && is_pid(curr->d_name)) {
+
+        snprintf(cp, MAXPROCPATH - 1, "%s%s", PROC, curr->d_name);
+        stat(cp, &currp);
+
+        if ((currp.st_mode & S_IFDIR) && is_pid(curr->d_name)) {
             procs->pidstr = curr->d_name;
             procs->pid = atoi(curr->d_name);
 
@@ -77,11 +89,17 @@ int current_procs(proc_t *procs, int memtotal)
             procs = procs->next;
             procs->proc_no = ++nproc;
         }
+    
+        free(cp);
+
+        if ((cp = calloc(sizeof(char), sizeof(char) * MAXPROCPATH)) == NULL)
+            return -1;
     }
 
     closedir(dir);
     procs->prev->next = NULL;
     free(procs);
+    free(cp);
  
     return nproc;
 }
