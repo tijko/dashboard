@@ -2,7 +2,9 @@
 #define PROC_H
 
 #include <stdint.h>
+#include <dirent.h>
 #include <stdbool.h>
+#include <sys/types.h>
 
 #include "util/file_utils.h"
 
