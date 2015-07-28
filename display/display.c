@@ -270,17 +270,17 @@ char *add_space(char *curbar, char *field, int spaces, size_t max)
     int space;
     char *bar;
 
-    if ((bar = malloc(sizeof(char) * max)) == NULL)
+    if ((bar = calloc(sizeof(char), sizeof(char) * max)) == NULL)
         return NULL;
-
     for (space=0; space < spaces; ++space) {
         snprintf(bar, max, "%s ", curbar); 
         free(curbar);
-        curbar = strdup(bar);
+        if ((curbar = calloc(sizeof(char), sizeof(char) * max)) == NULL)
+            return NULL;
+        memcpy(curbar, bar, max - 1);
         free(bar);
-        bar = malloc(sizeof(char) * max);
+        bar = calloc(sizeof(char), sizeof(char) * max);
     }
-
     snprintf(bar, max, "%s%s", curbar, field);
     free(curbar);
     return bar;
