@@ -25,7 +25,7 @@ int current_procs(proc_t *procs, int memtotal)
     struct stat currp;
     char *cp;
 
-    if ((cp = calloc(sizeof(char), sizeof(char) * MAXPROCPATH)) == NULL)
+    if ((cp = calloc(sizeof(char) * MAXPROCPATH, sizeof(char))) == NULL)
         return -1;
 
     nproc = 0;
@@ -92,7 +92,7 @@ int current_procs(proc_t *procs, int memtotal)
     
         free(cp);
 
-        if ((cp = calloc(sizeof(char), sizeof(char) * MAXPROCPATH)) == NULL)
+        if ((cp = calloc(sizeof(char) * MAXPROCPATH, sizeof(char))) == NULL)
             return -1;
     }
 
