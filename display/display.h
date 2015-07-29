@@ -36,12 +36,14 @@
 
 static char * const fieldattrs[] = {"  NAME", "PID", "USER", "CPU", "MEM%%", 
                                      "NI", "IO", "ST", "VMEM", "PTE", "RES",
-                                     "READ", "WRITE", "FDS", "NIVCSW", "THRS"};
+                                     "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
+                                                                           ""};
 
-static const unsigned int fieldattr_size = sizeof(fieldattrs) / 
-                                           sizeof( typeof(fieldattrs) );
+static const unsigned int fieldattr_size = ((sizeof(fieldattrs) / 
+                                             sizeof( typeof(fieldattrs) )) - 1);
 
-static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 6, 6, 6, 10, 8, 6, 4};
+static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 
+                                6, 6, 6, 10, 8, 6, 4, 0, 0};
 
 uid_t euid;
 
@@ -53,6 +55,6 @@ int update_screen(proc_t *processes, char *fstype, int plineno);
 
 char *fieldbar_builder(void);
 
-void add_space(char *fieldbar, char *field, int spaces);
+void add_space(char *fieldbar, char *field, int strterm, int spaces);
 
 #endif
