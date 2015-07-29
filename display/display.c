@@ -245,52 +245,38 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
 
 char *fieldbar_builder(void)
 {
-    unsigned int spaceleft, max_x = getmaxx(stdscr);
-    char *fieldbar, *tmpbar;
+    unsigned int max_x = getmaxx(stdscr);
+    char *fieldbar;
 
-    int fieldsize = ALLOC_ALIGN(strlen(fieldattrs[0]) + attrspace[0] + 1);
+    if ((fieldbar = calloc(sizeof(char) * ALLOC_ALIGN(max_x), 
+                                     sizeof(char))) == NULL)
+        return NULL;
 
-    fieldbar = calloc(sizeof(char) * fieldsize, sizeof(char));
-
-    int i, current_size;
-    for (i=0, current_size=fieldsize; current_size < max_x &&
-                                      i < fieldattr_size - 1; i++) {
-        if (i) {
-            fieldsize = ALLOC_ALIGN(strlen(fieldbar) + strlen(fieldattrs[i]) + 
-                                    attrspace[i] + 1);
-            tmpbar = realloc(fieldbar, sizeof(char) * fieldsize);
-            if (tmpbar == NULL)
-                return NULL;
-
-            fieldbar = tmpbar;
-        }
-
-        add_space(fieldbar, fieldattrs[i], attrspace[i]);
-        current_size = current_size + ALLOC_ALIGN(strlen(fieldattrs[i+1] + 
-                                                         attrspace[i] + 1));
+    int i, head;    
+    for (i=0, head=0; i < fieldattr_size; i++) {
+        add_space(fieldbar, fieldattrs[i], head, attrspace[i]);    
+        head = head + strlen(fieldattrs[i]) + attrspace[i];
+        if ((head + strlen(fieldattrs[i+1]) + attrspace[i+1]) >= max_x)
+            break;
     }
 
-    if (max_x > current_size) {
-        spaceleft = max_x - current_size;
-        fieldsize = ALLOC_ALIGN(spaceleft + attrspace[i] + 1);
-        tmpbar = realloc(fieldbar, sizeof(char) * fieldsize);
-        if (tmpbar == NULL)
-            return NULL;
-        fieldbar = tmpbar;
-        add_space(fieldbar, fieldattrs[i], spaceleft);
-    } 
+    unsigned int spaceleft;
+
+    if (max_x > head) {
+        spaceleft = max_x - head;
+        add_space(fieldbar, "", head, spaceleft);
+    }
 
     return fieldbar;
 }
     
-void add_space(char *curbar, char *field, int spaces)
+void add_space(char *curbar, char *field, int strterm, int spaces)
 {
-    int space, endbar;
-    endbar = strlen(curbar);
-    memcpy(curbar + endbar, field, strlen(field) + 1);
-    endbar = strlen(curbar);
+    int space;
+    strcat(curbar + strterm, field);
+    strterm = strterm + strlen(field);
     for (space=0; space < spaces; space++)
-        curbar[endbar + space] = ' ';
+        curbar[strterm + space] = ' ';
 
-    curbar[endbar + space] = '\0';
+    curbar[strterm + space] = '\0';
 }
