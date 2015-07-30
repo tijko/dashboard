@@ -37,7 +37,7 @@ void print_usage(void)
 char set_sort_option(char *opt)
 {
     int i;
-    int num_opts = 12;
+    int num_opts = 11;
 
     char *opts[] = {"cpu", "fds", "pte", "mem", "nice", "pid",
                     "rss", "invol", "vmem", "write", "output"}; 
