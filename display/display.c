@@ -36,11 +36,10 @@ void dashboard_loop(int log_opt, char attr_sort)
     int curr_y, curr_x;
     int plineno, prevplineno;
     char *fstype;
-    int RUNNING;
+    int running;
     int nproc;
     int memtotal; 
     int refresh_rate;
-    int sort = attr_sort;
     proc_t *processes;
     
     euid = geteuid();
@@ -56,9 +55,9 @@ void dashboard_loop(int log_opt, char attr_sort)
     if (!fstype)
         fstype = "Unavailable";
 
-    RUNNING = 1;
+    running = 1;
 
-    while (RUNNING) {
+    while (running) {
 
         if ((processes = malloc(sizeof *processes)) == NULL)
             return;
@@ -66,8 +65,8 @@ void dashboard_loop(int log_opt, char attr_sort)
         processes->prev = NULL;
         nproc = current_procs(processes, memtotal);
 
-        if (sort)
-            processes = sort_by_field(processes, sort, nproc);
+        if (attr_sort)
+            processes = sort_by_field(processes, attr_sort, nproc);
         
         getmaxyx(stdscr, curr_y, curr_x);
 
@@ -95,79 +94,79 @@ void dashboard_loop(int log_opt, char attr_sort)
                 break;
 
             case (KEY_C):
-                if (sort != KEY_C)
+                if (attr_sort != KEY_C)
                     clear();
-                sort = KEY_C;
+                attr_sort = KEY_C;
                 break;
 
             case (KEY_D):
-                if (sort != KEY_D)
+                if (attr_sort != KEY_D)
                     clear();
-                sort = KEY_D;
+                attr_sort = KEY_D;
                 break;
 
             case (KEY_E):
-                if (sort != KEY_E)
+                if (attr_sort != KEY_E)
                     clear();
-                sort = KEY_E;
+                attr_sort = KEY_E;
                 break;
 
             case (KEY_I):
-                if (sort != KEY_I)
+                if (attr_sort != KEY_I)
                     clear();
-                sort = KEY_I;
+                attr_sort = KEY_I;
                 break;
 
             case (KEY_M):
-                if (sort != KEY_M)
+                if (attr_sort != KEY_M)
                     clear();
-                sort = KEY_M;
+                attr_sort = KEY_M;
                 break;
 
             case (KEY_N):
-                if (sort != KEY_N)
+                if (attr_sort != KEY_N)
                     clear();
-                sort = KEY_N;
+                attr_sort = KEY_N;
                 break;
 
             case (KEY_O):
-                if (sort != KEY_O)
+                if (attr_sort != KEY_O)
                     clear();
-                sort = KEY_O;
+                attr_sort = KEY_O;
                 break;
 
             case (KEY_P):
-                if (sort != KEY_P)
+                if (attr_sort != KEY_P)
                     clear();
-                sort = KEY_P;
+                attr_sort = KEY_P;
                 break;
 
             case (KEY_R):
-                if (sort != KEY_R)
+                if (attr_sort != KEY_R)
                     clear();
-                sort = KEY_R;
+                attr_sort = KEY_R;
                 break;
 
             case (KEY_S):
-                if (sort != KEY_S)
+                if (attr_sort != KEY_S)
                     clear();
-                sort = KEY_S;
+                attr_sort = KEY_S;
                 break;
 
             case (KEY_T):
-                if (sort != KEY_T)
+                if (attr_sort != KEY_T)
                     clear();
-                sort = KEY_T;
+                attr_sort = KEY_T;
                 break;
 
             case (KEY_V):
-                if (sort != KEY_V)
+                if (attr_sort != KEY_V)
                     clear();
-                sort = KEY_V;
+                attr_sort = KEY_V;
                 break;
 
             case (KEY_ESCAPE):  
-                RUNNING = 0;
+                running = 0;
                 break;
 
             default:
