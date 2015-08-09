@@ -36,8 +36,6 @@ void print_usage(void)
 
 char set_sort_option(char *opt)
 {
-    int i;
-    int num_opts = 11;
 
     char *opts[] = {"cpu", "fds", "pte", "mem", "nice", "pid",
                     "rss", "invol", "vmem", "write", "output"}; 
@@ -45,6 +43,9 @@ char set_sort_option(char *opt)
     char opts_char[] = {'c', 'd', 'e', 'm', 'n', 'p', 
                         'r', 's', 'v', 'i', 'o'};
 
+    int num_opts = sizeof(opts) / sizeof( typeof(opts[0])) ;
+
+    int i;
     for (i=0; i < num_opts; i++)
         if (!strcmp(opt, opts[i]))
             return opts_char[i];
