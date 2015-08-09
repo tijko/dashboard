@@ -1,7 +1,5 @@
-#include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <ncurses.h>
 
@@ -30,32 +28,27 @@ void init_screen(int log_opt, char attr_sort)
 
 void dashboard_loop(int log_opt, char attr_sort)
 {
-    int key;
-    int max_y;
-    int prev_y, prev_x;
-    int curr_y, curr_x;
-    int plineno, prevplineno;
-    char *fstype;
-    int running;
-    int nproc;
-    int memtotal; 
-    int refresh_rate;
     proc_t *processes;
     
     euid = geteuid();
-    refresh_rate = REFRESH_RATE;
-    memtotal = total_memory();
+    int refresh_rate = REFRESH_RATE;
+    int memtotal = total_memory();
 
-    prev_y = 0, prev_x = 0;
-    curr_y = 0, curr_x = 0;
-    plineno = 0, prevplineno = 0;
+    int prev_y = 0, prev_x = 0;
+    int curr_y = 0, curr_x = 0;
+    int plineno = 0, prevplineno = 0;
     getmaxyx(stdscr, curr_y, curr_x);
 
+    char *fstype;
     fstype = filesystem_type();
     if (!fstype)
         fstype = "Unavailable";
 
-    running = 1;
+    int running = 1;
+
+    int nproc;
+    int key;
+    int max_y;
 
     while (running) {
 

@@ -34,9 +34,9 @@
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
 
-static char * const fieldattrs[] = {"  NAME", "PID", "USER", "CPU", "MEM%%", 
-                                     "NI", "IO", "ST", "VMEM", "PTE", "RES",
-                                     "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
+static char const *fieldattrs[] = {"  NAME", "PID", "USER", "CPU", "MEM%%", 
+                                   "NI", "IO", "ST", "VMEM", "PTE", "RES",
+                                   "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
                                                                            ""};
 
 static const unsigned int fieldattr_size = ((sizeof(fieldattrs) / 
