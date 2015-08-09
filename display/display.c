@@ -182,8 +182,8 @@ void dashboard_loop(int log_opt, char attr_sort)
 
 int update_screen(proc_t *processes, char *fstype, int plineno)
 {
+    int cur_y = 9; // set value as macro
     int max_y, max_x;
-    int cur_y = 9;
     getmaxyx(stdscr, max_y, max_x);
 
     attron(A_BOLD);
@@ -244,10 +244,14 @@ char *fieldbar_builder(void)
                                      sizeof(char))) == NULL)
         return NULL;
 
-    int i, head;    
+    int i, head; 
+    // maintain a `head` of the string to avoid repeated calls to `strlen`
     for (i=0, head=0; i < fieldattr_size; i++) {
         add_space(fieldbar, fieldattrs[i], head, attrspace[i]);    
-        head = head + strlen(fieldattrs[i]) + attrspace[i];
+        head += (strlen(fieldattrs[i]) + attrspace[i]);
+        // check one ahead if the next field attribute with space will go
+        // beyond the width of the screen.  the array is padded with zeroes
+        // @ the end to account for out of bounds references.
         if ((head + strlen(fieldattrs[i+1]) + attrspace[i+1]) >= max_x)
             break;
     }
@@ -255,7 +259,7 @@ char *fieldbar_builder(void)
     unsigned int spaceleft;
 
     if (max_x > head) {
-        spaceleft = max_x - head;
+        spaceleft = max_x - head; // check if blank bar space is needed to fill
         add_space(fieldbar, "", head, spaceleft);
     }
 
@@ -266,7 +270,7 @@ void add_space(char *curbar, char *field, int strterm, int spaces)
 {
     int space;
     strcat(curbar + strterm, field);
-    strterm = strterm + strlen(field);
+    strterm += strlen(field);
     for (space=0; space < spaces; space++)
         curbar[strterm + space] = ' ';
 
