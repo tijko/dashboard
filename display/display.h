@@ -7,11 +7,32 @@
 #include "../src/process.h"
 
 
+#define DASHBOARD "DASHBOARD"
 #define REFRESH_RATE 10
 
 #define LINE_X 2 
-
+#define LINE_Y 9
 #define PROCLN 11
+
+enum {
+    LPID   = 18,
+    LUSER  = 26,
+    LCPU   = 36,
+    LMEM   = 40,
+    LLNICE = 48,
+    LMNICE = 49,
+    LNNICE = 50,
+    LPRIO  = 54,
+    LSTATE = 63,
+    LVMEM  = 69,
+    LPTE   = 79,
+    LRSS   = 88,
+    LREAD  = 97,
+    LWRITE = 111,
+    LFDS   = 124,
+    LINVOL = 133,
+    LTHRDS = 144
+};
 
 #define DELAY 5
 

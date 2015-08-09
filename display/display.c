@@ -44,7 +44,7 @@ void dashboard_loop(int log_opt, char attr_sort)
     if (!fstype)
         fstype = "Unavailable";
 
-    int running = 1;
+    bool running = true;
 
     int nproc;
     int key;
@@ -63,6 +63,8 @@ void dashboard_loop(int log_opt, char attr_sort)
         
         getmaxyx(stdscr, curr_y, curr_x);
 
+        // `xor` the current line positions against the previous
+        // if any differ `clear` for a redraw.
         if ((prev_y ^ curr_y) | (prev_x ^ curr_x) | (plineno ^ prevplineno)) 
             clear();
 
@@ -159,7 +161,7 @@ void dashboard_loop(int log_opt, char attr_sort)
                 break;
 
             case (KEY_ESCAPE):  
-                running = 0;
+                running = false;
                 break;
 
             default:
@@ -182,12 +184,12 @@ void dashboard_loop(int log_opt, char attr_sort)
 
 int update_screen(proc_t *processes, char *fstype, int plineno)
 {
-    int cur_y = 9; // set value as macro
+    int cur_y = LINE_Y;
     int max_y, max_x;
     getmaxyx(stdscr, max_y, max_x);
 
     attron(A_BOLD);
-    mvwprintw(stdscr, 1, (max_x / 2) - 4, "DASHBOARD");
+    mvwprintw(stdscr, 1, (max_x / 2) - 4, DASHBOARD);
     attroff(A_BOLD);
 
     build_info(fstype);
@@ -202,29 +204,38 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
     while (processes && cur_y < max_y - 1) {
         if (plineno == 0) {
             mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-            mvwprintw(stdscr, cur_y, LINE_X + 18, "%d   ", processes->pid);
-            mvwprintw(stdscr, cur_y, LINE_X + 26, "%s   ", processes->user);
-            mvwprintw(stdscr, cur_y, LINE_X + 36, "%d ", processes->cpuset);
-            mvwprintw(stdscr, cur_y, LINE_X + 40, "%.2f%", processes->mempcent);
+            mvwprintw(stdscr, cur_y, LINE_X + LPID, "%d   ", processes->pid);
+            mvwprintw(stdscr, cur_y, LINE_X + LUSER, "%s   ", processes->user);
+            mvwprintw(stdscr, cur_y, LINE_X + LCPU, "%d ", processes->cpuset);
+            mvwprintw(stdscr, cur_y, LINE_X + LMEM, "%.2f%", 
+                      processes->mempcent);
             if (processes->nice >= 0 && processes->nice < 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + 50, "%d", processes->nice);
+                mvwprintw(stdscr, cur_y, LINE_X + LNNICE, "%d", 
+                          processes->nice);
             else if (processes->nice >= 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + 49, "%d", processes->nice);
+                mvwprintw(stdscr, cur_y, LINE_X + LMNICE, "%d", 
+                          processes->nice);
             else 
-                mvwprintw(stdscr, cur_y, LINE_X + 48, "%d", processes->nice);
-            mvwprintw(stdscr, cur_y, LINE_X + 54, "%s", processes->ioprio);
-            mvwprintw(stdscr, cur_y, LINE_X + 63, "%s", processes->state);
-            mvwprintw(stdscr, cur_y, LINE_X + 69, "%d", processes->vmem);
-            mvwprintw(stdscr, cur_y, LINE_X + 79, "%d", processes->pte);
-            mvwprintw(stdscr, cur_y, LINE_X + 88, "%d", processes->rss); 
-            mvwprintw(stdscr, cur_y, LINE_X + 97, "%llu", processes->io_read);
-            mvwprintw(stdscr, cur_y, LINE_X + 111, "%llu", processes->io_write);
-            mvwprintw(stdscr, cur_y, LINE_X + 124, "%d", processes->open_fds);
-            mvwprintw(stdscr, cur_y, LINE_X + 134, "%d", processes->invol_sw);
-            mvwprintw(stdscr, cur_y++, LINE_X + 144, "%d", processes->thrcnt);
+                mvwprintw(stdscr, cur_y, LINE_X + LLNICE, "%d", 
+                          processes->nice);
+            mvwprintw(stdscr, cur_y, LINE_X + LPRIO, "%s", processes->ioprio);
+            mvwprintw(stdscr, cur_y, LINE_X + LSTATE, "%s", processes->state);
+            mvwprintw(stdscr, cur_y, LINE_X + LVMEM, "%d", processes->vmem);
+            mvwprintw(stdscr, cur_y, LINE_X + LPTE, "%d", processes->pte);
+            mvwprintw(stdscr, cur_y, LINE_X + LRSS, "%d", processes->rss); 
+            mvwprintw(stdscr, cur_y, LINE_X + LREAD, "%llu", 
+                      processes->io_read);
+            mvwprintw(stdscr, cur_y, LINE_X + LWRITE, "%llu", 
+                      processes->io_write);
+            mvwprintw(stdscr, cur_y, LINE_X + LFDS, "%d", processes->open_fds);
+            mvwprintw(stdscr, cur_y, LINE_X + LINVOL, "%d", 
+                      processes->invol_sw);
+            mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%d", 
+                      processes->thrcnt);
         } else {
             plineno--;
         }
+
         processes = processes->next;
     }
 
