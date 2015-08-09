@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200810L
+
 #include <sys/socket.h>
 #include <linux/taskstats.h>
 

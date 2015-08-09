@@ -15,27 +15,23 @@
 
 int current_cpus(int pid)
 {
-    int ret, cpu_affinity;
-    size_t mask_size;
     cpu_set_t proc_cpus;
 
-    mask_size = sizeof proc_cpus;
+    size_t mask_size = sizeof proc_cpus;
 
-    ret = sched_getaffinity(pid, mask_size, &proc_cpus);
+    int ret = sched_getaffinity(pid, mask_size, &proc_cpus);
 
     if (ret == -1)
         return errno;
 
-    cpu_affinity = CPU_COUNT(&proc_cpus);
+    int cpu_affinity = CPU_COUNT(&proc_cpus);
 
     return cpu_affinity;
 }
 
 int nice(int pid)
 {
-    int niceness;
-    niceness = getpriority(PRIO_PROCESS, pid);
-    return niceness;
+    return getpriority(PRIO_PROCESS, pid);
 }
 
 void ctxt_switch(proc_t *procs)
@@ -45,31 +41,30 @@ void ctxt_switch(proc_t *procs)
 
 void state(proc_t *procs)
 {
-    int i;
-    FILE *fp;
-    char *ln, *path, *field;
-    char *proc_state = NULL;
-    size_t n, fieldlen;
+    char *field = "State";
+    size_t fieldlen = strlen(field);
 
-    field = "State";
-    fieldlen = strlen(field);
+    char *path = construct_path(3, PROC, procs->pidstr, STATUS);
 
-    path = construct_path(3, PROC, procs->pidstr, STATUS);
-    fp = fopen(path, "r");
+    FILE *fp = fopen(path, "r");
+
     if (fp == NULL) {
         free(path);
         procs->state = NULL;
         return;
     }
             
-    for (n=0, ln=NULL; getline(&ln, &n, fp) !=0;) {
+    int i;
+    size_t n;
+
+    char *proc_state = NULL, *ln = NULL;
+
+    for (n=0; getline(&ln, &n, fp) !=0;) {
         *(ln + fieldlen) = '\0';
         if (!strcmp(ln, field)) {
             proc_state = malloc(sizeof(char) * STATE);
-            for (i=0; !isspace(*(ln + i)); i++)
-                ;
-            for (; !isalpha(*(ln + i)); i++)
-                ;
+            for (i=0; !isspace(ln[i++]););
+            for (; !isalpha(ln[i++]););
             *proc_state = *(ln + i);
             *(proc_state + 1) = '\0';
             break;
