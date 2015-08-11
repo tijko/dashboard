@@ -63,9 +63,9 @@ void state(proc_t *procs)
         *(ln + fieldlen) = '\0';
         if (!strcmp(ln, field)) {
             proc_state = malloc(sizeof(char) * STATE);
-            for (i=0; !isspace(ln[i++]););
-            for (; !isalpha(ln[i++]););
-            *proc_state = *(ln + i);
+            for (i=0; !isspace(ln[i++]); );
+            for (; !isalpha(ln[i++]); );
+            *proc_state = *(ln + i - 1);
             *(proc_state + 1) = '\0';
             break;
         }
