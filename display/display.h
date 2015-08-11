@@ -60,9 +60,9 @@ static char const *fieldattrs[] = {"  NAME", "PID", "USER", "CPU", "MEM%%",
                                    "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
                                                                            ""};
 
-static const unsigned int fieldattr_size = ((sizeof(fieldattrs) / 
-                                             sizeof( __typeof__(fieldattrs) )) /
-                                                                           -1);
+static const unsigned int fieldattr_size = (sizeof fieldattrs / 
+                                            sizeof( __typeof__(fieldattrs[0]) )) 
+                                                                             -1;
 
 static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 
                                 6, 6, 6, 10, 8, 6, 4, 0, 0};
