@@ -12,7 +12,7 @@
 #include "../src/util/sort_fields.h"
 
 
-void init_screen(int log_opt, char attr_sort)
+void init_screen(char attr_sort)
 {
     initscr();
     noecho();
@@ -23,10 +23,10 @@ void init_screen(int log_opt, char attr_sort)
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    dashboard_loop(log_opt, attr_sort);
+    dashboard_loop(attr_sort);
 }
 
-void dashboard_loop(int log_opt, char attr_sort)
+void dashboard_loop(char attr_sort)
 {
     proc_t *processes;
     
@@ -277,7 +277,7 @@ char *fieldbar_builder(void)
     return fieldbar;
 }
     
-void add_space(char *curbar, char *field, int strterm, int spaces)
+void add_space(char *curbar, char const *field, int strterm, int spaces)
 {
     int space;
     strcat(curbar + strterm, field);

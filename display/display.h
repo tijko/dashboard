@@ -69,14 +69,14 @@ static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5,
 
 uid_t euid;
 
-void init_screen(int log_opt, char attr_sort);
+void init_screen(char attr_sort);
 
-void dashboard_loop(int log_opt, char attr_sort);
+void dashboard_loop(char attr_sort);
 
 int update_screen(proc_t *processes, char *fstype, int plineno);
 
 char *fieldbar_builder(void);
 
-void add_space(char *fieldbar, char *field, int strterm, int spaces);
+void add_space(char *fieldbar, char const *field, int strterm, int spaces);
 
 #endif

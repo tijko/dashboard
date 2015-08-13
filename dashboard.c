@@ -54,19 +54,17 @@ char set_sort_option(char *opt)
 
 int main(int argc, char *argv[])
 {
-    int lopt, log_opt;
+    int lopt;
     char attr_sort;
 
     struct option lopts[] = {
         {"help", 0, NULL, 'h'},
-        {"log", 0, NULL, 'l'},
         {"sort", 1, NULL, 's'},
         {NULL, 0, NULL, 0}
     };
 
-    const char *sopts = "hls:";
+    const char *sopts = "hs:";
 
-    log_opt = 0;
     attr_sort = 0;
 
     while ((lopt = getopt_long_only(argc, argv, sopts, lopts, NULL)) != -1) {
@@ -74,9 +72,6 @@ int main(int argc, char *argv[])
             case('h'):
                 print_usage();
                 return 0;
-            case('l'):
-                log_opt = 1;
-                break;
             case('s'):
                 if (optarg)
                     attr_sort = set_sort_option(optarg);
@@ -89,7 +84,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    init_screen(log_opt, attr_sort);
+    init_screen(attr_sort);
 
     return 0;
 }
