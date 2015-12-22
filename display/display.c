@@ -71,7 +71,7 @@ void dashboard_loop(char attr_sort)
         prev_y = curr_y;
         prev_x = curr_x;
         prevplineno = plineno;
-        max_y = curr_y - PROCLN;
+        max_y = curr_y - PROC_LINE_SIZE;
 
         if ((update_screen(processes, fstype, plineno)) < 0)
             return;
@@ -232,9 +232,8 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
                       processes->invol_sw);
             mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%d", 
                       processes->thrcnt);
-        } else {
+        } else 
             plineno--;
-        }
 
         processes = processes->next;
     }
@@ -280,8 +279,10 @@ char *fieldbar_builder(void)
 void add_space(char *curbar, char const *field, int strterm, int spaces)
 {
     int space;
+
     strcat(curbar + strterm, field);
     strterm += strlen(field);
+
     for (space=0; space < spaces; space++)
         curbar[strterm + space] = ' ';
 
