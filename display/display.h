@@ -8,7 +8,7 @@
 
 
 #define DASHBOARD "DASHBOARD"
-#define REFRESH_RATE 10
+#define REFRESH_RATE 50
 
 #define LINE_X 2 
 #define LINE_Y 9
