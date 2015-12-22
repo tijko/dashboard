@@ -31,16 +31,17 @@ void dashboard_loop(char attr_sort)
     proc_t *processes;
     
     euid = geteuid();
-    int refresh_rate = REFRESH_RATE;
     int memtotal = total_memory();
 
     int prev_y = 0, prev_x = 0;
     int curr_y = 0, curr_x = 0;
     int plineno = 0, prevplineno = 0;
+
     getmaxyx(stdscr, curr_y, curr_x);
 
     char *fstype;
     fstype = filesystem_type();
+
     if (!fstype)
         fstype = "Unavailable";
 
@@ -75,9 +76,11 @@ void dashboard_loop(char attr_sort)
 
         if ((update_screen(processes, fstype, plineno)) < 0)
             return;
+
         key = wgetch(stdscr);
 
         switch (key) {
+
             case (KEY_UP):
                 if (plineno > 0) 
                     plineno--;
@@ -169,14 +172,7 @@ void dashboard_loop(char attr_sort)
         }
 
         free_procs(processes); 
-
-        if (refresh_rate == REFRESH_RATE) {
-            clear();
-            --refresh_rate;
-        } else if (refresh_rate == 0)
-            refresh_rate = REFRESH_RATE;
-        else
-            --refresh_rate;
+        delay_output(REFRESH_RATE);
     }
 
     endwin();
