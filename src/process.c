@@ -15,6 +15,7 @@
 #include "disk.h"
 #include "memory.h"
 #include "process.h"
+#include "util/file_utils.h"
 #include "../display/display.h"
 
 
