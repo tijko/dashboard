@@ -1,5 +1,7 @@
+#include <stdio.h>
 #include <getopt.h>
 #include <string.h>
+
 #include "display/display.h"
 
 
