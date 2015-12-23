@@ -1,9 +1,13 @@
 #define _POSIX_C_SOURCE 200810L
 
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <linux/taskstats.h>
 
 #include "taskstats.h"
+#include "../process.h"
 
 
 int create_conn(void)
