@@ -4,6 +4,7 @@
 #include <dirent.h>
 
 #include "ipc.h"
+#include "util/file_utils.h"
 
 
 void current_fds(proc_t *proc)
