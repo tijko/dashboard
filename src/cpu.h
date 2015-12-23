@@ -1,3 +1,6 @@
+#ifndef CPU_H
+#define CPU_H
+
 #include "process.h"
 
 #define MAXPATH 32 
@@ -10,3 +13,5 @@ int nice(int pid);
 void state(proc_t *procs);
 
 void ctxt_switch(proc_t *procs);
+
+#endif
