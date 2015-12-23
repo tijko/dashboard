@@ -7,9 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-
 #include <sys/syscall.h>
-
+#include <sys/resource.h>
 
 #include "cpu.h"
 #include "disk.h"
