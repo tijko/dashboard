@@ -1,6 +1,5 @@
-#define _GNU_SOURCE
-
-#include <sys/resource.h>
+#ifndef DISK_H
+#define DISK_H
 
 
 #ifdef __i386__
@@ -25,3 +24,5 @@ char *ioprio_class(int pid);
 char *ioprio_class_nice(int pid);
 
 void proc_io(proc_t *procs);
+
+#endif
