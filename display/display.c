@@ -1,4 +1,11 @@
+#define _POSIX_C_SOURCE 199310L
+
+#include <sys/timerfd.h>
+#include <time.h>
+#include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -7,7 +14,6 @@
 #include "../src/cpu.h"
 #include "../src/disk.h"
 #include "../src/memory.h"
-#include "../src/process.h"
 #include "../system/sys_stats.h"
 #include "../src/util/sort_fields.h"
 
@@ -39,25 +45,26 @@ void dashboard_loop(char attr_sort)
 
     getmaxyx(stdscr, curr_y, curr_x);
 
-    char *fstype;
-    fstype = filesystem_type();
+    char *fstype = filesystem_type();
 
     if (!fstype)
         fstype = "Unavailable";
 
-    bool running = true;
+    bool running = true, update_sys = true;
 
-    int nproc;
-    int key;
-    int max_y;
+    struct itimerspec *sys_timer = malloc(sizeof *sys_timer);
+    if (sys_timer == NULL)
+        return;
+
+    int sys_timer_fd = set_sys_timer(sys_timer);
 
     while (running) {
 
         if ((processes = malloc(sizeof *processes)) == NULL)
             return;
         
-        processes->prev = NULL;
-        nproc = current_procs(processes, memtotal);
+        processes->prev = NULL; // set in current_proc call
+        int nproc = current_procs(processes, memtotal);
 
         if (attr_sort)
             processes = sort_by_field(processes, attr_sort, nproc);
@@ -72,12 +79,12 @@ void dashboard_loop(char attr_sort)
         prev_y = curr_y;
         prev_x = curr_x;
         prevplineno = plineno;
-        max_y = curr_y - PROC_LINE_SIZE;
+        int max_y = curr_y - PROC_LINE_SIZE;
 
-        if ((update_screen(processes, fstype, plineno)) < 0)
+        if ((update_screen(processes, update_sys, fstype, plineno)) < 0)
             return;
 
-        key = wgetch(stdscr);
+        int key = wgetch(stdscr);
 
         switch (key) {
 
@@ -173,12 +180,22 @@ void dashboard_loop(char attr_sort)
 
         free_procs(processes); 
         delay_output(REFRESH_RATE);
+
+        bool update_sys = sys_field_timer(sys_timer_fd); 
+
+        if (update_sys) {
+            close(sys_timer_fd);
+            int sys_timer_fd = set_sys_timer(sys_timer);
+        }
+
     }
 
     endwin();
+    free(sys_timer);
 }
 
-int update_screen(proc_t *processes, char *fstype, int plineno)
+int update_screen(proc_t *processes, bool sys_fields_refresh, 
+                  char *fstype, int plineno)
 {
     int cur_y = LINE_Y;
     int max_y, max_x;
@@ -188,13 +205,17 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
     mvwprintw(stdscr, 1, (max_x / 2) - 4, DASHBOARD);
     attroff(A_BOLD);
 
-    build_info(fstype);
+    if (sys_fields_refresh)
+        build_sys_info(fstype);
 
     attron(A_REVERSE);
+
     char *fieldbar = fieldbar_builder(); 
     if (fieldbar == NULL)
         return -ENOMEM;
+
     mvwprintw(stdscr, cur_y++, 1, fieldbar);
+
     attroff(A_REVERSE);
 
     while (processes && cur_y < max_y - 1) {
@@ -239,6 +260,31 @@ int update_screen(proc_t *processes, char *fstype, int plineno)
     free(fieldbar);
 
     return 0;
+}
+
+bool sys_field_timer(int sys_timer_fd)
+{
+    uint64_t time_read = 0;
+    int ret = read(sys_timer_fd, &time_read, sizeof(uint64_t));
+
+    return ret > 0 ? true : false;
+}
+
+int set_sys_timer(struct itimerspec *sys_timer)
+{
+    struct timespec current_time;
+    clock_gettime(CLOCK_REALTIME, &current_time);
+
+    sys_timer->it_interval.tv_sec = SYS_TIMER_EXPIRED_SEC;
+    sys_timer->it_interval.tv_nsec = SYS_TIMER_EXPIRED_NSEC;
+
+    sys_timer->it_value.tv_sec = SYS_TIMER_LENGTH + current_time.tv_sec;
+    sys_timer->it_value.tv_nsec = current_time.tv_nsec;
+
+    int timer_fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
+    timerfd_settime(timer_fd, TFD_TIMER_ABSTIME, sys_timer, NULL);
+    
+    return timer_fd;
 }
 
 char *fieldbar_builder(void)
