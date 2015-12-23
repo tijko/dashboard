@@ -1,17 +1,8 @@
 #ifndef TASKSTATS_UTIL_H
 #define TASKSTATS_UTIL_H
 
-#ifdef _POSIX_C_SOURCE
-#undef _POSIX_C_SOURCE
-#endif
-
-#define _POSIX_C_SOURCE 200809
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdbool.h>
 #include <linux/genetlink.h>
 
 #include "../process.h"
@@ -48,5 +39,5 @@ bool nl_recv(int conn, struct nl_msg *req);
 int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field);
 
 void task_req(proc_t *procs, char field);
-#undef _POSIX_C_SOURCE
+
 #endif
