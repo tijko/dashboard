@@ -9,8 +9,8 @@
 #include <sys/resource.h>
 
 #include "cpu.h"
-#include "process.h"
 #include "util/taskstats.h"
+#include "util/file_utils.h"
 
 
 int current_cpus(int pid)
