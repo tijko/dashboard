@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "memory.h"
+#include "util/file_utils.h"
 
 
 int total_memory(void)
