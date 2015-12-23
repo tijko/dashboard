@@ -1,12 +1,9 @@
 #ifndef PROC_H
 #define PROC_H
 
-#include <stdint.h>
-#include <dirent.h>
-#include <stdbool.h>
-#include <sys/types.h>
 
-#include "util/file_utils.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 
 #define PROCNAME_MAX 1024
