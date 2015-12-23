@@ -12,22 +12,20 @@
 
 char *mem_avail(unsigned long memory, unsigned long base)
 {
-    float total;
-    char *memsz;
-    int high;
     char *size_names[5] = {"B", "kB", "mB", "gB", "tB"};
 
-    total = (float) (memory * base);
+    float total = (float) (memory * base);
 
+    int high;
     for (high=0; total > BASE; high++, total /= BASE)
         ;
 
-    memsz = malloc(sizeof(char) * MAXTOT);
+    char *memsz = malloc(sizeof(char) * MAXTOT);
     snprintf(memsz, MAXTOT, "%.2f %s\n", total, size_names[high]);
     return memsz;
 }
 
-void build_info(char *fstype)
+void build_sys_info(char *fstype)
 {
     int cur_y, cur_x, max_x, inc_x;
     char *totalfree_str, *memsz;
