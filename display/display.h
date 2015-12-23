@@ -1,9 +1,15 @@
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199310L
+#endif
+
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include <ncurses.h>
+#include <time.h>
+#include <sys/timerfd.h>
+#include <sys/types.h>
+
 #include "../src/process.h"
 
 
@@ -52,6 +58,10 @@ enum {
 
 #define FIELDS 15
 
+#define SYS_TIMER_EXPIRED_SEC 0
+#define SYS_TIMER_EXPIRED_NSEC 0
+#define SYS_TIMER_LENGTH 1
+
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
 
@@ -73,7 +83,12 @@ void init_screen(char attr_sort);
 
 void dashboard_loop(char attr_sort);
 
-int update_screen(proc_t *processes, char *fstype, int plineno);
+int update_screen(proc_t *processes, bool sys_fields_refresh, 
+                  char *fstype, int plineno);
+
+bool sys_field_timer(int sys_timer_fd);
+
+int set_sys_timer(struct itimerspec *sys_timer);
 
 char *fieldbar_builder(void);
 
