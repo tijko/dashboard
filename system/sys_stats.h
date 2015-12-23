@@ -13,7 +13,7 @@
 
 #define NRPTYS "/proc/sys/kernel/pty/nr"
 
-void build_info(char *fstype);
+void build_sys_info(char *fstype);
 
 char *mem_avail(unsigned long memory, unsigned long base);
 
