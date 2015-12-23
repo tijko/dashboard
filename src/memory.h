@@ -1,3 +1,6 @@
+#ifndef MEM_H
+#define MEM_H
+
 #include "process.h"
 
 #define VMEM "VmSize"
@@ -8,3 +11,5 @@
 int total_memory(void);
 
 void memory_percentage(proc_t *procs, int totalmem);
+
+#endif
