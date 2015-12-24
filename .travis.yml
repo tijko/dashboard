@@ -1,7 +1,7 @@
 language: c
 
-required:
-    - sudo
+sudo:
+    - required
 
 dist:
     - trusty
