@@ -7,8 +7,8 @@
 #define DISPLAY_H
 
 #include <time.h>
-#include <sys/timerfd.h>
 #include <sys/types.h>
+#include <sys/timerfd.h>
 
 #include "../src/process.h"
 
@@ -58,9 +58,11 @@ enum {
 
 #define FIELDS 15
 
+#define TIME_READ_DEFAULT 0 
+
 #define SYS_TIMER_EXPIRED_SEC 0
 #define SYS_TIMER_EXPIRED_NSEC 0
-#define SYS_TIMER_LENGTH 1
+#define SYS_TIMER_LENGTH 2000005 // XXX
 
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
@@ -86,7 +88,7 @@ void dashboard_loop(char attr_sort);
 int update_screen(proc_t *processes, bool sys_fields_refresh, 
                   char *fstype, int plineno);
 
-bool sys_field_timer(int sys_timer_fd);
+bool is_sysfield_timer_expired(int sys_timer_fd);
 
 int set_sys_timer(struct itimerspec *sys_timer);
 
