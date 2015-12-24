@@ -1,6 +1,5 @@
 #define _POSIX_C_SOURCE 199310L
 
-#include <sys/timerfd.h>
 #include <time.h>
 #include <stdio.h>
 #include <errno.h>
@@ -9,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <sys/timerfd.h>
 
 #include "display.h"
 #include "../src/cpu.h"
@@ -181,11 +181,11 @@ void dashboard_loop(char attr_sort)
         free_procs(processes); 
         delay_output(REFRESH_RATE);
 
-        bool update_sys = sys_field_timer(sys_timer_fd); 
+        bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
 
         if (update_sys) {
             close(sys_timer_fd);
-            int sys_timer_fd = set_sys_timer(sys_timer);
+            sys_timer_fd = set_sys_timer(sys_timer);
         }
 
     }
@@ -262,12 +262,12 @@ int update_screen(proc_t *processes, bool sys_fields_refresh,
     return 0;
 }
 
-bool sys_field_timer(int sys_timer_fd)
+bool is_sysfield_timer_expired(int sys_timer_fd)
 {
-    uint64_t time_read = 0;
-    int ret = read(sys_timer_fd, &time_read, sizeof(uint64_t));
+    uint64_t time_read = TIME_READ_DEFAULT;
+    read(sys_timer_fd, &time_read, sizeof(uint64_t));
 
-    return ret > 0 ? true : false;
+    return time_read > 0 ? true : false;
 }
 
 int set_sys_timer(struct itimerspec *sys_timer)
