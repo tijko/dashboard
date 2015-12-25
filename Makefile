@@ -4,13 +4,10 @@ CC = gcc
 TARGET = dashboard 
 DASH = dashboard.c
 
-LINKEDLIBS = $(shell ldconfig -Np)
-
-ifeq ($(findstring librt.so, $(LINKEDLIBS)), )
-FLAGS = -g -lrt -lcurses -Wall -Wextra -std=gnu99 
-else
 FLAGS = -g -lcurses -Wall -Wextra -std=gnu99 
-endif 
+
+LIBCVER := $(shell ldd --version | grep "(GNU libc)" | cut -d '.' -f 2)
+RT := $(shell if [[ $(LIBCVER) -lt 18 ]]; then echo -lrt; fi)
 
 SRC = $(wildcard src/*.c)
 SYS = $(wildcard system/*.c)
@@ -18,7 +15,7 @@ DIS = $(wildcard display/*.c)
 UTIL = $(wildcard src/util/*.c)
 
 $(TARGET): $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL)
-	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS)
+	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS) $(RT)
 
 install:
 	cp $(TARGET) /usr/bin
