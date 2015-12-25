@@ -19,7 +19,7 @@ DIS = $(wildcard display/*.c)
 UTIL = $(wildcard src/util/*.c)
 
 $(TARGET): $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL)
-	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS) $()
+	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS) $(RT)
 
 install:
 	cp $(TARGET) /usr/bin
