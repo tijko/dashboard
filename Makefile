@@ -1,6 +1,5 @@
 CC = gcc
 
-FLAGS = -g -lcurses -Wall -Wextra -std=gnu99 
 
 TARGET = dashboard 
 DASH = dashboard.c
@@ -8,9 +7,9 @@ DASH = dashboard.c
 LINKEDLIBS = $(shell ldconfig -Np)
 
 ifeq ($(findstring librt.so, $(LINKEDLIBS)), )
-RT = -lrt
+FLAGS = -g -lrt -lcurses -Wall -Wextra -std=gnu99 
 else
-RT = 
+FLAGS = -g -lcurses -Wall -Wextra -std=gnu99 
 endif 
 
 SRC = $(wildcard src/*.c)
@@ -19,7 +18,7 @@ DIS = $(wildcard display/*.c)
 UTIL = $(wildcard src/util/*.c)
 
 $(TARGET): $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL)
-	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS) $(RT)
+	$(CC) $(DASH) $(DIS) $(SRC) $(SYS) $(UTIL) -o $(TARGET) $(FLAGS)
 
 install:
 	cp $(TARGET) /usr/bin
