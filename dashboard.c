@@ -1,8 +1,19 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <getopt.h>
+#include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
+#include <stdbool.h>
+#include <sys/timerfd.h>
 
-#include "display/display.h"
+#include "dashboard.h"
+#include "src/io/disk.h"
+#include "src/memory/memory.h"
+#include "src/process/process.h"
+#include "src/display/display.h"
+#include "src/system/sys_stats.h"
+#include "src/util/sort_fields.h"
 
 
 void print_usage(void)
@@ -54,10 +65,183 @@ char set_sort_option(char *opt)
     return 0;
 }
 
+
+void dashboard_mainloop(char attr_sort)
+{
+    init_screen();
+
+    board_t *dashboard = malloc(sizeof *dashboard);
+    if (dashboard == NULL)
+        return;
+
+
+    uid_t euid = geteuid();        // XXX pass in with build_proc_list?
+    int memtotal = total_memory(); // XXX passing in build_proc_list?
+
+    int process_line_num = 0, prev_process_line_num = 0;
+    getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
+    dashboard->prev_x = 0;
+    dashboard->prev_y = 0;
+
+    char *fstype = filesystem_type();
+
+    if (!fstype)
+        fstype = "Unavailable";
+
+    bool running = true, update_sys = true;
+
+    struct itimerspec *sys_timer = malloc(sizeof *sys_timer);
+    if (sys_timer == NULL)
+        return;
+
+    int sys_timer_fd = set_sys_timer(sys_timer);
+    dashboard->fieldbar = build_fieldbar();
+
+    while (running) {
+
+        proc_t *process_list = build_process_list(memtotal, euid); 
+        int number_of_processes = get_numberof_processes(process_list); 
+
+        if (attr_sort) // XXX return void from sort --
+            process_list = sort_by_field(process_list, attr_sort, 
+                                         number_of_processes);
+        
+        getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
+
+//        if (dashboard->max_x ^ dashboard->prev_x)
+//            dashboard->fieldbar = build_fieldbar();
+
+        // `xor` the current line positions against the previous
+        // if any differ `clear` for a redraw.
+        if ((dashboard->prev_y ^ dashboard->max_y) | 
+            (dashboard->prev_x ^ dashboard->max_x) |
+            (process_line_num ^ prev_process_line_num)) 
+            clear();
+
+        dashboard->prev_y = dashboard->max_y;
+        dashboard->prev_x = dashboard->max_x;
+        prev_process_line_num = process_line_num;
+
+        if ((update_screen(process_list, update_sys, fstype, 
+                           dashboard->fieldbar, process_line_num, 
+                           dashboard->max_x, dashboard->max_y)) < 0)
+            return;
+
+        int key = wgetch(stdscr);
+
+        switch (key) {
+
+            case (KEY_UP):
+                if (process_line_num > 0) 
+                    process_line_num--;
+                break;
+
+            case (KEY_DOWN):
+                if (process_line_num < (number_of_processes - 
+                                       (dashboard->max_y - PROC_LINE_SIZE))) 
+                    process_line_num++; 
+                break;
+
+            case (KEY_C):
+                if (attr_sort != KEY_C)
+                    clear();
+                attr_sort = KEY_C;
+                break;
+
+            case (KEY_D):
+                if (attr_sort != KEY_D)
+                    clear();
+                attr_sort = KEY_D;
+                break;
+
+            case (KEY_E):
+                if (attr_sort != KEY_E)
+                    clear();
+                attr_sort = KEY_E;
+                break;
+
+            case (KEY_I):
+                if (attr_sort != KEY_I)
+                    clear();
+                attr_sort = KEY_I;
+                break;
+
+            case (KEY_M):
+                if (attr_sort != KEY_M)
+                    clear();
+                attr_sort = KEY_M;
+                break;
+
+            case (KEY_N):
+                if (attr_sort != KEY_N)
+                    clear();
+                attr_sort = KEY_N;
+                break;
+
+            case (KEY_O):
+                if (attr_sort != KEY_O)
+                    clear();
+                attr_sort = KEY_O;
+                break;
+
+            case (KEY_P):
+                if (attr_sort != KEY_P)
+                    clear();
+                attr_sort = KEY_P;
+                break;
+
+            case (KEY_R):
+                if (attr_sort != KEY_R)
+                    clear();
+                attr_sort = KEY_R;
+                break;
+
+            case (KEY_S):
+                if (attr_sort != KEY_S)
+                    clear();
+                attr_sort = KEY_S;
+                break;
+
+            case (KEY_T):
+                if (attr_sort != KEY_T)
+                    clear();
+                attr_sort = KEY_T;
+                break;
+
+            case (KEY_V):
+                if (attr_sort != KEY_V)
+                    clear();
+                attr_sort = KEY_V;
+                break;
+
+            case (KEY_ESCAPE):  
+                running = false;
+                break;
+
+            default:
+                break;
+        }
+
+        free_procs(process_list); 
+        delay_output(REFRESH_RATE);
+
+        bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
+
+        if (update_sys) {
+            close(sys_timer_fd);
+            sys_timer_fd = set_sys_timer(sys_timer);
+        }
+
+    }
+
+    endwin();
+    free(sys_timer);
+    free(dashboard);
+}
+
 int main(int argc, char *argv[])
 {
     int lopt;
-    char attr_sort;
 
     struct option lopts[] = {
                              {"help", 0, NULL, 'h'},
@@ -67,7 +251,7 @@ int main(int argc, char *argv[])
 
     const char *sopts = "hs:";
 
-    attr_sort = 0;
+    char attr_sort = 0;
 
     while ((lopt = getopt_long_only(argc, argv, sopts, lopts, NULL)) != -1) {
 
@@ -91,7 +275,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    init_screen(attr_sort);
+    dashboard_mainloop(attr_sort);
 
     return 0;
 }
