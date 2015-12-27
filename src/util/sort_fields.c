@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "../process.h"
 #include "sort_fields.h"
+#include "../process/process.h"
 
 
 proc_t *sort_by_field(proc_t *procs, int field, int nproc)
