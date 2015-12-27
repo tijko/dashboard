@@ -7,7 +7,7 @@
 #include <linux/taskstats.h>
 
 #include "taskstats.h"
-#include "../process.h"
+#include "../process/process.h"
 
 
 int create_conn(void)
