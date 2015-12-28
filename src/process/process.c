@@ -60,7 +60,7 @@ proc_t *build_process_list(int memtotal, uid_t euid)
             if (!process_list->user) 
                 continue;
 
-            memory_percentage(process_list, memtotal);
+            process_list->mempcent = memory_percentage(process_list->pidstr, memtotal);
             if (process_list->mempcent == -1)
                 continue;
 
