@@ -76,7 +76,7 @@ proc_t *build_process_list(int memtotal, uid_t euid)
             if (!process_list->state) 
                 continue;
 
-            current_fds(process_list);
+            process_list->open_fds = current_fds(process_list->pidstr);
             process_list->pte = get_field(process_list->pidstr, PTE);
             process_list->rss = get_field(process_list->pidstr, RSS);
             process_list->vmem = get_field(process_list->pidstr, VMEM);
