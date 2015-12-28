@@ -13,7 +13,6 @@
 #include "disk.h"
 #include "../cpu/cpu.h"
 #include "../util/taskstats.h"
-#include "../process/process.h"
 
 
 char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
