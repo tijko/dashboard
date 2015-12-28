@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200810L
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -7,7 +8,6 @@
 #include <linux/taskstats.h>
 
 #include "taskstats.h"
-#include "../process/process.h"
 
 
 int create_conn(void)
@@ -145,7 +145,7 @@ bool nl_recv(int conn, struct nl_msg *req)
     return true;
 }
 
-int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field)
+uint64_t taskstats_reply(struct nl_msg *reply, char field)
 {
     int msgleft;
     struct nlattr *nla;
@@ -155,7 +155,9 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field)
     msgleft = NLA_PAYLOAD((struct nlmsghdr *) reply);
 
     while (msgleft) {
+
         switch (nla->nla_type) {
+
             case (TASKSTATS_TYPE_AGGR_PID):
                 nla = (struct nlattr *) NLA_DATA(nla);
                 msgleft -= NLA_HDRLEN;
@@ -171,68 +173,57 @@ int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field)
                 tsk = (struct taskstats *) NLA_DATA(nla);
 
                 switch (field) {
-                    case ('d'):                        
-                        procs->io_read = tsk->read_bytes;
-                        procs->io_write = tsk->write_bytes;
-                        break;
+
+                    case ('i'): 
+                        return tsk->read_bytes;
+
+                    case ('o'):
+                        return tsk->write_bytes;
+
                     case ('s'):
-                        procs->invol_sw = tsk->nivcsw;
-                        break;
+                        return tsk->nivcsw;
                 }
 
                 break;
         }
     }
+
     return 0;
 }
 
-void task_req(proc_t *procs, char field)
+uint64_t task_req(int pid, char field)
 {
-    int pid, conn, family_id, req_len;
-    struct nl_msg req, *nlreq_msg;
-    conn = create_conn();
-    nlreq_msg = malloc(sizeof *nlreq_msg);
+    struct nl_msg req;
+
+    int conn = create_conn();
+    struct nl_msg *nlreq_msg = malloc(sizeof *nlreq_msg);
+    uint64_t tstat_reply_value = 0;
 
     if (conn == -1) 
         goto close_conn;
 
-    family_id = get_family_id(conn);
+    int family_id = get_family_id(conn);
 
     if (family_id == -1) 
         goto close_conn;
 
-    pid = procs->pid;
     build_req(nlreq_msg, family_id, TASKSTATS_CMD_GET, 
               TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
-    req_len = GET_REQUEST_LENGTH(nlreq_msg);
+    int req_len = GET_REQUEST_LENGTH(nlreq_msg);
     if (!nl_req(conn, (char *) nlreq_msg, req_len))
         goto close_conn;
 
     memset(&req, 0, sizeof(req));
+
     if (!nl_recv(conn, &req) || req.nlh.nlmsg_type == NLMSG_ERROR)
         goto close_conn;
 
-    taskstats_reply(&req, procs, field);
-
-    free(nlreq_msg);
-    close(conn);
-
-    return; 
+    tstat_reply_value = taskstats_reply(&req, field);
 
     close_conn:
         free(nlreq_msg);
         close(conn);
-        
-        switch (field) {
-            case ('d'):
-                procs->io_read = 0;
-                procs->io_write = 0;
-                break;
-            case ('s'):
-                procs->invol_sw = 0;
-                break;
-        }
 
-    return;
+    return tstat_reply_value; 
 }
