@@ -23,8 +23,8 @@ Emulation of top command line tool
 
 #### Usage
 
-While dashboard is running the fields can be sorted by using their associated 
-keybinding in descending order:
+While dashboard is running the fields can be sorted in descending order by 
+entering on your keyboard the fields matching keybinding:
 
 1.  `c` - The number of cores the process is allowed to run on.
 
