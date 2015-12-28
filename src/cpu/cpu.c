@@ -4,6 +4,7 @@
 #include <sched.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/resource.h>
@@ -16,7 +17,6 @@
 int current_cpus(int pid)
 {
     cpu_set_t proc_cpus;
-
     size_t mask_size = sizeof proc_cpus;
 
     int ret = sched_getaffinity(pid, mask_size, &proc_cpus);
@@ -34,24 +34,23 @@ int nice(int pid)
     return getpriority(PRIO_PROCESS, pid);
 }
 
-void ctxt_switch(proc_t *procs)
+uint64_t get_process_ctxt_switches(int pid)
 {
-    task_req(procs, 's');
+    return task_req(pid, 's');
 }
 
-void state(proc_t *procs)
+char *state(char *pidstr)
 {
     char *field = "State";
     size_t fieldlen = strlen(field);
 
-    char *path = construct_path(3, PROC, procs->pidstr, STATUS);
+    char *path = construct_path(3, PROC, pidstr, STATUS);
 
     FILE *fp = fopen(path, "r");
 
     if (fp == NULL) {
         free(path);
-        procs->state = NULL;
-        return;
+        return NULL;
     }
             
     int i;
@@ -71,9 +70,9 @@ void state(proc_t *procs)
         }
     }
 
-    procs->state = strdup(proc_state);
     fclose(fp);
     free(ln);
     free(path);
-    free(proc_state);
+    
+    return proc_state;
 }    
