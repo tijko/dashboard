@@ -1,6 +1,7 @@
 #ifndef DISK_H
 #define DISK_H
 
+#include <stdint.h>
 #include "../process/process.h"
 
 
@@ -25,6 +26,6 @@ char *ioprio_class(int pid);
 
 char *ioprio_class_nice(int pid);
 
-void proc_io(proc_t *procs);
+uint64_t get_process_taskstat_io(int pid, char field);
 
 #endif
