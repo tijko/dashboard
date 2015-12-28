@@ -182,6 +182,9 @@ uint64_t taskstats_reply(struct nl_msg *reply, char field)
 
                     case ('s'):
                         return tsk->nivcsw;
+
+                    default:
+                        break;
                 }
 
                 break;
