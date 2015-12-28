@@ -24,29 +24,33 @@ Emulation of top command line tool
 #### Usage
 
 While dashboard is running the fields can be sorted by using their associated 
-keybinding from largest to smallest:
+keybinding in descending order:
 
-1.  `c` - will order the cpuset field, this is the current allowable CPU's.
+1.  `c` - The number of cores the process is allowed to run on.
 
-2.  `d` - orders the file descriptors field, showing which process currently
-         has highest total.
+2.  `d` - The total number of open file descriptors.
 
-3.  `e` - orders the pte field, this is the amount in kB of page table entries 
-         of the process.
+3.  `e` - The amount in kB of page table entries of the process.
 
-4.  `m` - the current amount of memory percentage the process is using.
+4.  `i` - Current total of bytes input written by the process.
 
-5.  `n` - the niceness of the process.
+5.  `m` - The current amount of memory percentage the process is using.
 
-6.  `p` - order by the value of the process id.
+6.  `n` - The niceness of the process.
 
-7.  `r` - the processes current rss size in kB.
+7.  `o` - Current total of bytes output read by the process.
 
-8.  `v` - the processes current virtual memory size in kB. 
+8.  `p` - The process id.
 
-9.  `o` - current total of bytes read by the process.
+9.  `r` - The current resident set size in kB.
 
-10. `i` - current total of bytes written by the process.
+10. 's' - Total number of involuntary context switches.
+
+11. 't' - Processes current thread count.
+
+12. `v` - The processes current virtual memory size in kB. 
+
+
 
 ###### NOTE:  
 
