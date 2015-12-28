@@ -11,7 +11,6 @@ typedef struct {
     int prev_x;
     int prev_y;
     proc_t *process_list;
-    // build sysinfo
 } board_t;    
 
 void print_usage(void);
