@@ -9,8 +9,7 @@
 
 int total_memory(void)
 {
-    char *mempath = "/proc/meminfo";
-    char *memory = proc_parser(mempath, "MemTotal");
+    char *memory = proc_parser(MEMINFO, TOTALMEM);
 
     if (memory != NULL) {
         int value = strtol(memory, NULL, 10);
@@ -21,20 +20,22 @@ int total_memory(void)
     return -1;
 }
 
-void memory_percentage(proc_t *procs, int totalmem)
+float memory_percentage(char *pidstr, int totalmem)
 {
-    float total_usage;
+    float total_usage, total_mem_percent;
 
-    char *path = construct_path(3, PROC, procs->pidstr, STATUS);
+    char *path = construct_path(3, PROC, pidstr, STATUS);
 
     char *percentage = proc_parser(path, VMEM);
 
     if (percentage != NULL) {
         total_usage = (float) strtol(percentage, NULL, 10);
         free(percentage);
-        procs->mempcent = (total_usage / totalmem) * 100;
+        total_mem_percent = (total_usage / totalmem) * 100;
     } else 
-        procs->mempcent = MINMEM;
+        total_mem_percent = MINMEM;
     
     free(path);
+
+    return total_mem_percent;
 }
