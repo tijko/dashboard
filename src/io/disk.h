@@ -2,7 +2,6 @@
 #define DISK_H
 
 #include <stdint.h>
-#include "../process/process.h"
 
 
 #ifdef __i386__
