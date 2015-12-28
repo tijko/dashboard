@@ -54,5 +54,6 @@ entering on your keyboard the fields matching keybinding:
 
 ###### NOTE:  
 
-In order to obtain and display the i/o stats (READ/WRITE fields in the header 
-bar) you will need elavated privileges, run dashboard as root.
+In order to obtain and display the i/o and context switch stats 
+(READ/WRITE and NIVCSW fields respectively) you will need elavated privileges,
+run dashboard as root.
