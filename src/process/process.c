@@ -212,28 +212,13 @@ proc_t *create_proc(void)
             
 void free_procs(proc_t *process_list)
 {
-    proc_t *tmp = NULL;
-
     while (process_list) {
-        if (tmp)
-            free(tmp);
-        free(process_list->name);        
-        free(process_list->user);
-        free(process_list->ioprio);
-        free(process_list->state);
-        tmp = process_list;
+        proc_t *tmp = process_list;
         process_list = process_list->next;
-        /*
-            tmp = procs;
-            procs = procs->next;
-            free(tmp->name);
-            free(tmp->user);
-            free(tmp->ioprio);
-            free(tmp->state);
-            free(tmp);
-        */
-    }
-
-    if (tmp)
+        free(tmp->name);
+        free(tmp->user);
+        free(tmp->ioprio);
+        free(tmp->state);
         free(tmp);
+    }
 }
