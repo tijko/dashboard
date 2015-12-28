@@ -36,8 +36,8 @@ bool nl_req(int conn, char *buf, int buflen);
 
 bool nl_recv(int conn, struct nl_msg *req);
 
-int taskstats_reply(struct nl_msg *reply, proc_t *procs, char field);
+uint64_t taskstats_reply(struct nl_msg *reply, char field);
 
-void task_req(proc_t *procs, char field);
+uint64_t task_req(int pid, char field);
 
 #endif
