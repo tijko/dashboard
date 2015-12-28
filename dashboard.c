@@ -75,8 +75,8 @@ void dashboard_mainloop(char attr_sort)
         return;
 
 
-    uid_t euid = geteuid();        // XXX pass in with build_proc_list?
-    int memtotal = total_memory(); // XXX passing in build_proc_list?
+    uid_t euid = geteuid();
+    int memtotal = total_memory();
 
     int process_line_num = 0, prev_process_line_num = 0;
     getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
@@ -108,8 +108,8 @@ void dashboard_mainloop(char attr_sort)
         
         getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
 
-//        if (dashboard->max_x ^ dashboard->prev_x)
-//            dashboard->fieldbar = build_fieldbar();
+        if (dashboard->max_x ^ dashboard->prev_x)
+            dashboard->fieldbar = build_fieldbar();
 
         // `xor` the current line positions against the previous
         // if any differ `clear` for a redraw.
