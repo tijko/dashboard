@@ -74,14 +74,14 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 cmp_fields[1] = proc_arr[proc_index]->nice;
                 break;
 
-            case (KEY_P):
-                cmp_fields[0] = cur->pid;
-                cmp_fields[1] = proc_arr[proc_index]->pid;
-                break;
-
             case (KEY_O):
                 cmp_fields[0] = cur->io_read;
                 cmp_fields[1] = proc_arr[proc_index]->io_read;
+                break;
+
+            case (KEY_P):
+                cmp_fields[0] = cur->pid;
+                cmp_fields[1] = proc_arr[proc_index]->pid;
                 break;
 
             case (KEY_R):
