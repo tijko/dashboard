@@ -108,8 +108,10 @@ void dashboard_mainloop(char attr_sort)
         
         getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
 
-        if (dashboard->max_x ^ dashboard->prev_x)
+        if (dashboard->max_x ^ dashboard->prev_x) {
+            free(dashboard->fieldbar);
             dashboard->fieldbar = build_fieldbar();
+        }
 
         // `xor` the current line positions against the previous
         // if any differ `clear` for a redraw.
@@ -236,6 +238,7 @@ void dashboard_mainloop(char attr_sort)
 
     endwin();
     free(sys_timer);
+    free(dashboard->fieldbar);
     free(dashboard);
 }
 
