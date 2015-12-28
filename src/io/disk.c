@@ -81,7 +81,7 @@ char *ioprio_class_nice(int pid)
     return class;
 }
 
-void proc_io(proc_t *procs)
+uint64_t get_process_taskstat_io(int pid, char field)
 {
-    task_req(procs, 'd');
+    return task_req(pid, field);
 }    
