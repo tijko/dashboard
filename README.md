@@ -44,9 +44,9 @@ keybinding in descending order:
 
 9.  `r` - The current resident set size in kB.
 
-10. 's' - Total number of involuntary context switches.
+10. `s` - Total number of involuntary context switches.
 
-11. 't' - Processes current thread count.
+11. `t` - Processes current thread count.
 
 12. `v` - The processes current virtual memory size in kB. 
 
