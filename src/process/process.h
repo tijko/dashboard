@@ -11,18 +11,7 @@
 
 #define MAXPROCPATH 2048
 
-#define STATUS "/status"
-#define PROC "/proc/"
-#define COMM "/comm"
-#define FD "/fd"
-
 #define COMMLEN 0x20 
-
-#define UID "Uid"
-#define PTE "VmPTE"
-#define RSS "VmRSS"
-#define VMEM "VmSize"
-#define THRS "Threads"
 
 typedef struct process_attr proc_t;
 
