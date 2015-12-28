@@ -1,6 +1,5 @@
 CC = gcc
 
-
 TARGET = dashboard 
 DASH = dashboard.c
 
