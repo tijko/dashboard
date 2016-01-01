@@ -13,9 +13,9 @@
 
 #define COMMLEN 0x20 
 
-typedef struct process_attr proc_t;
+//typedef struct process_attr proc_t;
 
-struct process_attr {
+typedef struct process_attr {
     char *name;
     char *pidstr;
     char *user;
@@ -35,9 +35,9 @@ struct process_attr {
     int thrcnt;
     uint64_t io_read;
     uint64_t io_write;
-    proc_t *prev;
-    proc_t *next;
-};
+    struct process_attr *prev;
+    struct process_attr *next;
+} proc_t;
 
 proc_t *build_process_list(int memtotal, uid_t euid);
 
