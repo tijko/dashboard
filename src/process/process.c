@@ -27,10 +27,7 @@ proc_t *build_process_list(int memtotal, uid_t euid)
     process_list->prev = NULL;
     proc_t *head = process_list;
  
-    char *cp;
-
-    if ((cp = calloc(sizeof(char) * MAXPROCPATH, sizeof(char))) == NULL)
-        return NULL;
+    char process_path[MAXPROCPATH];
 
     int nproc = 0;
 
@@ -41,8 +38,9 @@ proc_t *build_process_list(int memtotal, uid_t euid)
 
     while ((curr = readdir(dir))) {
 
-        snprintf(cp, MAXPROCPATH - 1, "%s%s", PROC, curr->d_name);
-        stat(cp, &currp);
+        memset(process_path, 0, MAXPROCPATH);
+        snprintf(process_path, MAXPROCPATH - 1, "%s%s", PROC, curr->d_name);
+        stat(process_path, &currp);
 
         if ((currp.st_mode & S_IFDIR) && is_pid(curr->d_name)) {
             process_list->pidstr = curr->d_name;
@@ -93,17 +91,11 @@ proc_t *build_process_list(int memtotal, uid_t euid)
             process_list = process_list->next;
             process_list->proc_no = ++nproc;
         }
-    
-        free(cp); // memset instead of free/calloc
-
-        if ((cp = calloc(sizeof(char) * MAXPROCPATH, sizeof(char))) == NULL)
-            return NULL;
     }
 
     closedir(dir);
     process_list->prev->next = NULL;
     free(process_list);
-    free(cp);
 
     return head; 
 }
