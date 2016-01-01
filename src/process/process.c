@@ -86,10 +86,6 @@ proc_t *build_process_list(int memtotal, uid_t euid)
                 process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
                 process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
                 process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
-            } else {
-                process_list->io_read = 0;
-                process_list->io_write = 0;
-                process_list->invol_sw = 0;
             }
 
             process_list->next = create_proc();
