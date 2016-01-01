@@ -56,12 +56,13 @@ char set_sort_option(char *opt)
     char opts_char[] = {'c', 'd', 'e', 'm', 'n', 'p', 
                         'r', 's', 'v', 'i', 'o'};
 
-    int num_opts = sizeof(opts) / sizeof( __typeof__(opts[0]));
+    int num_opts = sizeof(opts) / sizeof(__typeof__(opts[0]));
 
     int i;
     for (i=0; i < num_opts; i++)
         if (!strcmp(opt, opts[i]))
             return opts_char[i];
+
     return 0;
 }
 
