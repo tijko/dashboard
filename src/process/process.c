@@ -45,7 +45,7 @@ proc_t *build_process_list(int memtotal, uid_t euid)
             process_list->pidstr = curr->d_name;
             process_list->pid = atoi(curr->d_name);
 
-            name_pid(process_list);
+            process_list->name = get_process_name(process_list);
             if (!process_list->name)
                 continue;
 
@@ -102,37 +102,37 @@ proc_t *build_process_list(int memtotal, uid_t euid)
 bool is_pid(char *process_name)
 {
     unsigned int pos;
+
     for (pos=0; pos < strlen(process_name) && 
          isdigit(process_name[pos]); pos++);
+
     return pos == strlen(process_name) ? true : false;
 }
 
-void name_pid(proc_t *proc)
+char *get_process_name(proc_t *proc)
 {
-    int ofd, i;
-    void *buf;
-    char *comm, *process_name;
+    char *comm = construct_path(3, PROC, proc->pidstr, COMM);
 
-    comm = construct_path(3, PROC, proc->pidstr, COMM);
+    int comm_fd = open(comm, O_RDONLY);
 
-    ofd = open(comm, O_RDONLY);
-    if (ofd == -1) {
+    if (comm_fd == -1) {
         free(comm);
-        proc->name = NULL;
-        return;
+        return NULL;
     }
 
-    buf = calloc(sizeof(char) * PROCNAME_MAX, sizeof(char));
-    read(ofd, buf, PROCNAME_MAX);
-    process_name = (char *) buf;
+    char *process_name = malloc(sizeof(char) * PROCNAME_MAX);
+    read(comm_fd, process_name, PROCNAME_MAX - 1);
 
-    for (i=0; *(process_name + i) != '\n'; ++i)
-        ;
+    char *newline = strchr(process_name, '\n');
+    if (newline == NULL)
+        return NULL;
 
-    *(process_name + i) = '\0'; 
-    proc->name = (char *) process_name;
+    *newline = '\0';
+
     free(comm);
-    close(ofd);
+    close(comm_fd);
+
+    return process_name;
 } 
 
 void proc_user(proc_t *proc)
