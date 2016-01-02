@@ -38,7 +38,6 @@ proc_t *build_process_list(int memtotal, uid_t euid)
 
     while ((curr = readdir(dir))) {
 
-        memset(process_path, 0, MAXPROCPATH);
         snprintf(process_path, MAXPROCPATH - 1, "%s%s", PROC, curr->d_name);
         stat(process_path, &currp);
 
@@ -200,8 +199,7 @@ proc_t *create_proc(void)
             
 void free_procs(proc_t *process_list)
 {
-    while (process_list) {
-        proc_t *tmp = process_list;
+    for (proc_t *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
         free(tmp->name);
         free(tmp->user);
