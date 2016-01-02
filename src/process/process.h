@@ -13,8 +13,6 @@
 
 #define COMMLEN 0x20 
 
-//typedef struct process_attr proc_t;
-
 typedef struct process_attr {
     char *name;
     char *pidstr;
