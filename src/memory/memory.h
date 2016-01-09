@@ -9,8 +9,8 @@
 
 #define MINMEM 0.0
 
-int total_memory(void);
+long total_memory(void);
 
-float memory_percentage(char *pidstr, int totalmem);
+float memory_percentage(char *pidstr, long totalmem);
 
 #endif
