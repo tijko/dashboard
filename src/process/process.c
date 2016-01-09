@@ -24,26 +24,26 @@ proc_t *build_process_list(int memtotal, uid_t euid)
     if (process_list == NULL)
         return NULL;
 
-    process_list->prev = NULL;
     proc_t *head = process_list;
  
     char process_path[MAXPROCPATH];
 
     int nproc = 0;
 
-    struct dirent *curr;
-    struct stat currp;
+    struct dirent *current_proc_dir;
+    struct stat proc_stat;
 
-    DIR *dir = opendir(PROC);
+    DIR *proc_fs_dir = opendir(PROC);
 
-    while ((curr = readdir(dir))) {
+    while ((current_proc_dir = readdir(proc_fs_dir))) {
 
-        snprintf(process_path, MAXPROCPATH - 1, "%s%s", PROC, curr->d_name);
-        stat(process_path, &currp);
+        snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
+                 PROC, current_proc_dir->d_name);
+        stat(process_path, &proc_stat);
 
-        if ((currp.st_mode & S_IFDIR) && is_pid(curr->d_name)) {
-            process_list->pidstr = curr->d_name;
-            process_list->pid = atoi(curr->d_name);
+        if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) {
+            process_list->pidstr = current_proc_dir->d_name;
+            process_list->pid = atoi(current_proc_dir->d_name);
 
             process_list->name = get_process_name(process_list);
             if (!process_list->name)
@@ -92,7 +92,7 @@ proc_t *build_process_list(int memtotal, uid_t euid)
         }
     }
 
-    closedir(dir);
+    closedir(proc_fs_dir);
     process_list->prev->next = NULL;
     free(process_list);
 
