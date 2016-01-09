@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <fcntl.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <mntent.h>
+#include <stdbool.h>
 #include <ncurses.h>
 #include <sys/sysinfo.h>
 
