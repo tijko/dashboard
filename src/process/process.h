@@ -4,7 +4,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <sys/types.h>
 
 
 #define PROCNAME_MAX 1024
@@ -37,20 +36,20 @@ typedef struct process_attr {
     struct process_attr *next;
 } proc_t;
 
-proc_t *build_process_list(int memtotal, uid_t euid);
+proc_t *build_process_list(void);
 
 int get_numberof_processes(proc_t *process_list);
 
 proc_t *create_proc(void);
 
-void free_procs(proc_t *process_list);
+void free_process_list(proc_t *process_list);
 
 bool is_pid(char *process_name);
 
-void proc_user(proc_t *proc);
+char *proc_user(char *process);
 
 int get_field(char *pid, char *field);
 
-char *get_process_name(proc_t *procs);
+char *get_process_name(char *process);
 
 #endif
