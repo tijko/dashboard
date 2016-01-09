@@ -11,12 +11,7 @@
 
 #include "display.h"
 #include "../process/process.h"
-
-//#include "../src/cpu.h"
-//#include "../src/disk.h"
-//#include "../memory/memory.h"
 #include "../system/sys_stats.h" // XXX
-//#include "../src/util/sort_fields.h"
 
 
 void init_screen(void)
