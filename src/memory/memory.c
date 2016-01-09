@@ -7,12 +7,12 @@
 #include "../util/file_utils.h"
 
 
-int total_memory(void)
+long total_memory(void)
 {
     char *memory = proc_parser(MEMINFO, TOTALMEM);
 
     if (memory != NULL) {
-        int value = strtol(memory, NULL, 10);
+        long value = strtol(memory, NULL, 10);
         free(memory);
         return value;
     }
@@ -20,7 +20,7 @@ int total_memory(void)
     return -1;
 }
 
-float memory_percentage(char *pidstr, int totalmem)
+float memory_percentage(char *pidstr, long totalmem)
 {
     float total_usage, total_mem_percent;
 
