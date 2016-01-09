@@ -8,27 +8,24 @@
 #include <string.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 
 #include "process.h"
-#include "../ipc/ipc.h"
-#include "../cpu/cpu.h"
-#include "../io/disk.h"
-#include "../memory/memory.h"
 #include "../util/file_utils.h"
 
 
-proc_t *build_process_list(int memtotal, uid_t euid)
+proc_t *build_process_list(void)
 {
-    proc_t *process_list = create_proc();
-    if (process_list == NULL)
+    proc_t *process_entry = create_proc();
+    if (process_entry == NULL)
         return NULL;
 
-    proc_t *head = process_list;
+    proc_t *process_list = process_entry;
  
     char process_path[MAXPROCPATH];
 
-    int nproc = 0;
+    process_entry->proc_no = 1;
 
     struct dirent *current_proc_dir;
     struct stat proc_stat;
@@ -42,61 +39,23 @@ proc_t *build_process_list(int memtotal, uid_t euid)
         stat(process_path, &proc_stat);
 
         if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) {
-            process_list->pidstr = current_proc_dir->d_name;
-            process_list->pid = atoi(current_proc_dir->d_name);
+            // check name field for NULL...
+            process_entry->pidstr = strdup(current_proc_dir->d_name);
+            process_entry->pid = atoi(process_entry->pidstr);
+            process_entry->name = get_process_name(process_entry->pidstr);
 
-            process_list->name = get_process_name(process_list);
-            if (!process_list->name)
-                continue;
-
-            process_list->cpuset = current_cpus(process_list->pid);
-            if (process_list->cpuset < 1) 
-                continue;
-
-            proc_user(process_list);
-            if (!process_list->user) 
-                continue;
-
-            process_list->mempcent = memory_percentage(process_list->pidstr, memtotal);
-            if (process_list->mempcent == -1)
-                continue;
-
-            process_list->nice = nice(process_list->pid);
-            if (process_list->nice == 100)
-                continue;
-
-            process_list->ioprio = ioprio_class(process_list->pid);
-            if (!process_list->ioprio) 
-                continue;
-
-            process_list->state = state(process_list->pidstr);
-            if (!process_list->state) 
-                continue;
-
-            process_list->open_fds = current_fds(process_list->pidstr);
-            process_list->pte = get_field(process_list->pidstr, PTE);
-            process_list->rss = get_field(process_list->pidstr, RSS);
-            process_list->vmem = get_field(process_list->pidstr, VMEM);
-            process_list->thrcnt = get_field(process_list->pidstr, THRS);
-
-            if (euid == 0) {
-                process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
-                process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
-                process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
-            }
-
-            process_list->next = create_proc();
-            process_list->next->prev = process_list;
-            process_list = process_list->next;
-            process_list->proc_no = ++nproc;
+            process_entry->next = create_proc();
+            process_entry->next->prev = process_entry;
+            process_entry = process_entry->next;
+            process_entry->proc_no = process_entry->prev->proc_no + 1;
         }
     }
 
     closedir(proc_fs_dir);
-    process_list->prev->next = NULL;
-    free(process_list);
+    process_entry->prev->next = NULL;
+    free(process_entry);
 
-    return head; 
+    return process_list; 
 }
 
 bool is_pid(char *process_name)
@@ -109,9 +68,9 @@ bool is_pid(char *process_name)
     return pos == strlen(process_name) ? true : false;
 }
 
-char *get_process_name(proc_t *proc)
+char *get_process_name(char *process)
 {
-    char *comm = construct_path(3, PROC, proc->pidstr, COMM);
+    char *comm = construct_path(3, PROC, process, COMM);
 
     int comm_fd = open(comm, O_RDONLY);
 
@@ -124,8 +83,12 @@ char *get_process_name(proc_t *proc)
     read(comm_fd, process_name, PROCNAME_MAX - 1);
 
     char *newline = strchr(process_name, '\n');
-    if (newline == NULL)
+    if (newline == NULL) {
+        free(comm);
+        free(process_name);
+        close(comm_fd);
         return NULL;
+    }
 
     *newline = '\0';
 
@@ -135,13 +98,13 @@ char *get_process_name(proc_t *proc)
     return process_name;
 } 
 
-void proc_user(proc_t *proc)
+char *proc_user(char *process)
 {
-    proc->uid = get_field(proc->pidstr, UID);
-    struct passwd *getuser = getpwuid(proc->uid);
-    proc->user = NULL;
-    if (getuser) 
-        proc->user = strdup(getuser->pw_name);
+    int uid = get_field(process, UID);
+    struct passwd *getuser = getpwuid(uid);
+    if (getuser == NULL)
+        return NULL;
+    return strdup(getuser->pw_name);
 }
 
 int get_field(char *pid, char *field) // XXX fix
@@ -197,10 +160,11 @@ proc_t *create_proc(void)
     return p;
 }
             
-void free_procs(proc_t *process_list)
+void free_process_list(proc_t *process_list)
 {
     for (proc_t *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
+        free(tmp->pidstr);
         free(tmp->name);
         free(tmp->user);
         free(tmp->ioprio);
