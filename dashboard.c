@@ -5,13 +5,17 @@
 #include <string.h>
 #include <ncurses.h>
 #include <stdbool.h>
+#include <sys/types.h>
 #include <sys/timerfd.h>
 
 #include "dashboard.h"
+#include "src/cpu/cpu.h"
 #include "src/io/disk.h"
+#include "src/ipc/ipc.h"
 #include "src/memory/memory.h"
 #include "src/process/process.h"
 #include "src/display/display.h"
+#include "src/util/file_utils.h"
 #include "src/system/sys_stats.h"
 #include "src/util/sort_fields.h"
 
@@ -77,7 +81,7 @@ void dashboard_mainloop(char attr_sort)
 
 
     uid_t euid = geteuid();
-    int memtotal = total_memory();
+    long memtotal = total_memory();
 
     int process_line_num = 0, prev_process_line_num = 0;
     getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
@@ -100,9 +104,9 @@ void dashboard_mainloop(char attr_sort)
 
     while (running) {
 
-        proc_t *process_list = build_process_list(memtotal, euid); 
-        int number_of_processes = get_numberof_processes(process_list); 
-
+        proc_t *process_list = build_process_list(); 
+        int number_of_processes = get_numberof_processes(process_list);
+        get_process_stats(process_list, euid, memtotal);
         if (attr_sort) // XXX return void from sort --
             process_list = sort_by_field(process_list, attr_sort, 
                                          number_of_processes);
@@ -225,7 +229,7 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        free_procs(process_list); 
+        free_process_list(process_list); 
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -241,6 +245,29 @@ void dashboard_mainloop(char attr_sort)
     free(sys_timer);
     free(dashboard->fieldbar);
     free(dashboard);
+}
+
+void get_process_stats(proc_t *process_list, uid_t euid, long memtotal)
+{
+    for (; process_list != NULL; process_list=process_list->next) {
+
+        process_list->cpuset = current_cpus(process_list->pid);
+        process_list->user = proc_user(process_list->pidstr);
+        process_list->mempcent = memory_percentage(process_list->pidstr, memtotal);
+        process_list->nice = nice(process_list->pid);
+        process_list->ioprio = ioprio_class(process_list->pid);
+        process_list->state = state(process_list->pidstr);
+        process_list->open_fds = current_fds(process_list->pidstr);
+        process_list->pte = get_field(process_list->pidstr, PTE);
+        process_list->rss = get_field(process_list->pidstr, RSS);
+        process_list->vmem = get_field(process_list->pidstr, VMEM);
+        process_list->thrcnt = get_field(process_list->pidstr, THRS);
+
+        if (euid != 0) continue;
+        process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
+        process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
+        process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
+    }
 }
 
 int main(int argc, char *argv[])
