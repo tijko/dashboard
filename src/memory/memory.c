@@ -24,7 +24,10 @@ float memory_percentage(char *pidstr, long totalmem)
 {
     float total_usage, total_mem_percent;
 
-    char *path = construct_path(3, PROC, pidstr, STATUS);
+    size_t path_length = strlen(pidstr) + STATUS_LEN;
+    char *path = malloc(sizeof(char) * path_length + 1);
+
+    snprintf(path, path_length, STATUS, pidstr);
 
     char *percentage = proc_parser(path, VMEM);
 
