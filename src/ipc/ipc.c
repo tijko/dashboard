@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 
@@ -10,9 +11,11 @@
 int current_fds(char *pidstr)
 {
     struct dirent *fd_file;
-
-    char *path = construct_path(3, PROC, pidstr, FD);
+    size_t path_length = strlen(pidstr) + FD_LEN;
+    char *path = malloc(sizeof(char) * path_length + 1);
    
+    snprintf(path, path_length, FD, pidstr);
+
     int open_fds = 0;
  
     DIR *fd_dir = opendir(path);
