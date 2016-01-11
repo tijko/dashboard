@@ -80,8 +80,8 @@ void dashboard_mainloop(char attr_sort)
         return;
 
 
-    uid_t euid = geteuid();
-    long memtotal = total_memory();
+    dashboard->euid = geteuid();
+    dashboard->memtotal = total_memory();
 
     int process_line_num = 0, prev_process_line_num = 0;
     getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
@@ -104,12 +104,13 @@ void dashboard_mainloop(char attr_sort)
 
     while (running) {
 
-        proc_t *process_list = build_process_list(); 
-        int number_of_processes = get_numberof_processes(process_list);
-        get_process_stats(process_list, euid, memtotal);
+        dashboard->process_list = build_process_list(); 
+        int number_of_processes = get_numberof_processes(dashboard->process_list);
+        get_process_stats(dashboard);
         if (attr_sort) // XXX return void from sort --
-            process_list = sort_by_field(process_list, attr_sort, 
-                                         number_of_processes);
+            dashboard->process_list = sort_by_field(dashboard->process_list, 
+                                                    attr_sort,
+                                                    number_of_processes);
         
         getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
 
@@ -129,7 +130,7 @@ void dashboard_mainloop(char attr_sort)
         dashboard->prev_x = dashboard->max_x;
         prev_process_line_num = process_line_num;
 
-        if ((update_screen(process_list, update_sys, fstype, 
+        if ((update_screen(dashboard->process_list, update_sys, fstype, 
                            dashboard->fieldbar, process_line_num, 
                            dashboard->max_x, dashboard->max_y)) < 0)
             return;
@@ -229,7 +230,7 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        free_process_list(process_list); 
+        free_process_list(dashboard->process_list); 
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -247,23 +248,33 @@ void dashboard_mainloop(char attr_sort)
     free(dashboard);
 }
 
-void get_process_stats(proc_t *process_list, uid_t euid, long memtotal)
+void get_process_stats(board_t *dashboard)
 {
+    proc_t *process_list = dashboard->process_list;
+
     for (; process_list != NULL; process_list=process_list->next) {
 
+        snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
+                 process_list->pidstr);
+
         process_list->cpuset = current_cpus(process_list->pid);
-        process_list->user = proc_user(process_list->pidstr);
-        process_list->mempcent = memory_percentage(process_list->pidstr, memtotal);
+        process_list->user = proc_user(dashboard->path);
+        process_list->mempcent = memory_percentage(dashboard->path, 
+                                                   dashboard->memtotal);
+
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
-        process_list->state = state(process_list->pidstr);
-        process_list->open_fds = current_fds(process_list->pidstr);
-        process_list->pte = get_field(process_list->pidstr, PTE);
-        process_list->rss = get_field(process_list->pidstr, RSS);
-        process_list->vmem = get_field(process_list->pidstr, VMEM);
-        process_list->thrcnt = get_field(process_list->pidstr, THRS);
+        process_list->state = state(dashboard->path);
 
-        if (euid != 0) continue;
+        process_list->pte = get_field(dashboard->path, PTE);
+        process_list->rss = get_field(dashboard->path, RSS);
+        process_list->vmem = get_field(dashboard->path, VMEM);
+        process_list->thrcnt = get_field(dashboard->path, THRS);
+
+        snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
+        process_list->open_fds = current_fds(dashboard->path);
+
+        if (dashboard->euid != 0) continue;
         process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
         process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
         process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
