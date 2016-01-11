@@ -11,6 +11,6 @@
 
 long total_memory(void);
 
-float memory_percentage(char *pidstr, long totalmem);
+float memory_percentage(char *path, long totalmem);
 
 #endif
