@@ -75,32 +75,24 @@ void dashboard_mainloop(char attr_sort)
 {
     init_screen();
 
-    board_t *dashboard = malloc(sizeof *dashboard);
-    if (dashboard == NULL)
-        return;
-
-
-    dashboard->euid = geteuid();
-    dashboard->memtotal = total_memory();
-
+    bool running = true, update_sys = true;
     int process_line_num = 0, prev_process_line_num = 0;
-    getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
-    dashboard->prev_x = 0;
-    dashboard->prev_y = 0;
 
     char *fstype = filesystem_type();
 
     if (!fstype)
         fstype = "Unavailable";
 
-    bool running = true, update_sys = true;
+    board_t *dashboard = init_board();
+
+    if (dashboard == NULL)
+        return;
 
     struct itimerspec *sys_timer = malloc(sizeof *sys_timer);
     if (sys_timer == NULL)
         return;
 
     int sys_timer_fd = set_sys_timer(sys_timer);
-    dashboard->fieldbar = build_fieldbar();
 
     while (running) {
 
@@ -246,6 +238,23 @@ void dashboard_mainloop(char attr_sort)
     free(sys_timer);
     free(dashboard->fieldbar);
     free(dashboard);
+}
+
+board_t *init_board(void)
+{
+    board_t *board = malloc(sizeof *board);
+    if (board == NULL)
+        return NULL;
+
+    board->euid = geteuid();
+    board->memtotal = total_memory();
+
+    getmaxyx(stdscr, board->max_y, board->max_x);
+    board->prev_x = 0;
+    board->prev_y = 0;
+    board->fieldbar = build_fieldbar();
+
+    return board;
 }
 
 void get_process_stats(board_t *dashboard)
