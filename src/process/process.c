@@ -101,24 +101,18 @@ char *get_process_name(char *process)
     return process_name;
 } 
 
-char *proc_user(char *process)
+char *proc_user(char *path)
 {
-    int uid = get_field(process, UID);
+    int uid = get_field(path, UID);
     struct passwd *getuser = getpwuid(uid);
     if (getuser == NULL)
         return NULL;
     return strdup(getuser->pw_name);
 }
 
-int get_field(char *pid, char *field) // XXX fix
+int get_field(char *path, char *field) // XXX fix
 {
-    size_t path_length = strlen(pid) + STATUS_LEN;
-    char *path = malloc(sizeof(char) * path_length + 1);
-
-    snprintf(path, path_length, STATUS, pid);
-    
     char *field_str_value = proc_parser(path, field);
-    free(path);
 
     int value = 0;
 
