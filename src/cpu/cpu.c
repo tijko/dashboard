@@ -4,8 +4,8 @@
 #include <sched.h>
 #include <ctype.h>
 #include <errno.h>
-#include <stdint.h>
 #include <string.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <sys/resource.h>
 
@@ -39,21 +39,15 @@ uint64_t get_process_ctxt_switches(int pid)
     return task_req(pid, 's');
 }
 
-char *state(char *pidstr)
+char *state(char *path)
 {
     char *field = "State";
     size_t fieldlen = strlen(field);
-    size_t path_length = strlen(pidstr) + STATUS_LEN;
-
-    char *path = malloc(sizeof(char) * path_length + 1);
-    snprintf(path, path_length, STATUS, pidstr);
 
     FILE *fp = fopen(path, "r");
 
-    if (fp == NULL) {
-        free(path);
+    if (fp == NULL) 
         return NULL;
-    }
             
     int i;
     size_t n;
@@ -74,7 +68,6 @@ char *state(char *pidstr)
 
     fclose(fp);
     free(ln);
-    free(path);
     
     return proc_state;
 }    
