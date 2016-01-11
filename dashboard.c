@@ -99,6 +99,7 @@ void dashboard_mainloop(char attr_sort)
         dashboard->process_list = build_process_list(); 
         int number_of_processes = get_numberof_processes(dashboard->process_list);
         get_process_stats(dashboard);
+
         if (attr_sort) // XXX return void from sort --
             dashboard->process_list = sort_by_field(dashboard->process_list, 
                                                     attr_sort,
