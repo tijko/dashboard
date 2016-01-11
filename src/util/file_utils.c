@@ -9,29 +9,6 @@
 #include "file_utils.h"
 
 
-char *construct_path(int pathparts, ...)
-{
-    va_list part;
-    int args;
-    char *path_part, *pathname;
-
-    pathname = NULL;
-    va_start(part, pathparts);
-
-    for (args=0; args < pathparts; args++) {
-        path_part = (char *) va_arg(part, char *);
-        if (pathname == NULL)
-            pathname = calloc(sizeof(char) * strlen(path_part) + 1, sizeof(char));
-        else 
-            pathname = realloc(pathname, strlen(pathname) + strlen(path_part) + 1); // XXX fix
-        strcat(pathname, path_part);
-    }
-
-    va_end(part);
-
-    return pathname;
-}
-
 char *proc_parser(char *path, char *field)
 {
     int i, j;
