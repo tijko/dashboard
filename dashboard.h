@@ -26,6 +26,8 @@ char set_sort_option(char *opt);
 
 void dashboard_mainloop(char attr_sort);
 
+board_t *init_board(void);
+
 void get_process_stats(board_t *dashboard);
 
 #endif
