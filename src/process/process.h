@@ -10,7 +10,6 @@
 
 #define MAXPROCPATH 2048
 
-#define COMMLEN 0x20 
 
 typedef struct process_attr {
     char *name;
@@ -46,9 +45,9 @@ void free_process_list(proc_t *process_list);
 
 bool is_pid(char *process_name);
 
-char *proc_user(char *process);
+char *proc_user(char *path);
 
-int get_field(char *pid, char *field);
+int get_field(char *path, char *field);
 
 char *get_process_name(char *process);
 
