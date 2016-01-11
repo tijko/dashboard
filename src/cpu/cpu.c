@@ -43,8 +43,10 @@ char *state(char *pidstr)
 {
     char *field = "State";
     size_t fieldlen = strlen(field);
+    size_t path_length = strlen(pidstr) + STATUS_LEN;
 
-    char *path = construct_path(3, PROC, pidstr, STATUS);
+    char *path = malloc(sizeof(char) * path_length + 1);
+    snprintf(path, path_length, STATUS, pidstr);
 
     FILE *fp = fopen(path, "r");
 
