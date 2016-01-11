@@ -5,13 +5,18 @@
 
 #include "src/process/process.h"
 
+#define STAT_PATHMAX 32
+
 
 typedef struct {
-    char *fieldbar;
+    uid_t euid;
     int max_x;
     int max_y;
     int prev_x;
     int prev_y;
+    char path[STAT_PATHMAX];
+    char *fieldbar;
+    long memtotal;
     proc_t *process_list;
 } board_t;    
 
@@ -21,6 +26,6 @@ char set_sort_option(char *opt);
 
 void dashboard_mainloop(char attr_sort);
 
-void get_process_stats(proc_t *process_list, uid_t euid, long memtotal);
+void get_process_stats(board_t *dashboard);
 
 #endif
