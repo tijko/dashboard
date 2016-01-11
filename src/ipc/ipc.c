@@ -8,19 +8,15 @@
 #include "../util/file_utils.h"
 
 
-int current_fds(char *pidstr)
+int current_fds(char *path)
 {
     struct dirent *fd_file;
-    size_t path_length = strlen(pidstr) + FD_LEN;
-    char *path = malloc(sizeof(char) * path_length + 1);
-   
-    snprintf(path, path_length, FD, pidstr);
 
     int open_fds = 0;
  
     DIR *fd_dir = opendir(path);
     if (fd_dir == NULL) 
-        goto free_path;
+        return 0;
 
     while ((fd_file = readdir(fd_dir))) {
 
@@ -32,8 +28,5 @@ int current_fds(char *pidstr)
 
     closedir(fd_dir);
     
-    free_path:
-        free(path);
-
     return open_fds;
 }
