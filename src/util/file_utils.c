@@ -11,19 +11,18 @@
 
 char *proc_parser(char *path, char *field)
 {
-    int i, j;
-    FILE *fp;
-    char *ln, *tmp;
-    size_t fieldlen, n;
-
-    fp = fopen(path, "r");
-    fieldlen = strlen(field);
+    FILE *fp = fopen(path, "r");
+    size_t fieldlen = strlen(field);
 
     if (fp == NULL)
         return NULL;
 
-    n = 0;
-    tmp = NULL;
+    size_t n = 0;
+    char *tmp = NULL;
+
+    int i, j;
+
+    char *ln;
 
     for (n=0, tmp=NULL, ln=NULL; getline(&ln, &n, fp) != -1;) {
         *(ln + fieldlen) = '\0';
@@ -45,5 +44,6 @@ char *proc_parser(char *path, char *field)
 
     free(ln);
     fclose(fp);
+
     return tmp;
 }

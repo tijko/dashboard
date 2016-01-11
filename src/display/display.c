@@ -11,7 +11,7 @@
 
 #include "display.h"
 #include "../process/process.h"
-#include "../system/sys_stats.h" // XXX
+#include "../system/sys_stats.h"
 
 
 void init_screen(void)
@@ -36,7 +36,7 @@ int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype,
     mvwprintw(stdscr, 1, (max_x / 2) - 4, DASHBOARD);
     attroff(A_BOLD);
 
-    if (sys_fields_refresh) // mv to dashboard.c
+    if (sys_fields_refresh)
         build_sys_info(fstype);
 
     attron(A_REVERSE);

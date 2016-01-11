@@ -29,24 +29,17 @@ char *mem_avail(unsigned long memory, unsigned long base)
 
 void build_sys_info(char *fstype)
 {
-    int cur_y, cur_x, max_x, inc_x;
-    char *totalfree_str, *memsz;
+    int ptys = nr_ptys();
+    int max_x = getmaxx(stdscr);
+    int cur_y = 3;
+    int cur_x = 2;
+    int inc_x = max_x / 5; 
 
-    long totalfree; 
-    struct sysinfo *info;
-    int ptys;
-
-    ptys = nr_ptys();
-    max_x = getmaxx(stdscr);
-    cur_y = 3;
-    cur_x = 2;
-    inc_x = max_x / 5; 
-
-    info = malloc(sizeof *info);
+    struct sysinfo *info = malloc(sizeof *info);
     sysinfo(info);
 
-    totalfree_str = proc_parser(MEMINFO, MEMFREE);
-    totalfree = atol(totalfree_str) * BASE;
+    char *totalfree_str = proc_parser(MEMINFO, MEMFREE);
+    long totalfree = atol(totalfree_str) * BASE;
 
     current_uptime(info->uptime, cur_y, cur_x);
 
@@ -58,7 +51,7 @@ void build_sys_info(char *fstype)
     mvwprintw(stdscr, cur_y++, cur_x, "PTYs: %d", ptys);
     cur_x = 2;
 
-    memsz = mem_avail(info->totalram, info->mem_unit);
+    char *memsz = mem_avail(info->totalram, info->mem_unit);
     mvwprintw(stdscr, ++cur_y, cur_x, "TotalMem: %s", memsz);
     free(memsz);
 
@@ -113,23 +106,21 @@ void current_uptime(unsigned long seconds, int y, int x)
 
 int nr_ptys(void)
 {
-    int o_rd, r_bytes, bufsiz, ptys;
+    char pty_buffer[PTY_BUFFER_SZ];
 
-    bufsiz = 64;
-    char buf[bufsiz];
-
-    o_rd = open(NRPTYS, O_RDONLY);
+    int o_rd = open(NRPTYS, O_RDONLY);
     if (o_rd == -1)
         return -1;
 
-    r_bytes = read(o_rd, buf, bufsiz);   
+    int r_bytes = read(o_rd, pty_buffer, PTY_BUFFER_SZ - 1);
     if (r_bytes == -1) {
         close(o_rd);
         return -1;
     }
 
-    ptys = strtol(buf, NULL, 10);
+    int ptys = strtol(pty_buffer, NULL, 10);
     close(o_rd);
+
     return ptys;
 }
 

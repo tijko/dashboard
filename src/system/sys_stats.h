@@ -19,6 +19,7 @@
 #define SYS_TIMER_EXPIRED_NSEC 0
 #define SYS_TIMER_LENGTH 2000005 // XXX
 
+#define PTY_BUFFER_SZ 64
 #define NRPTYS "/proc/sys/kernel/pty/nr"
 
 void build_sys_info(char *fstype);

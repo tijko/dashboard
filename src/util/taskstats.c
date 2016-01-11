@@ -12,15 +12,13 @@
 
 int create_conn(void)
 {
-    int conn;
     struct sockaddr_nl nladdr;
-    socklen_t nladdr_len;
     
-    nladdr_len = sizeof(struct sockaddr_nl);
+    socklen_t nladdr_len = sizeof(struct sockaddr_nl);
     memset(&nladdr, 0, nladdr_len);
     nladdr.nl_family = AF_NETLINK;
 
-    conn = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
+    int conn = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
     if (conn == -1)
         return -1;
 
@@ -32,33 +30,30 @@ int create_conn(void)
 
 int get_family_id(int conn)
 {
-    int req, family_id, msgleft, req_len;
-    char *name, *taskstats_genl_name;
-    uint16_t name_len;
-    struct nlattr *nla;
-    struct nl_msg fam_msg, *nlreq_msg;
+    char *name;
    
-    name_len = strlen(TASKSTATS_GENL_NAME) + 1;
-    taskstats_genl_name = strndup(TASKSTATS_GENL_NAME, name_len);
+    uint16_t name_len = strlen(TASKSTATS_GENL_NAME) + 1;
+    char *taskstats_genl_name = strndup(TASKSTATS_GENL_NAME, name_len);
 
-    nlreq_msg = malloc(sizeof *nlreq_msg);
+    struct nl_msg *nlreq_msg = malloc(sizeof *nlreq_msg);
     build_req(nlreq_msg, GENL_ID_CTRL, CTRL_CMD_GETFAMILY, 
               CTRL_ATTR_FAMILY_NAME, taskstats_genl_name, name_len);
 
-    req_len = GET_REQUEST_LENGTH(nlreq_msg);
-    req = nl_req(conn, (char *) nlreq_msg, req_len);
+    int req_len = GET_REQUEST_LENGTH(nlreq_msg);
+    int req = nl_req(conn, (char *) nlreq_msg, req_len);
 
     if (!req)
         return -1;
 
+    struct nl_msg fam_msg;
     memset(&fam_msg, 0, sizeof(fam_msg));
     req = nl_recv(conn, &fam_msg);
     if (!req)
         return -1;
 
-    msgleft = NLA_PAYLOAD((struct nlmsghdr *) &fam_msg);
-    family_id = -1;
-    nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
+    int msgleft = NLA_PAYLOAD((struct nlmsghdr *) &fam_msg);
+    int family_id = -1;
+    struct nlattr *nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
 
     while (msgleft) {
         switch (nla->nla_type) {
@@ -86,11 +81,10 @@ int get_family_id(int conn)
 void build_req(struct nl_msg *req, uint32_t nl_type, uint8_t gnl_cmd,
                uint16_t nla_type, void *nla_data, uint16_t nla_len)
 {
-    int pid;
     struct nl_msg nlreq;
     struct nlattr *nla;
 
-    pid = getpid();
+    int pid = getpid();
     nlreq.nlh.nlmsg_type = nl_type;
     nlreq.nlh.nlmsg_flags = NLM_F_REQUEST;
     nlreq.nlh.nlmsg_seq = 0;
@@ -114,9 +108,7 @@ bool nl_req(int conn, char *buf, int buflen)
     int bytes_sent;
     struct sockaddr_nl nladdr;
     
-    socklen_t nladdr_len;
-
-    nladdr_len = sizeof(struct sockaddr_nl);
+    socklen_t nladdr_len = sizeof(struct sockaddr_nl);
     memset(&nladdr, 0, nladdr_len);
     nladdr.nl_family = AF_NETLINK;
 

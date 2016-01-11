@@ -19,9 +19,7 @@ char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
 
 char *filesystem_type(void)
 {
-    int ret;
-
-    ret = setfsent();
+    int ret = setfsent();
     if (ret != 1)
         return NULL;
 
@@ -34,17 +32,14 @@ char *filesystem_type(void)
 
 int ioprio_get(int pid)
 {
-    long ioprio;
-    ioprio = syscall(IOPRIO_GET, IOPRIO_WHO_PROCESS, pid);
-    return ioprio;
+    return syscall(IOPRIO_GET, IOPRIO_WHO_PROCESS, pid);
 }
 
 char *ioprio_class(int pid)
 {
-    int ioprio;
-    char *class;
+    char *class = NULL;
 
-    ioprio = ioprio_get(pid);
+    int ioprio = ioprio_get(pid);
     if (ioprio == -1)
         return NULL;
 
@@ -55,21 +50,19 @@ char *ioprio_class(int pid)
                  ioprio & IOPRIO_PRIO_MASK);
     } else 
         class = ioprio_class_nice(pid);
+
     return class;
 }
 
 char *ioprio_class_nice(int pid)
 {
-    int niceness, prio, ioprio_level;
-    char *class;
-
-    class = malloc(sizeof(char) * PRIOLEN);
+    char *class = malloc(sizeof(char) * PRIOLEN);
     if (class == NULL)
         return NULL;
         
-    prio = sched_getscheduler(pid);
-    niceness = getpriority(PRIO_PROCESS, pid);
-    ioprio_level = (niceness + 20) / 5;
+    int prio = sched_getscheduler(pid);
+    int niceness = getpriority(PRIO_PROCESS, pid);
+    int ioprio_level = (niceness + 20) / 5;
     
     if (prio == SCHED_FIFO || prio == SCHED_RR)
         snprintf(class, PRIOLEN, "%s/%d", ioprio_classes[1], ioprio_level);
