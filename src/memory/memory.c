@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
 
 #include "memory.h"
@@ -20,14 +19,9 @@ long total_memory(void)
     return -1;
 }
 
-float memory_percentage(char *pidstr, long totalmem)
+float memory_percentage(char *path, long totalmem)
 {
     float total_usage, total_mem_percent;
-
-    size_t path_length = strlen(pidstr) + STATUS_LEN;
-    char *path = malloc(sizeof(char) * path_length + 1);
-
-    snprintf(path, path_length, STATUS, pidstr);
 
     char *percentage = proc_parser(path, VMEM);
 
@@ -38,7 +32,5 @@ float memory_percentage(char *pidstr, long totalmem)
     } else 
         total_mem_percent = MINMEM;
     
-    free(path);
-
     return total_mem_percent;
 }
