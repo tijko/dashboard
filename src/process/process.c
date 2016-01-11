@@ -70,7 +70,10 @@ bool is_pid(char *process_name)
 
 char *get_process_name(char *process)
 {
-    char *comm = construct_path(3, PROC, process, COMM);
+    size_t path_length = strlen(process) + COMM_LEN;
+    char *comm = malloc(sizeof(char) * path_length + 1);
+
+    snprintf(comm, path_length, COMM, process);
 
     int comm_fd = open(comm, O_RDONLY);
 
@@ -109,15 +112,15 @@ char *proc_user(char *process)
 
 int get_field(char *pid, char *field) // XXX fix
 {
-    char *path, *field_str_value;
-    int value;
+    size_t path_length = strlen(pid) + STATUS_LEN;
+    char *path = malloc(sizeof(char) * path_length + 1);
 
-    path = construct_path(3, PROC, pid, STATUS);
+    snprintf(path, path_length, STATUS, pid);
     
-    field_str_value = proc_parser(path, field);
+    char *field_str_value = proc_parser(path, field);
     free(path);
 
-    value = 0;
+    int value = 0;
 
     if (field_str_value) {
         value = strtol(field_str_value, NULL, 10);
