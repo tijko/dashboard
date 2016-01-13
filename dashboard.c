@@ -85,6 +85,8 @@ void dashboard_mainloop(char attr_sort)
 
     board_t *dashboard = init_board();
 
+    dashboard->process_list = build_process_list();
+
     if (dashboard == NULL)
         return;
 
@@ -96,7 +98,8 @@ void dashboard_mainloop(char attr_sort)
 
     while (running) {
 
-        dashboard->process_list = build_process_list(); 
+        // XXX
+        //dashboard->process_list = build_process_list(); 
         int number_of_processes = get_numberof_processes(dashboard->process_list);
         get_process_stats(dashboard);
 
@@ -223,7 +226,9 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        free_process_list(dashboard->process_list); 
+        //XXX
+        //free_process_list(dashboard->process_list); 
+        update_process_list(dashboard->process_list);
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
