@@ -86,6 +86,7 @@ void dashboard_mainloop(char attr_sort)
     board_t *dashboard = init_board();
 
     dashboard->process_list = build_process_list();
+    get_process_stats(dashboard);
 
     if (dashboard == NULL)
         return;
@@ -98,16 +99,13 @@ void dashboard_mainloop(char attr_sort)
 
     while (running) {
 
-        // XXX
-        //dashboard->process_list = build_process_list(); 
         int number_of_processes = get_numberof_processes(dashboard->process_list);
-        get_process_stats(dashboard);
 
         if (attr_sort) // XXX return void from sort --
             dashboard->process_list = sort_by_field(dashboard->process_list, 
                                                     attr_sort,
                                                     number_of_processes);
-        
+
         getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
 
         if (dashboard->max_x ^ dashboard->prev_x) {
@@ -226,9 +224,8 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        //XXX
-        //free_process_list(dashboard->process_list); 
         update_process_list(dashboard->process_list);
+        get_process_stats(dashboard);
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -242,8 +239,7 @@ void dashboard_mainloop(char attr_sort)
 
     endwin();
     free(sys_timer);
-    free(dashboard->fieldbar);
-    free(dashboard);
+    free_board(dashboard);
 }
 
 board_t *init_board(void)
@@ -263,11 +259,23 @@ board_t *init_board(void)
     return board;
 }
 
+void free_board(board_t *board)
+{
+    free(board->fieldbar);
+    free_process_list(board->process_list);
+    free(board);
+}
+
 void get_process_stats(board_t *dashboard)
 {
     proc_t *process_list = dashboard->process_list;
 
     for (; process_list != NULL; process_list=process_list->next) {
+        if (process_list->user) {
+            free(process_list->user);
+            free(process_list->state);
+            free(process_list->ioprio);
+        }
 
         snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
                  process_list->pidstr);
