@@ -40,9 +40,7 @@ proc_t *build_process_list(void)
 
         if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) {
             // check name field for NULL...
-            process_entry->pidstr = strdup(current_proc_dir->d_name);
-            process_entry->pid = atoi(process_entry->pidstr);
-            process_entry->name = get_process_name(process_entry->pidstr);
+            set_process_fields(process_entry, current_proc_dir->d_name);
 
             process_entry->next = create_proc();
             process_entry->next->prev = process_entry;
@@ -56,6 +54,13 @@ proc_t *build_process_list(void)
     free(process_entry);
 
     return process_list; 
+}
+
+void set_process_fields(proc_t *process, char *pidstr)
+{
+    process->pidstr = strdup(pidstr);
+    process->pid = atoi(process->pidstr);
+    process->name = get_process_name(process->pidstr);
 }
 
 void update_process_list(proc_t *process_list)
@@ -81,14 +86,14 @@ void update_process_list(proc_t *process_list)
         if ((proc_stat.st_mode & S_IFDIR) && 
              is_pid(current_proc_dir->d_name) && 
             !process_list_member(process_list, current_proc_dir->d_name)) {
-            proc_t *new_process = create_proc();
-            new_process->pidstr = strdup(current_proc_dir->d_name);
-            new_process->pid = atoi(new_process->pidstr);
-            new_process->name = get_process_name(new_process->pidstr);
 
-            process_entry->next = new_process;
+            process_entry->next = create_proc();
             process_entry->next->prev = process_entry;
             process_entry = process_entry->next;
+            process_entry->pidstr = strdup(current_proc_dir->d_name);
+            process_entry->pid = atoi(process_entry->pidstr);
+            process_entry->name = get_process_name(process_entry->pidstr);
+
             process_entry->proc_no = process_entry->prev->proc_no + 1;
         }
     }
