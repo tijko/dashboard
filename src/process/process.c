@@ -21,50 +21,66 @@ proc_t *build_process_list(void)
     if (process_entry == NULL)
         return NULL;
 
-    proc_t *process_list = process_entry;
- 
-    char process_path[MAXPROCPATH];
-
     process_entry->proc_no = 1;
+    proc_t *process_list = process_entry;
 
-    struct dirent *current_proc_dir;
-    struct stat proc_stat;
-
-    DIR *proc_fs_dir = opendir(PROC);
-
-    while ((current_proc_dir = readdir(proc_fs_dir))) {
-
-        snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
-                 PROC, current_proc_dir->d_name);
-        stat(process_path, &proc_stat);
-
-        if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) {
-            // check name field for NULL...
-            set_process_fields(process_entry, current_proc_dir->d_name);
-
-            process_entry->next = create_proc();
-            process_entry->next->prev = process_entry;
-            process_entry = process_entry->next;
-            process_entry->proc_no = process_entry->prev->proc_no + 1;
-        }
+    char *current_pids[1000];
+    get_current_pids(current_pids);
+ 
+    int i;
+    for (i=0; current_pids[i] != NULL; i++) {
+        process_entry->pidstr = current_pids[i];
+        set_process_fields(process_entry);
+        process_entry->next = create_proc();
+        process_entry->next->prev = process_entry;
+        process_entry = process_entry->next;
+        process_entry->proc_no = process_entry->prev->proc_no + 1;
     }
 
-    closedir(proc_fs_dir);
     process_entry->prev->next = NULL;
     free(process_entry);
 
     return process_list; 
 }
 
-void set_process_fields(proc_t *process, char *pidstr)
+void set_process_fields(proc_t *process)
 {
-    process->pidstr = strdup(pidstr);
     process->pid = atoi(process->pidstr);
     process->name = get_process_name(process->pidstr);
 }
 
 void update_process_list(proc_t *process_list)
 {
+    proc_t *process_entry = get_tail(process_list);
+    char *current_pids[1000];
+    get_current_pids(current_pids);
+
+    int i;
+    for (i=0; current_pids[i] != NULL; i++) {
+        if (!process_list_member(process_list, current_pids[i])) {
+
+            process_entry->next = create_proc();
+            process_entry->next->prev = process_entry;
+            process_entry = process_entry->next;
+            process_entry->pidstr = current_pids[i];
+            process_entry->pid = atoi(process_entry->pidstr);
+            process_entry->name = get_process_name(process_entry->pidstr);
+
+            process_entry->proc_no = process_entry->prev->proc_no + 1;
+        }
+    }
+}
+
+proc_t *get_tail(proc_t *process_list)
+{
+    while (process_list->next != NULL)
+        process_list = process_list->next;
+    return process_list;
+}
+
+void get_current_pids(char **pid_list)
+{
+    int count = 0; 
     char process_path[MAXPROCPATH];
 
     struct dirent *current_proc_dir;
@@ -72,31 +88,17 @@ void update_process_list(proc_t *process_list)
 
     DIR *proc_fs_dir = opendir(PROC);
 
-    // grab tail...
-    proc_t *process_entry = process_list;
-    while (process_entry->next != NULL) 
-        process_entry = process_entry->next;
-
     while ((current_proc_dir = readdir(proc_fs_dir))) {
 
         snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
                  PROC, current_proc_dir->d_name);
         stat(process_path, &proc_stat);
 
-        if ((proc_stat.st_mode & S_IFDIR) && 
-             is_pid(current_proc_dir->d_name) && 
-            !process_list_member(process_list, current_proc_dir->d_name)) {
-
-            process_entry->next = create_proc();
-            process_entry->next->prev = process_entry;
-            process_entry = process_entry->next;
-            process_entry->pidstr = strdup(current_proc_dir->d_name);
-            process_entry->pid = atoi(process_entry->pidstr);
-            process_entry->name = get_process_name(process_entry->pidstr);
-
-            process_entry->proc_no = process_entry->prev->proc_no + 1;
-        }
+        if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) 
+            pid_list[count++] = strdup(current_proc_dir->d_name);
     }
+
+    pid_list[count] = NULL;
 
     closedir(proc_fs_dir);
 }
