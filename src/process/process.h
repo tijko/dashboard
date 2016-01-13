@@ -37,11 +37,17 @@ typedef struct process_attr {
 
 proc_t *build_process_list(void);
 
+void update_process_list(proc_t *process_list);
+
+bool process_list_member(proc_t *process_list, char *pid);
+
 int get_numberof_processes(proc_t *process_list);
 
 proc_t *create_proc(void);
 
 void free_process_list(proc_t *process_list);
+
+void free_process(proc_t *process_list);
 
 bool is_pid(char *process_name);
 
