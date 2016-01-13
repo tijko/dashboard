@@ -49,11 +49,15 @@ void free_process_list(proc_t *process_list);
 
 void free_process(proc_t *process_list);
 
+proc_t *get_tail(proc_t *process_list);
+
 bool is_pid(char *process_name);
 
 char *proc_user(char *path);
 
-void set_process_fields(proc_t *process, char *pidstr);
+void set_process_fields(proc_t *process);
+
+void get_current_pids(char **pid_list);
 
 int get_field(char *path, char *field);
 
