@@ -8,14 +8,13 @@
 proc_t *sort_by_field(proc_t *procs, int field, int nproc)
 {
     int i, j;
-    proc_t *head, *cur;
     proc_t *proc_arr[nproc + 1];
     uint64_t cmp_fields[2] = {0, 0};
 
     init_process_array(proc_arr, procs, nproc);
  
     for (i=0; i < nproc - 1; i++) {
-        cur = proc_arr[i + 1];
+        proc_t *cur = proc_arr[i + 1];
         j = i;
         cur_fields(proc_arr, cur, j, field, cmp_fields);
         while (j >= 0 && cmp_fields[0] > cmp_fields[1]) {
@@ -27,8 +26,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
         proc_arr[j + 1] = cur;
     }
 
-    head = NULL;
-    return reorder(proc_arr, head, nproc);
+    return reorder(proc_arr, nproc);
 }
 
 void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index, 
@@ -106,24 +104,18 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
         }
 }
 
-proc_t *reorder(proc_t *proc_arr[], proc_t *head, int nproc)
+proc_t *reorder(proc_t *proc_arr[], int nproc)
 {
-    proc_t *cur, *prev;
     int i;
-
-    head = proc_arr[0];
-    head->prev = NULL;
-    cur = head;
-
-    for (i=1; i < nproc; i++) {
-        cur->next = proc_arr[i];
-        prev = cur;
-        cur = cur->next;
-        cur->prev = prev;
+    for (i=0; i < nproc - 1; i++) {
+        proc_arr[i]->next = proc_arr[i + 1];
+        proc_arr[i + 1]->prev = proc_arr[i];
     }
 
-    cur->next = NULL;
-    return head;
+    proc_arr[i]->next = NULL;
+    proc_arr[0]->prev = NULL;
+
+    return proc_arr[0];
 }
 
 void init_process_array(proc_t *proc_arr[], proc_t *procs, int nproc)
