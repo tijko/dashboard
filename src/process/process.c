@@ -58,6 +58,55 @@ proc_t *build_process_list(void)
     return process_list; 
 }
 
+void update_process_list(proc_t *process_list)
+{
+    char process_path[MAXPROCPATH];
+
+    struct dirent *current_proc_dir;
+    struct stat proc_stat;
+
+    DIR *proc_fs_dir = opendir(PROC);
+
+    // grab tail...
+    proc_t *process_entry = process_list;
+    while (process_entry->next != NULL) 
+        process_entry = process_entry->next;
+
+    while ((current_proc_dir = readdir(proc_fs_dir))) {
+
+        snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
+                 PROC, current_proc_dir->d_name);
+        stat(process_path, &proc_stat);
+
+        if ((proc_stat.st_mode & S_IFDIR) && 
+             is_pid(current_proc_dir->d_name) && 
+            !process_list_member(process_list, current_proc_dir->d_name)) {
+            proc_t *new_process = create_proc();
+            new_process->pidstr = strdup(current_proc_dir->d_name);
+            new_process->pid = atoi(new_process->pidstr);
+            new_process->name = get_process_name(new_process->pidstr);
+
+            process_entry->next = new_process;
+            process_entry->next->prev = process_entry;
+            process_entry = process_entry->next;
+            process_entry->proc_no = process_entry->prev->proc_no + 1;
+        }
+    }
+
+    closedir(proc_fs_dir);
+}
+
+bool process_list_member(proc_t *process_list, char *pid)
+{
+    while (process_list != NULL) {
+        if (strcmp(process_list->pidstr, pid) == 0)
+            return true;
+        process_list = process_list->next;
+    }
+
+    return false;
+}
+
 bool is_pid(char *process_name)
 {
     unsigned int pos;
@@ -155,6 +204,24 @@ proc_t *create_proc(void)
     p->prev = NULL;
     p->next = NULL;
     return p;
+}
+
+void free_process(proc_t *process_list)
+{
+    if (process_list == NULL)
+        return;
+
+    proc_t *process = process_list; 
+
+    if (process->prev != NULL)
+        process->prev->next = process->next;
+    if (process->next != NULL)
+        process->next->prev = process->prev;
+
+    process->next = NULL;
+    process->prev = NULL;
+
+    free_process_list(process);
 }
             
 void free_process_list(proc_t *process_list)
