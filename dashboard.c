@@ -101,6 +101,7 @@ void dashboard_mainloop(char attr_sort)
 
         int number_of_processes = get_numberof_processes(dashboard->process_list);
 
+
         if (attr_sort) // XXX return void from sort --
             dashboard->process_list = sort_by_field(dashboard->process_list, 
                                                     attr_sort,
@@ -271,17 +272,18 @@ void get_process_stats(board_t *dashboard)
     proc_t *process_list = dashboard->process_list;
 
     for (; process_list != NULL; process_list=process_list->next) {
-        if (process_list->user) {
-            free(process_list->user);
+        
+        if (process_list->state) {
             free(process_list->state);
             free(process_list->ioprio);
         }
-
+        
         snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
                  process_list->pidstr);
 
+        if (!process_list->user)
+            process_list->user = proc_user(dashboard->path);
         process_list->cpuset = current_cpus(process_list->pid);
-        process_list->user = proc_user(dashboard->path);
         process_list->mempcent = memory_percentage(dashboard->path, 
                                                    dashboard->memtotal);
 
