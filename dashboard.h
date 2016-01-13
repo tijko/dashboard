@@ -28,6 +28,8 @@ void dashboard_mainloop(char attr_sort);
 
 board_t *init_board(void);
 
+void free_board(board_t *board);
+
 void get_process_stats(board_t *dashboard);
 
 #endif
