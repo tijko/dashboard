@@ -53,6 +53,8 @@ bool is_pid(char *process_name);
 
 char *proc_user(char *path);
 
+void set_process_fields(proc_t *process, char *pidstr);
+
 int get_field(char *path, char *field);
 
 char *get_process_name(char *process);
