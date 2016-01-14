@@ -273,23 +273,38 @@ void get_process_stats(board_t *dashboard)
 
     for (; process_list != NULL; process_list=process_list->next) {
         
-        if (process_list->state) {
+        if (process_list->state != NULL) 
             free(process_list->state);
+        if (process_list->ioprio != NULL)
             free(process_list->ioprio);
-        }
         
         snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
                  process_list->pidstr);
 
-        if (!process_list->user)
+        if (process_list->user == NULL) {
             process_list->user = proc_user(dashboard->path);
+            if (process_list->user == NULL) {
+                free_process(process_list);
+                continue;
+            }
+        }
+
         process_list->cpuset = current_cpus(process_list->pid);
         process_list->mempcent = memory_percentage(dashboard->path, 
                                                    dashboard->memtotal);
 
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
+        if (process_list->ioprio == NULL) {
+            free_process(process_list);
+            continue;
+        }
+
         process_list->state = state(dashboard->path);
+        if (process_list->state == NULL) {
+            free_process(process_list);
+            continue;
+        }
 
         process_list->pte = get_field(dashboard->path, PTE);
         process_list->rss = get_field(dashboard->path, RSS);
