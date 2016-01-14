@@ -284,7 +284,8 @@ void get_process_stats(board_t *dashboard)
         if (process_list->user == NULL) {
             process_list->user = proc_user(dashboard->path);
             if (process_list->user == NULL) {
-                free_process(process_list);
+                // XXX --> check for null on process_list
+                process_list = free_process(process_list);
                 continue;
             }
         }
@@ -296,13 +297,15 @@ void get_process_stats(board_t *dashboard)
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
         if (process_list->ioprio == NULL) {
-            free_process(process_list);
+            // XXX -->
+            process_list = free_process(process_list);
             continue;
         }
 
         process_list->state = state(dashboard->path);
         if (process_list->state == NULL) {
-            free_process(process_list);
+            // XXX -->
+            process_list = free_process(process_list);
             continue;
         }
 
