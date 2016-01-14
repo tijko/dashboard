@@ -72,13 +72,14 @@ void update_process_list(proc_t *process_list)
 
     for (; process_list != NULL; process_list=process_list->next) {
         for (i=0; current_pids[i] != NULL; i++) {
-            if (strcmp(current_pids[i], process_list->pidstr) == 0)
+            if (process_list != NULL && 
+                strcmp(current_pids[i], process_list->pidstr) == 0)
                 break;
         }
 
-        if (current_pids[i] == NULL)
-            free_process(process_list);
-
+        // XXX check for null on process_list after free_process call
+        if (current_pids[i] == NULL) 
+            process_list = free_process(process_list);
     }
 
 }
@@ -230,22 +231,32 @@ proc_t *create_proc(void)
     return p;
 }
 
-void free_process(proc_t *process_list)
+proc_t *free_process(proc_t *process_list)
 {
     if (process_list == NULL)
-        return;
+        return NULL;
 
     proc_t *process = process_list; 
 
-    if (process->prev != NULL)
-        process->prev->next = process->next;
-    if (process->next != NULL)
-        process->next->prev = process->prev;
+    if (process->prev != NULL) {
+        process_list = process->prev;
+        process_list->next = process->next;
+        if (process_list->next != NULL)
+            process_list->next->prev = process_list;
+    } else if (process->next != NULL) {
+        process_list = process_list->next;
+        process_list->prev = process->prev;
+        if (process_list->prev != NULL)
+            process_list->prev->next = process_list;
+    } else
+        process_list = NULL;
 
     process->next = NULL;
     process->prev = NULL;
 
     free_process_list(process);
+
+    return process_list;
 }
             
 void free_process_list(proc_t *process_list)
