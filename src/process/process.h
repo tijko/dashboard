@@ -47,7 +47,7 @@ proc_t *create_proc(void);
 
 void free_process_list(proc_t *process_list);
 
-void free_process(proc_t *process_list);
+proc_t *free_process(proc_t *process_list);
 
 proc_t *get_tail(proc_t *process_list);
 
