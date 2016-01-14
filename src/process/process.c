@@ -69,6 +69,18 @@ void update_process_list(proc_t *process_list)
             process_entry->proc_no = process_entry->prev->proc_no + 1;
         }
     }
+
+    for (; process_list != NULL; process_list=process_list->next) {
+        for (i=0; current_pids[i] != NULL; i++) {
+            if (strcmp(current_pids[i], process_list->pidstr) == 0)
+                break;
+        }
+
+        if (current_pids[i] == NULL)
+            free_process(process_list);
+
+    }
+
 }
 
 proc_t *get_tail(proc_t *process_list)
@@ -182,9 +194,14 @@ int get_field(char *path, char *field) // XXX fix
 
 int get_numberof_processes(proc_t *process_list)
 {
-    while (process_list->next)
+    int count = 0;
+
+    while (process_list->next) {
+        count++;
         process_list = process_list->next;
-    return process_list->proc_no;
+    }
+
+    return count;
 }
 
 proc_t *create_proc(void)
@@ -235,11 +252,16 @@ void free_process_list(proc_t *process_list)
 {
     for (proc_t *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
-        free(tmp->pidstr);
-        free(tmp->name);
-        free(tmp->user);
-        free(tmp->ioprio);
-        free(tmp->state);
+        if (tmp->pidstr != NULL)
+            free(tmp->pidstr);
+        if (tmp->name != NULL)
+            free(tmp->name);
+        if (tmp->user != NULL)
+            free(tmp->user);
+        if (tmp->ioprio != NULL)
+            free(tmp->ioprio);
+        if (tmp->state != NULL)
+            free(tmp->state);
         free(tmp);
     }
 }
