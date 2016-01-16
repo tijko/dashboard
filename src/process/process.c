@@ -101,6 +101,9 @@ void get_current_pids(char **pid_list)
 
     DIR *proc_fs_dir = opendir(PROC);
 
+    if (proc_fs_dir == NULL)
+        return;
+
     while ((current_proc_dir = readdir(proc_fs_dir))) {
 
         snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
