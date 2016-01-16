@@ -247,7 +247,7 @@ proc_t *free_process(proc_t *process_list)
         if (process_list->next != NULL)
             process_list->next->prev = process_list;
     } else if (process->next != NULL) {
-        process_list = process_list->next;
+        process_list = process->next;
         process_list->prev = process->prev;
         if (process_list->prev != NULL)
             process_list->prev->next = process_list;
