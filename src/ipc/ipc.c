@@ -15,8 +15,9 @@ int current_fds(char *path)
     int open_fds = 0;
  
     DIR *fd_dir = opendir(path);
+
     if (fd_dir == NULL) 
-        return 0;
+        return -1;
 
     while ((fd_file = readdir(fd_dir))) {
 
