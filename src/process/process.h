@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <dirent.h>
 #include <stdbool.h>
 
 
@@ -51,7 +52,7 @@ proc_t *free_process(proc_t *process_list);
 
 proc_t *get_tail(proc_t *process_list);
 
-bool is_pid(char *process_name);
+int is_pid(const struct dirent *directory);
 
 char *proc_user(char *path);
 
