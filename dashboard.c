@@ -75,7 +75,7 @@ void dashboard_mainloop(char attr_sort)
 {
     init_screen();
 
-    bool running = true, update_sys = true;
+    bool running = true, update_sys = true, redraw = false;
     int process_line_num = 0, prev_process_line_num = 0;
 
     char *fstype = filesystem_type();
@@ -118,8 +118,10 @@ void dashboard_mainloop(char attr_sort)
         // if any differ `clear` for a redraw.
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
-            (process_line_num ^ prev_process_line_num)) 
+            (process_line_num ^ prev_process_line_num) || redraw) { 
             clear();
+            redraw = false;
+        }
 
         dashboard->prev_y = dashboard->max_y;
         dashboard->prev_x = dashboard->max_x;
@@ -225,7 +227,7 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        update_process_list(dashboard->process_list);
+        redraw = update_process_list(dashboard->process_list);
         get_process_stats(dashboard);
         delay_output(REFRESH_RATE);
 
@@ -278,13 +280,13 @@ void get_process_stats(board_t *dashboard)
         if (process_list->ioprio != NULL)
             free(process_list->ioprio);
         
+        memset(dashboard->path, 0, STAT_PATHMAX - 1);
         snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
                  process_list->pidstr);
 
         if (process_list->user == NULL) {
             process_list->user = proc_user(dashboard->path);
             if (process_list->user == NULL) {
-                // XXX --> check for null on process_list
                 process_list = free_process(process_list);
                 continue;
             }
@@ -297,14 +299,12 @@ void get_process_stats(board_t *dashboard)
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
         if (process_list->ioprio == NULL) {
-            // XXX -->
             process_list = free_process(process_list);
             continue;
         }
 
         process_list->state = state(dashboard->path);
         if (process_list->state == NULL) {
-            // XXX -->
             process_list = free_process(process_list);
             continue;
         }
@@ -314,6 +314,7 @@ void get_process_stats(board_t *dashboard)
         process_list->vmem = get_field(dashboard->path, VMEM);
         process_list->thrcnt = get_field(dashboard->path, THRS);
 
+        memset(dashboard->path, 0, STAT_PATHMAX - 1);
         snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
         process_list->open_fds = current_fds(dashboard->path);
 
