@@ -9,7 +9,6 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <sys/stat.h>
 
 #include "process.h"
 #include "../util/file_utils.h"
@@ -100,30 +99,22 @@ proc_t *get_tail(proc_t *process_list)
 
 void get_current_pids(char **pid_list)
 {
-    int count = 0; 
-    char process_path[MAXPROCPATH];
+    struct dirent **proc_dir;
 
-    struct dirent *current_proc_dir;
-    struct stat proc_stat;
-
-    DIR *proc_fs_dir = opendir(PROC);
-
-    if (proc_fs_dir == NULL)
+    int total_processes = scandir(PROC, &proc_dir, is_pid, NULL);
+    if (total_processes == -1) {
+        pid_list[0] = NULL;
         return;
-
-    while ((current_proc_dir = readdir(proc_fs_dir))) {
-
-        snprintf(process_path, MAXPROCPATH - 1, "%s%s", 
-                 PROC, current_proc_dir->d_name);
-        stat(process_path, &proc_stat);
-
-        if ((proc_stat.st_mode & S_IFDIR) && is_pid(current_proc_dir->d_name)) 
-            pid_list[count++] = strdup(current_proc_dir->d_name);
     }
 
-    pid_list[count] = NULL;
+    int i;
+    for (i=0; i < total_processes; i++) {
+        pid_list[i] = strdup(proc_dir[i]->d_name);
+        free(proc_dir[i]);
+    }
 
-    closedir(proc_fs_dir);
+    free(proc_dir);
+    pid_list[i] = NULL;
 }
 
 bool process_list_member(proc_t *process_list, char *pid)
@@ -137,14 +128,15 @@ bool process_list_member(proc_t *process_list, char *pid)
     return false;
 }
 
-bool is_pid(char *process_name)
+int is_pid(const struct dirent *directory)
 {
-    unsigned int pos;
+    int name_length = strlen(directory->d_name);
 
-    for (pos=0; pos < strlen(process_name) && 
-         isdigit(process_name[pos]); pos++);
-
-    return pos == strlen(process_name) ? true : false;
+    int i;
+    for (i=0; i < name_length; i++) 
+        if(!isdigit(directory->d_name[i]))
+            return 0;
+    return 1;
 }
 
 char *get_process_name(char *process)
