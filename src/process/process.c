@@ -49,11 +49,13 @@ void set_process_fields(proc_t *process)
     process->name = get_process_name(process->pidstr);
 }
 
-void update_process_list(proc_t *process_list)
+bool update_process_list(proc_t *process_list)
 {
     proc_t *process_entry = get_tail(process_list);
-    char *current_pids[1000];
+    char *current_pids[1000]; // Set as a Macro/constant (limit?)
     get_current_pids(current_pids);
+
+    bool alteration = false;
 
     int i;
     for (i=0; current_pids[i] != NULL; i++) {
@@ -66,7 +68,9 @@ void update_process_list(proc_t *process_list)
             process_entry->pid = atoi(process_entry->pidstr);
             process_entry->name = get_process_name(process_entry->pidstr);
 
-            process_entry->proc_no = process_entry->prev->proc_no + 1;
+            process_entry->proc_no = process_entry->prev->proc_no + 1; // remove field
+
+            alteration = true;
         }
     }
 
@@ -78,10 +82,13 @@ void update_process_list(proc_t *process_list)
         }
 
         // XXX check for null on process_list after free_process call
-        if (current_pids[i] == NULL) 
+        if (current_pids[i] == NULL) {
             process_list = free_process(process_list);
+            alteration = true;
+        }
     }
 
+    return alteration;
 }
 
 proc_t *get_tail(proc_t *process_list)
