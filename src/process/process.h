@@ -22,7 +22,6 @@ typedef struct process_attr {
     int nice;
     int open_fds;
     int invol_sw;
-    int proc_no;
     char *ioprio;
     char *state;
     float mempcent;
