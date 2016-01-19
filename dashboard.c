@@ -314,10 +314,10 @@ void get_process_stats(board_t *dashboard)
         process_list->vmem = get_field(dashboard->path, VMEM);
         process_list->thrcnt = get_field(dashboard->path, THRS);
 
+        /*
         memset(dashboard->path, 0, STAT_PATHMAX - 1);
         snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
         process_list->open_fds = current_fds(dashboard->path);
-        /*
         if (process_list->open_fds == -1) {
             process_list = free_process(process_list);
             continue;
