@@ -20,7 +20,6 @@ proc_t *build_process_list(void)
     if (process_entry == NULL)
         return NULL;
 
-    process_entry->proc_no = 1;
     proc_t *process_list = process_entry;
 
     char *current_pids[1000];
@@ -33,7 +32,6 @@ proc_t *build_process_list(void)
         process_entry->next = create_proc();
         process_entry->next->prev = process_entry;
         process_entry = process_entry->next;
-        process_entry->proc_no = process_entry->prev->proc_no + 1;
     }
 
     process_entry->prev->next = NULL;
@@ -66,8 +64,6 @@ bool update_process_list(proc_t *process_list)
             process_entry->pidstr = current_pids[i];
             process_entry->pid = atoi(process_entry->pidstr);
             process_entry->name = get_process_name(process_entry->pidstr);
-
-            process_entry->proc_no = process_entry->prev->proc_no + 1; // remove field
 
             alteration = true;
         }
@@ -181,9 +177,11 @@ char *proc_user(char *path)
     return strdup(getuser->pw_name);
 }
 
-int get_field(char *path, char *field) // XXX fix
+int get_field(char *path, char *field)
 {
     char *field_str_value = proc_parser(path, field);
+    if (field_str_value == NULL)
+        return -1;
 
     int value = 0;
 
