@@ -69,19 +69,7 @@ bool update_process_list(proc_t *process_list)
         }
     }
 
-    for (; process_list != NULL; process_list=process_list->next) {
-        for (i=0; current_pids[i] != NULL; i++) {
-            if (process_list != NULL && 
-                strcmp(current_pids[i], process_list->pidstr) == 0)
-                break;
-        }
-
-        // XXX check for null on process_list after free_process call
-        if (current_pids[i] == NULL) {
-            process_list = free_process(process_list);
-            alteration = true;
-        }
-    }
+    process_list = filter_process_list(process_list);
 
     return alteration;
 }
@@ -90,6 +78,13 @@ proc_t *get_tail(proc_t *process_list)
 {
     while (process_list->next != NULL)
         process_list = process_list->next;
+    return process_list;
+}
+
+proc_t *get_head(proc_t *process_list)
+{
+    while (process_list->prev != NULL)
+        process_list = process_list->prev;
     return process_list;
 }
 
@@ -181,7 +176,7 @@ int get_field(char *path, char *field)
 {
     char *field_str_value = proc_parser(path, field);
     if (field_str_value == NULL)
-        return -1;
+        return 0;
 
     int value = 0;
 
@@ -203,6 +198,41 @@ int get_numberof_processes(proc_t *process_list)
     }
 
     return count;
+}
+
+proc_t *filter_process_list(proc_t *process_list)
+{
+    if (process_list == NULL)
+        return NULL;
+
+    proc_t *current = NULL;
+
+    while (process_list != NULL) {
+
+        if (process_list->state != NULL && 
+            process_list->ioprio != NULL &&
+            process_list->name != NULL &&
+            process_list->pidstr != NULL &&
+            process_list->user != NULL) {
+
+            if (current == NULL) {
+                current = process_list;
+                current->prev = NULL;
+            } else {
+                current->next = process_list;
+                current->next->prev = current; 
+                current = current->next;
+            }
+
+            process_list = process_list->next;
+        } else
+            process_list = free_process(process_list);
+    }
+
+    current->next = NULL;
+    proc_t *head = get_head(current);
+
+    return head;
 }
 
 proc_t *create_proc(void)
@@ -233,21 +263,26 @@ proc_t *create_proc(void)
 
 proc_t *free_process(proc_t *process_list)
 {
+    /*
+        XXX Keeping track of how many processes there are currently running
+        and then tracing back to a non-null or end/beginning of the list
+
+        or use a filter to rebuild on any null-attribute fields.
+    */
+
     if (process_list == NULL)
         return NULL;
 
-    proc_t *process = process_list; 
+    if (process_list->next == NULL) {
+        process_list->prev = NULL;
+        free_process_list(process_list);
+        return NULL;
+    }
 
-    if (process->prev != NULL) {
-        process_list = process->prev;
-        process_list->next = process->next;
-        if (process_list->next != NULL)
-            process_list->next->prev = process_list;
-    } else if (process->next != NULL) {
-        process_list = process->next;
-        process_list->prev = process->prev;
-    } else
-        process_list = NULL;
+    proc_t *process = process_list; 
+    process_list = process_list->next;
+    if (process_list->prev->prev)
+        process_list->prev = process_list->prev->prev;
 
     process->next = NULL;
     process->prev = NULL;
