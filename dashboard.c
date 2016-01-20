@@ -287,7 +287,7 @@ void get_process_stats(board_t *dashboard)
         if (process_list->user == NULL) {
             process_list->user = proc_user(dashboard->path);
             if (process_list->user == NULL) {
-                process_list = free_process(process_list);
+            //    process_list = free_process(process_list);
                 continue;
             }
         }
@@ -299,13 +299,13 @@ void get_process_stats(board_t *dashboard)
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
         if (process_list->ioprio == NULL) {
-            process_list = free_process(process_list);
+        //    process_list = free_process(process_list);
             continue;
         }
 
         process_list->state = state(dashboard->path);
         if (process_list->state == NULL) {
-            process_list = free_process(process_list);
+        //    process_list = free_process(process_list);
             continue;
         }
 
@@ -314,15 +314,14 @@ void get_process_stats(board_t *dashboard)
         process_list->vmem = get_field(dashboard->path, VMEM);
         process_list->thrcnt = get_field(dashboard->path, THRS);
 
-        /*
         memset(dashboard->path, 0, STAT_PATHMAX - 1);
         snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
         process_list->open_fds = current_fds(dashboard->path);
         if (process_list->open_fds == -1) {
-            process_list = free_process(process_list);
+        //    process_list = free_process(process_list);
             continue;
         }
-        */
+        
         if (dashboard->euid != 0) continue;
         process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
         process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
