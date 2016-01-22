@@ -46,13 +46,12 @@ void set_process_fields(proc_t *process)
     process->name = get_process_name(process->pidstr);
 }
 
-bool update_process_list(proc_t *process_list)
+proc_t *update_process_list(proc_t *process_list, int *redraw)
 {
     proc_t *process_entry = get_tail(process_list);
-    char *current_pids[1000]; // Set as a Macro/constant (limit?)
+    char *current_pids[MAX_PIDS];
+    memset(current_pids, 0, sizeof(char *) * MAX_PIDS);
     get_current_pids(current_pids);
-
-    bool alteration = false;
 
     int i;
     for (i=0; current_pids[i] != NULL; i++) {
@@ -65,13 +64,13 @@ bool update_process_list(proc_t *process_list)
             process_entry->pid = atoi(process_entry->pidstr);
             process_entry->name = get_process_name(process_entry->pidstr);
 
-            alteration = true;
+            *redraw = 1;
         }
     }
 
     process_list = filter_process_list(process_list);
 
-    return alteration;
+    return process_list;
 }
 
 proc_t *get_tail(proc_t *process_list)
@@ -205,7 +204,8 @@ proc_t *filter_process_list(proc_t *process_list)
     if (process_list == NULL)
         return NULL;
 
-    proc_t *current = NULL;
+    proc_t *head = NULL, *current = NULL;
+    proc_t *process_list_head = process_list;
 
     while (process_list != NULL) {
 
@@ -216,23 +216,51 @@ proc_t *filter_process_list(proc_t *process_list)
             process_list->user != NULL) {
 
             if (current == NULL) {
-                current = process_list;
+                current = copy_proc(process_list);
                 current->prev = NULL;
+                head = current;
             } else {
-                current->next = process_list;
+                current->next = copy_proc(process_list);
                 current->next->prev = current; 
                 current = current->next;
             }
+        }
 
-            process_list = process_list->next;
-        } else
-            process_list = free_process(process_list);
+        process_list = process_list->next;
     }
 
     current->next = NULL;
-    proc_t *head = get_head(current);
+
+    free_process_list(process_list_head);
 
     return head;
+}
+
+proc_t *copy_proc(proc_t *process)
+{
+    proc_t *copy = create_proc();
+
+    copy->ioprio = strdup(process->ioprio);
+    copy->pidstr = strdup(process->pidstr);
+    copy->state = strdup(process->state);
+    copy->name = strdup(process->name);
+    copy->user = strdup(process->user);
+
+    copy->pid = process->pid;
+    copy->uid = process->uid;
+    copy->cpuset = process->cpuset;
+    copy->nice = process->nice;
+    copy->open_fds = process->open_fds;
+    copy->invol_sw = process->invol_sw;
+    copy->mempcent = process->mempcent;
+    copy->vmem = process->vmem;
+    copy->thrcnt = process->thrcnt;
+    copy->pte = process->pte;
+    copy->rss = process->rss;
+    copy->io_read = process->io_read;
+    copy->io_write = process->io_write;
+
+    return copy;
 }
 
 proc_t *create_proc(void)
@@ -281,8 +309,11 @@ proc_t *free_process(proc_t *process_list)
 
     proc_t *process = process_list; 
     process_list = process_list->next;
-    if (process_list->prev->prev)
+    if (process_list->prev->prev) {
         process_list->prev = process_list->prev->prev;
+        process_list->prev->next = process_list;
+    } else
+        process_list->prev = NULL;
 
     process->next = NULL;
     process->prev = NULL;
