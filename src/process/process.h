@@ -8,6 +8,7 @@
 
 
 #define PROCNAME_MAX 1024
+#define MAX_PIDS 1000
 
 #define MAXPROCPATH 2048
 
@@ -37,7 +38,7 @@ typedef struct process_attr {
 
 proc_t *build_process_list(void);
 
-bool update_process_list(proc_t *process_list);
+proc_t *update_process_list(proc_t *process_list, int *redraw);
 
 bool process_list_member(proc_t *process_list, char *pid);
 
@@ -50,6 +51,8 @@ proc_t *filter_process_list(proc_t *process_list);
 void free_process_list(proc_t *process_list);
 
 proc_t *free_process(proc_t *process_list);
+
+proc_t *copy_proc(proc_t *process_list);
 
 proc_t *get_tail(proc_t *process_list);
 
