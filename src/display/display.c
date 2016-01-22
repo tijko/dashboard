@@ -69,7 +69,12 @@ int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype,
                       processes->io_read);
             mvwprintw(stdscr, cur_y, LINE_X + LWRITE, "%llu", 
                       processes->io_write);
-            mvwprintw(stdscr, cur_y, LINE_X + LFDS, "%d", processes->open_fds);
+            if (processes->open_fds != -1)
+                mvwprintw(stdscr, cur_y, LINE_X + LFDS, "%d", 
+                          processes->open_fds);
+            else
+                mvwprintw(stdscr, cur_y, LINE_X + LFDS, "N/A", 
+                          processes->open_fds);
             mvwprintw(stdscr, cur_y, LINE_X + LINVOL, "%d", 
                       processes->invol_sw);
             mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%d", 
