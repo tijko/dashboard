@@ -22,7 +22,7 @@ proc_t *build_process_list(void)
 
     proc_t *process_list = process_entry;
 
-    char *current_pids[1000];
+    char *current_pids[MAX_PIDS];
     get_current_pids(current_pids);
  
     int i;
