@@ -75,7 +75,7 @@ void dashboard_mainloop(char attr_sort)
 {
     init_screen();
 
-    bool running = true, update_sys = true, redraw = false;
+    bool running = true, update_sys = true;
     int process_line_num = 0, prev_process_line_num = 0;
 
     char *fstype = filesystem_type();
@@ -96,6 +96,7 @@ void dashboard_mainloop(char attr_sort)
         return;
 
     int sys_timer_fd = set_sys_timer(sys_timer);
+    int redraw = 1;
 
     while (running) {
 
@@ -118,9 +119,9 @@ void dashboard_mainloop(char attr_sort)
         // if any differ `clear` for a redraw.
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
-            (process_line_num ^ prev_process_line_num) || redraw) { 
+            (process_line_num ^ prev_process_line_num) || redraw == 1) { 
             clear();
-            redraw = false;
+            redraw = 0;
         }
 
         dashboard->prev_y = dashboard->max_y;
@@ -227,7 +228,8 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        redraw = update_process_list(dashboard->process_list);
+        dashboard->process_list = update_process_list(dashboard->process_list,
+                                                      &redraw);
         get_process_stats(dashboard);
         delay_output(REFRESH_RATE);
 
@@ -280,16 +282,13 @@ void get_process_stats(board_t *dashboard)
         if (process_list->ioprio != NULL)
             free(process_list->ioprio);
         
-        memset(dashboard->path, 0, STAT_PATHMAX - 1);
+        memset(dashboard->path, 0, STAT_PATHMAX - 1); 
         snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
                  process_list->pidstr);
 
         if (process_list->user == NULL) {
             process_list->user = proc_user(dashboard->path);
-            if (process_list->user == NULL) {
-            //    process_list = free_process(process_list);
-                continue;
-            }
+            if (process_list->user == NULL) continue;
         }
 
         process_list->cpuset = current_cpus(process_list->pid);
@@ -298,30 +297,20 @@ void get_process_stats(board_t *dashboard)
 
         process_list->nice = nice(process_list->pid);
         process_list->ioprio = ioprio_class(process_list->pid);
-        if (process_list->ioprio == NULL) {
-        //    process_list = free_process(process_list);
-            continue;
-        }
+        if (process_list->ioprio == NULL) continue;
 
         process_list->state = state(dashboard->path);
-        if (process_list->state == NULL) {
-        //    process_list = free_process(process_list);
-            continue;
-        }
+        if (process_list->state == NULL) continue;
 
         process_list->pte = get_field(dashboard->path, PTE);
         process_list->rss = get_field(dashboard->path, RSS);
         process_list->vmem = get_field(dashboard->path, VMEM);
         process_list->thrcnt = get_field(dashboard->path, THRS);
 
-        memset(dashboard->path, 0, STAT_PATHMAX - 1);
+        memset(dashboard->path, 0, STAT_PATHMAX - 1); 
         snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
         process_list->open_fds = current_fds(dashboard->path);
-        if (process_list->open_fds == -1) {
-        //    process_list = free_process(process_list);
-            continue;
-        }
-        
+
         if (dashboard->euid != 0) continue;
         process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
         process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
