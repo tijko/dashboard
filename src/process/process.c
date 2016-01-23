@@ -11,62 +11,98 @@
 #include <stdbool.h>
 
 #include "process.h"
+#include "../cpu/cpu.h"
+#include "../ipc/ipc.h"
+#include "../io/disk.h"
 #include "../util/file_utils.h"
 
 
 proc_t *build_process_list(void)
 {
-    proc_t *process_entry = create_proc();
-    if (process_entry == NULL)
+    char path[STAT_PATHMAX];
+    memset(path, 0, STAT_PATHMAX);
+
+    proc_t *process = create_proc();
+    if (process == NULL)
         return NULL;
 
-    proc_t *process_list = process_entry;
+    process->prev = NULL;
+    proc_t *process_list = process;
 
-    char *current_pids[MAX_PIDS];
-    get_current_pids(current_pids);
- 
-    int i;
-    for (i=0; current_pids[i] != NULL; i++) {
-        process_entry->pidstr = current_pids[i];
-        set_process_fields(process_entry);
-        process_entry->next = create_proc();
-        process_entry->next->prev = process_entry;
-        process_entry = process_entry->next;
-    }
-
-    process_entry->prev->next = NULL;
-    free(process_entry);
-
-    return process_list; 
-}
-
-void set_process_fields(proc_t *process)
-{
-    process->pid = atoi(process->pidstr);
-    process->name = get_process_name(process->pidstr);
-}
-
-proc_t *update_process_list(proc_t *process_list, int *redraw)
-{
-    proc_t *process_entry = get_tail(process_list);
     char *current_pids[MAX_PIDS];
     memset(current_pids, 0, sizeof(char *) * MAX_PIDS);
     get_current_pids(current_pids);
 
-    int i;
-    for (i=0; current_pids[i] != NULL; i++) {
+    process->pidstr = current_pids[0];
+    process->pid = atoi(process->pidstr);
+    process->name = get_process_name(process->pidstr);
+
+    snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
+    process->user = proc_user(path);
+    get_process_stats(process);
+ 
+    for (int i=1; current_pids[i] != NULL; i++) { 
+        add_process_link(process, current_pids[i]);
+        process = process->next;
+        get_process_stats(process);
+    }
+
+    return process_list; 
+}
+
+void get_process_stats(proc_t *process)
+{
+    char path[STAT_PATHMAX];
+    memset(path, 0, STAT_PATHMAX);
+    snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
+
+    if (process->state != NULL) 
+        free(process->state);
+    if (process->ioprio != NULL)
+        free(process->ioprio);
+    
+    process->cpuset = current_cpus(process->pid);
+    //process->mempcent = memory_percentage(path, dashboard->memtotal);
+
+    process->nice = nice(process->pid);
+    process->ioprio = ioprio_class(process->pid);
+
+    process->state = state(path);
+
+    process->pte = get_field(path, PTE);
+    process->rss = get_field(path, RSS);
+    process->vmem = get_field(path, VMEM);
+    process->thrcnt = get_field(path, THRS);
+
+    memset(path, 0, STAT_PATHMAX - 1); 
+    snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
+    process->open_fds = current_fds(path);
+    /*
+    XXX
+    if (dashboard->euid != 0) continue;
+    process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
+    process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
+    process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
+    */ 
+}
+
+proc_t *update_process_list(proc_t *process_list, int *redraw)
+{
+    proc_t *process_tail = get_tail(process_list);
+    char *current_pids[MAX_PIDS];
+    memset(current_pids, 0, sizeof(char *) * MAX_PIDS);
+    get_current_pids(current_pids);
+
+    for (int i=0; current_pids[i] != NULL; i++) {
         if (!process_list_member(process_list, current_pids[i])) {
-
-            process_entry->next = create_proc();
-            process_entry->next->prev = process_entry;
-            process_entry = process_entry->next;
-            process_entry->pidstr = current_pids[i];
-            process_entry->pid = atoi(process_entry->pidstr);
-            process_entry->name = get_process_name(process_entry->pidstr);
-
+            add_process_link(process_tail, current_pids[i]);
+            process_tail = process_tail->next;
             *redraw = 1;
         }
     }
+
+    for (int i=0; current_pids[i] != NULL; i++)
+        free(current_pids[i]);
 
     process_list = filter_process_list(process_list);
 
@@ -87,6 +123,20 @@ proc_t *get_head(proc_t *process_list)
     return process_list;
 }
 
+void add_process_link(proc_t *tail, char *pid)
+{
+    char path[STAT_PATHMAX];
+    memset(path, 0, STAT_PATHMAX);
+    snprintf(path, STAT_PATHMAX - 1, STATUS, pid);
+
+    tail->next = create_proc();
+    tail->next->prev = tail;
+    tail->next->pidstr = pid;
+    tail->next->pid = atoi(tail->next->pidstr);
+    tail->next->name = get_process_name(tail->next->pidstr);
+    tail->next->user = proc_user(path);
+}
+
 void get_current_pids(char **pid_list)
 {
     struct dirent **proc_dir;
@@ -97,8 +147,8 @@ void get_current_pids(char **pid_list)
         return;
     }
 
-    int i;
-    for (i=0; i < total_processes; i++) {
+    int i = 0;
+    for (; i < total_processes; i++) {
         pid_list[i] = strdup(proc_dir[i]->d_name);
         free(proc_dir[i]);
     }
@@ -122,8 +172,7 @@ int is_pid(const struct dirent *directory)
 {
     int name_length = strlen(directory->d_name);
 
-    int i;
-    for (i=0; i < name_length; i++) 
+    for (int i=0; i < name_length; i++) 
         if(!isdigit(directory->d_name[i]))
             return 0;
     return 1;
@@ -210,10 +259,7 @@ proc_t *filter_process_list(proc_t *process_list)
     while (process_list != NULL) {
 
         if (process_list->state != NULL && 
-            process_list->ioprio != NULL &&
-            process_list->name != NULL &&
-            process_list->pidstr != NULL &&
-            process_list->user != NULL) {
+            process_list->ioprio != NULL) {
 
             if (current == NULL) {
                 current = copy_proc(process_list);
@@ -229,9 +275,8 @@ proc_t *filter_process_list(proc_t *process_list)
         process_list = process_list->next;
     }
 
-    current->next = NULL;
-
     free_process_list(process_list_head);
+    current->next = NULL;
 
     return head;
 }
