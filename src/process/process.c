@@ -33,7 +33,7 @@ proc_t *build_process_list(void)
     memset(current_pids, 0, sizeof(char *) * MAX_PIDS);
     get_current_pids(current_pids);
 
-    process->pidstr = current_pids[0];
+    process->pidstr = strdup(current_pids[0]);
     process->pid = atoi(process->pidstr);
     process->name = get_process_name(process->pidstr);
 
@@ -43,6 +43,7 @@ proc_t *build_process_list(void)
  
     for (int i=1; current_pids[i] != NULL; i++) { 
         add_process_link(process, current_pids[i]);
+        free(current_pids[i]);
         process = process->next;
         get_process_stats(process);
     }
@@ -97,14 +98,14 @@ proc_t *update_process_list(proc_t *process_list, int *redraw)
         if (!process_list_member(process_list, current_pids[i])) {
             add_process_link(process_tail, current_pids[i]);
             process_tail = process_tail->next;
+            get_process_stats(process_tail);
             *redraw = 1;
+            free(current_pids[i]);
         }
     }
 
-    for (int i=0; current_pids[i] != NULL; i++)
-        free(current_pids[i]);
 
-    process_list = filter_process_list(process_list);
+    process_list = filter_process_list(process_list, redraw);
 
     return process_list;
 }
@@ -131,7 +132,7 @@ void add_process_link(proc_t *tail, char *pid)
 
     tail->next = create_proc();
     tail->next->prev = tail;
-    tail->next->pidstr = pid;
+    tail->next->pidstr = strdup(pid);
     tail->next->pid = atoi(tail->next->pidstr);
     tail->next->name = get_process_name(tail->next->pidstr);
     tail->next->user = proc_user(path);
@@ -248,13 +249,13 @@ int get_numberof_processes(proc_t *process_list)
     return count;
 }
 
-proc_t *filter_process_list(proc_t *process_list)
+proc_t *filter_process_list(proc_t *process_list, int *redraw)
 {
     if (process_list == NULL)
         return NULL;
 
     proc_t *head = NULL, *current = NULL;
-    proc_t *process_list_head = process_list;
+//    proc_t *process_list_head = process_list;
 
     while (process_list != NULL) {
 
@@ -270,12 +271,12 @@ proc_t *filter_process_list(proc_t *process_list)
                 current->next->prev = current; 
                 current = current->next;
             }
-        }
-
+        } else
+            *redraw = 1;
         process_list = process_list->next;
     }
 
-    free_process_list(process_list_head);
+//    free_process_list(process_list_head);
     current->next = NULL;
 
     return head;
