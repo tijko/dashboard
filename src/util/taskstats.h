@@ -3,9 +3,8 @@
 
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <linux/genetlink.h>
-
-#include "../process/process.h"
 
 
 #define MAX_MSG_SZ 1024
