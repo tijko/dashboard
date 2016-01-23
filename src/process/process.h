@@ -9,7 +9,7 @@
 
 #define PROCNAME_MAX 1024
 #define MAX_PIDS 1000
-
+#define STAT_PATHMAX 32
 #define MAXPROCPATH 2048
 
 
@@ -48,6 +48,8 @@ proc_t *create_proc(void);
 
 proc_t *filter_process_list(proc_t *process_list);
 
+void get_process_stats(proc_t *process);
+
 void free_process_list(proc_t *process_list);
 
 proc_t *free_process(proc_t *process_list);
@@ -62,7 +64,7 @@ int is_pid(const struct dirent *directory);
 
 char *proc_user(char *path);
 
-void set_process_fields(proc_t *process);
+void add_process_link(proc_t *link, char *pid);
 
 void get_current_pids(char **pid_list);
 
