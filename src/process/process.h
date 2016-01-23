@@ -46,7 +46,7 @@ int get_numberof_processes(proc_t *process_list);
 
 proc_t *create_proc(void);
 
-proc_t *filter_process_list(proc_t *process_list);
+proc_t *filter_process_list(proc_t *process_list, int *redraw);
 
 void get_process_stats(proc_t *process);
 
