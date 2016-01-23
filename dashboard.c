@@ -86,7 +86,6 @@ void dashboard_mainloop(char attr_sort)
     board_t *dashboard = init_board();
 
     dashboard->process_list = build_process_list();
-    get_process_stats(dashboard);
 
     if (dashboard == NULL)
         return;
@@ -228,9 +227,9 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
+        update_process_stats(dashboard->process_list);
         dashboard->process_list = update_process_list(dashboard->process_list,
                                                       &redraw);
-        get_process_stats(dashboard);
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -271,52 +270,12 @@ void free_board(board_t *board)
     free(board);
 }
 
-void get_process_stats(board_t *dashboard)
+void update_process_stats(proc_t *process_list)
 {
-    proc_t *process_list = dashboard->process_list;
-
-    for (; process_list != NULL; process_list=process_list->next) {
-        
-        if (process_list->state != NULL) 
-            free(process_list->state);
-        if (process_list->ioprio != NULL)
-            free(process_list->ioprio);
-        
-        memset(dashboard->path, 0, STAT_PATHMAX - 1); 
-        snprintf(dashboard->path, STAT_PATHMAX - 1, STATUS, 
-                 process_list->pidstr);
-
-        if (process_list->user == NULL) {
-            process_list->user = proc_user(dashboard->path);
-            if (process_list->user == NULL) continue;
-        }
-
-        process_list->cpuset = current_cpus(process_list->pid);
-        process_list->mempcent = memory_percentage(dashboard->path, 
-                                                   dashboard->memtotal);
-
-        process_list->nice = nice(process_list->pid);
-        process_list->ioprio = ioprio_class(process_list->pid);
-        if (process_list->ioprio == NULL) continue;
-
-        process_list->state = state(dashboard->path);
-        if (process_list->state == NULL) continue;
-
-        process_list->pte = get_field(dashboard->path, PTE);
-        process_list->rss = get_field(dashboard->path, RSS);
-        process_list->vmem = get_field(dashboard->path, VMEM);
-        process_list->thrcnt = get_field(dashboard->path, THRS);
-
-        memset(dashboard->path, 0, STAT_PATHMAX - 1); 
-        snprintf(dashboard->path, STAT_PATHMAX - 1, FD, process_list->pidstr);
-        process_list->open_fds = current_fds(dashboard->path);
-
-        if (dashboard->euid != 0) continue;
-        process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
-        process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
-        process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
-    }
+    for (; process_list != NULL; process_list=process_list->next)
+        get_process_stats(process_list);        
 }
+
 
 int main(int argc, char *argv[])
 {
