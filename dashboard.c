@@ -85,7 +85,8 @@ void dashboard_mainloop(char attr_sort)
 
     board_t *dashboard = init_board();
 
-    dashboard->process_list = build_process_list();
+    dashboard->process_list = build_process_list(dashboard->memtotal, 
+                                                 dashboard->euid);
 
     if (dashboard == NULL)
         return;
@@ -227,9 +228,10 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
 
-        update_process_stats(dashboard->process_list);
+        update_process_stats(dashboard);
         dashboard->process_list = update_process_list(dashboard->process_list,
-                                                      &redraw);
+                                                      dashboard->memtotal,
+                                                      dashboard->euid, &redraw);
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -270,10 +272,15 @@ void free_board(board_t *board)
     free(board);
 }
 
-void update_process_stats(proc_t *process_list)
+void update_process_stats(board_t *dashboard)
 {
+    proc_t *process_list = dashboard->process_list;
+
+    long memory = dashboard->memtotal;
+    uid_t user = dashboard->euid;
+
     for (; process_list != NULL; process_list=process_list->next)
-        get_process_stats(process_list);        
+        get_process_stats(process_list, memory, user);
 }
 
 
