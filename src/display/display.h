@@ -16,7 +16,7 @@
 
 #define LINE_X 2 
 #define LINE_Y 9
-#define PROC_LINE_SIZE 11
+#define PROC_LINE_SIZE 12
 
 enum {
     LPID   = 18,
