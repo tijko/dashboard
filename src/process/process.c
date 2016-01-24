@@ -14,10 +14,11 @@
 #include "../cpu/cpu.h"
 #include "../ipc/ipc.h"
 #include "../io/disk.h"
+#include "../memory/memory.h"
 #include "../util/file_utils.h"
 
 
-proc_t *build_process_list(void)
+proc_t *build_process_list(long memory, uid_t user)
 {
     char path[STAT_PATHMAX];
     memset(path, 0, STAT_PATHMAX);
@@ -39,19 +40,20 @@ proc_t *build_process_list(void)
 
     snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
     process->user = proc_user(path);
-    get_process_stats(process);
+    get_process_stats(process, memory, user);
+    free(current_pids[0]);
  
     for (int i=1; current_pids[i] != NULL; i++) { 
         add_process_link(process, current_pids[i]);
         free(current_pids[i]);
         process = process->next;
-        get_process_stats(process);
+        get_process_stats(process, memory, user);
     }
 
     return process_list; 
 }
 
-void get_process_stats(proc_t *process)
+void get_process_stats(proc_t *process, long memtotal, uid_t user)
 {
     char path[STAT_PATHMAX];
     memset(path, 0, STAT_PATHMAX);
@@ -63,7 +65,7 @@ void get_process_stats(proc_t *process)
         free(process->ioprio);
     
     process->cpuset = current_cpus(process->pid);
-    //process->mempcent = memory_percentage(path, dashboard->memtotal);
+    process->mempcent = memory_percentage(path, memtotal);
 
     process->nice = nice(process->pid);
     process->ioprio = ioprio_class(process->pid);
@@ -78,16 +80,15 @@ void get_process_stats(proc_t *process)
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
     process->open_fds = current_fds(path);
-    /*
-    XXX
-    if (dashboard->euid != 0) continue;
-    process_list->io_read = get_process_taskstat_io(process_list->pid, 'o');
-    process_list->io_write = get_process_taskstat_io(process_list->pid, 'i');
-    process_list->invol_sw = get_process_ctxt_switches(process_list->pid);
-    */ 
+
+    if (user != 0) return;
+    process->io_read = get_process_taskstat_io(process->pid, 'o');
+    process->io_write = get_process_taskstat_io(process->pid, 'i');
+    process->invol_sw = get_process_ctxt_switches(process->pid);
 }
 
-proc_t *update_process_list(proc_t *process_list, int *redraw)
+proc_t *update_process_list(proc_t *process_list, long memory, 
+                            uid_t user, int *redraw)
 {
     proc_t *process_tail = get_tail(process_list);
     char *current_pids[MAX_PIDS];
@@ -98,10 +99,11 @@ proc_t *update_process_list(proc_t *process_list, int *redraw)
         if (!process_list_member(process_list, current_pids[i])) {
             add_process_link(process_tail, current_pids[i]);
             process_tail = process_tail->next;
-            get_process_stats(process_tail);
+            get_process_stats(process_tail, memory, user);
             *redraw = 1;
-            free(current_pids[i]);
         }
+
+        free(current_pids[i]);
     }
 
 
@@ -255,7 +257,7 @@ proc_t *filter_process_list(proc_t *process_list, int *redraw)
         return NULL;
 
     proc_t *head = NULL, *current = NULL;
-//    proc_t *process_list_head = process_list;
+    proc_t *process_list_head = process_list;
 
     while (process_list != NULL) {
 
@@ -276,7 +278,7 @@ proc_t *filter_process_list(proc_t *process_list, int *redraw)
         process_list = process_list->next;
     }
 
-//    free_process_list(process_list_head);
+    free_process_list(process_list_head);
     current->next = NULL;
 
     return head;
