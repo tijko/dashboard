@@ -337,39 +337,12 @@ proc_t *create_proc(void)
     return p;
 }
 
-proc_t *free_process(proc_t *process_list)
-{
-    /*
-        XXX Keeping track of how many processes there are currently running
-        and then tracing back to a non-null or end/beginning of the list
+/*
+    XXX Keeping track of how many processes there are currently running
+    and then tracing back to a non-null or end/beginning of the list
 
-        or use a filter to rebuild on any null-attribute fields.
-    */
-
-    if (process_list == NULL)
-        return NULL;
-
-    if (process_list->next == NULL) {
-        process_list->prev = NULL;
-        free_process_list(process_list);
-        return NULL;
-    }
-
-    proc_t *process = process_list; 
-    process_list = process_list->next;
-    if (process_list->prev->prev) {
-        process_list->prev = process_list->prev->prev;
-        process_list->prev->next = process_list;
-    } else
-        process_list->prev = NULL;
-
-    process->next = NULL;
-    process->prev = NULL;
-
-    free_process_list(process);
-
-    return process_list;
-}
+    or use a filter to rebuild on any null-attribute fields.
+*/
             
 void free_process_list(proc_t *process_list)
 {
