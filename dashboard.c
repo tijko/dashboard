@@ -53,7 +53,6 @@ void print_usage(void)
 
 char set_sort_option(char *opt)
 {
-
     char *opts[] = {"cpu", "fds", "pte", "mem", "nice", "pid",
                     "rss", "invol", "vmem", "write", "output"}; 
 
@@ -140,12 +139,16 @@ void dashboard_mainloop(char attr_sort)
             case (KEY_UP):
                 if (process_line_num > 0) 
                     process_line_num--;
+                else
+                    clear_key(KEY_UP);
                 break;
 
             case (KEY_DOWN):
                 if (process_line_num < (number_of_processes - 
                                        (dashboard->max_y - PROC_LINE_SIZE))) 
-                    process_line_num++; 
+                    process_line_num++;
+                else
+                    clear_key(KEY_DOWN);
                 break;
 
             case (KEY_C):
@@ -248,6 +251,19 @@ void dashboard_mainloop(char attr_sort)
     free_board(dashboard);
 }
 
+void clear_key(int key)
+{
+    int nextkey;
+    while ((nextkey = getch()) == key)
+        ;
+
+    if (nextkey == ERR) return;
+
+    ungetch(nextkey);
+
+    return;
+}
+
 board_t *init_board(void)
 {
     board_t *board = malloc(sizeof *board);
@@ -282,7 +298,6 @@ void update_process_stats(board_t *dashboard)
     for (; process_list != NULL; process_list=process_list->next)
         get_process_stats(process_list, memory, user);
 }
-
 
 int main(int argc, char *argv[])
 {
