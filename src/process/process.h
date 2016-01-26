@@ -54,8 +54,6 @@ void get_process_stats(proc_t *process, long memtotal, uid_t user);
 
 void free_process_list(proc_t *process_list);
 
-proc_t *free_process(proc_t *process_list);
-
 proc_t *copy_proc(proc_t *process_list);
 
 proc_t *get_tail(proc_t *process_list);
