@@ -61,8 +61,7 @@ char set_sort_option(char *opt)
 
     int num_opts = sizeof(opts) / sizeof(__typeof__(opts[0]));
 
-    int i;
-    for (i=0; i < num_opts; i++)
+    for (int i=0; i < num_opts; i++)
         if (!strcmp(opt, opts[i]))
             return opts_char[i];
 
