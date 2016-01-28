@@ -83,8 +83,7 @@ void dashboard_mainloop(char attr_sort)
 
     board_t *dashboard = init_board();
 
-    dashboard->process_list = build_process_list(dashboard->memtotal, 
-                                                 dashboard->euid);
+    dashboard->process_list = build_process_list(dashboard->system); 
 
     if (dashboard == NULL)
         return;
@@ -230,8 +229,8 @@ void dashboard_mainloop(char attr_sort)
 
         update_process_stats(dashboard);
         dashboard->process_list = update_process_list(dashboard->process_list,
-                                                      dashboard->memtotal,
-                                                      dashboard->euid, &redraw);
+                                                      dashboard->system,
+                                                      &redraw);
         delay_output(REFRESH_RATE);
 
         bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
@@ -251,12 +250,15 @@ void dashboard_mainloop(char attr_sort)
 board_t *init_board(void)
 {
     board_t *board = malloc(sizeof *board);
+    board->system = malloc(sizeof *(board->system));
     if (board == NULL)
         return NULL;
 
-    board->euid = geteuid();
-    board->memtotal = total_memory();
-
+    board->system->euid = geteuid();
+    board->system->memtotal = total_memory();
+    int high_pid_count = max_pids();
+    board->system->max_pids = high_pid_count;
+    board->system->current_pids = malloc(sizeof(char *) * high_pid_count);
     getmaxyx(stdscr, board->max_y, board->max_x);
     board->prev_x = 0;
     board->prev_y = 0;
@@ -267,6 +269,8 @@ board_t *init_board(void)
 
 void free_board(board_t *board)
 {
+    free(board->system->current_pids);
+    free(board->system);
     free(board->fieldbar);
     free_process_list(board->process_list);
     free(board);
@@ -276,11 +280,8 @@ void update_process_stats(board_t *dashboard)
 {
     proc_t *process_list = dashboard->process_list;
 
-    long memory = dashboard->memtotal;
-    uid_t user = dashboard->euid;
-
     for (; process_list != NULL; process_list=process_list->next)
-        get_process_stats(process_list, memory, user);
+        get_process_stats(process_list, dashboard->system);
 }
 
 int main(int argc, char *argv[])
