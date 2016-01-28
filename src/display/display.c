@@ -100,7 +100,7 @@ char *build_fieldbar(void)
                                      sizeof(char))) == NULL)
         return NULL;
 
-    unsigned int i, head; 
+    unsigned i, head; 
     // maintain a `head` of the string to avoid repeated calls to `strlen`
     for (i=0, head=0; i < fieldattr_size; i++) {
         add_space(fieldbar, fieldattrs[i], head, attrspace[i]);    
