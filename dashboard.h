@@ -29,6 +29,4 @@ board_t *init_board(void);
 
 void free_board(board_t *board);
 
-void clear_key(int key);
-
 #endif
