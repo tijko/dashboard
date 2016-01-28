@@ -124,6 +124,20 @@ int nr_ptys(void)
     return ptys;
 }
 
+int max_pids(void)
+{
+    int max_pidsfd = open(MAXPIDS, O_RDONLY);
+
+    char max_pids[32];
+
+    int max_pids_rbytes = read(max_pidsfd, max_pids, 32);
+    if (max_pids_rbytes < 1)
+        return 0;
+
+    int num_pids = atoi(max_pids);
+    return num_pids;
+}
+
 bool is_sysfield_timer_expired(int sys_timer_fd)
 {
     uint64_t time_read = TIME_READ_DEFAULT;
