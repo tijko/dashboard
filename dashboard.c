@@ -139,16 +139,14 @@ void dashboard_mainloop(char attr_sort)
             case (KEY_UP):
                 if (process_line_num > 0) 
                     process_line_num--;
-                else
-                    clear_key(KEY_UP);
+                flushinp();
                 break;
 
             case (KEY_DOWN):
                 if (process_line_num < (number_of_processes - 
                                        (dashboard->max_y - PROC_LINE_SIZE))) 
                     process_line_num++;
-                else
-                    clear_key(KEY_DOWN);
+                flushinp();
                 break;
 
             case (KEY_C):
@@ -249,19 +247,6 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
-}
-
-void clear_key(int key)
-{
-    int nextkey;
-    while ((nextkey = getch()) == key)
-        ;
-
-    if (nextkey == ERR) return;
-
-    ungetch(nextkey);
-
-    return;
 }
 
 board_t *init_board(void)
