@@ -4,16 +4,16 @@
 #include <sys/types.h>
 
 #include "src/process/process.h"
+#include "src/system/sys_stats.h"
 
 
 typedef struct {
-    uid_t euid;
     int max_x;
     int max_y;
     int prev_x;
     int prev_y;
     char *fieldbar;
-    long memtotal;
+    sysaux_t *system;
     proc_t *process_list;
 } board_t;    
 
