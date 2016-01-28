@@ -7,9 +7,10 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include "../system/sys_stats.h"
+
 
 #define PROCNAME_MAX 1024
-#define MAX_PIDS 1000
 #define STAT_PATHMAX 32
 #define MAXPROCPATH 2048
 
@@ -37,10 +38,9 @@ typedef struct process_attr {
     struct process_attr *next;
 } proc_t;
 
-proc_t *build_process_list(long memory, uid_t user);
+proc_t *build_process_list(sysaux_t *system);
 
-proc_t *update_process_list(proc_t *process_list, long memory, 
-                            uid_t user, int *redraw);
+proc_t *update_process_list(proc_t *process_list, sysaux_t *system, int *redraw);
 
 bool process_list_member(proc_t *process_list, char *pid);
 
@@ -50,7 +50,7 @@ proc_t *create_proc(void);
 
 proc_t *filter_process_list(proc_t *process_list, int *redraw);
 
-void get_process_stats(proc_t *process, long memtotal, uid_t user);
+void get_process_stats(proc_t *process, sysaux_t *system);
 
 void free_process_list(proc_t *process_list);
 
