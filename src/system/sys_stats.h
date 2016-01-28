@@ -8,6 +8,8 @@
 #define MAXTOT 16
 #define BASE 1024
 
+#define MAXPIDS "/proc/sys/kernel/pid_max"
+
 #define MEMINFO "/proc/meminfo"
 #define MEMFREE "MemFree"
 
@@ -22,6 +24,13 @@
 #define PTY_BUFFER_SZ 64
 #define NRPTYS "/proc/sys/kernel/pty/nr"
 
+typedef struct {
+    uid_t euid;
+    int max_pids;
+    long memtotal;
+    char **current_pids;
+} sysaux_t;
+
 void build_sys_info(char *fstype);
 
 char *mem_avail(unsigned long memory, unsigned long base);
@@ -33,5 +42,7 @@ int nr_ptys(void);
 bool is_sysfield_timer_expired(int sys_timer_fd);
 
 int set_sys_timer(struct itimerspec *sys_timer);
+
+int max_pids(void);
 
 #endif
