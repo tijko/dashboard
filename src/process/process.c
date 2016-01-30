@@ -61,6 +61,8 @@ void get_process_stats(proc_t *process, sysaux_t *system)
         free(process->state);
     if (process->ioprio != NULL)
         free(process->ioprio);
+    if (process->thrcnt != NULL)
+        free(process->thrcnt);
     
     process->cpuset = current_cpus(process->pid);
 
@@ -288,6 +290,7 @@ proc_t *copy_proc(proc_t *process)
     copy->state = strdup(process->state);
     copy->name = strdup(process->name);
     copy->user = strdup(process->user);
+    copy->thrcnt = strdup(process->thrcnt);
 
     copy->pid = process->pid;
     copy->uid = process->uid;
@@ -297,7 +300,6 @@ proc_t *copy_proc(proc_t *process)
     copy->invol_sw = process->invol_sw;
     copy->mempcent = process->mempcent;
     copy->vmem = process->vmem;
-    copy->thrcnt = process->thrcnt;
     copy->pte = process->pte;
     copy->rss = process->rss;
     copy->io_read = process->io_read;
@@ -322,7 +324,7 @@ proc_t *create_proc(void)
     p->state = NULL;
     p->mempcent = 0;
     p->vmem = 0;
-    p->thrcnt = 0;
+    p->thrcnt = NULL;
     p->pte = 0;
     p->rss = 0;
     p->io_read = 0;
@@ -353,6 +355,8 @@ void free_process_list(proc_t *process_list)
             free(tmp->ioprio);
         if (tmp->state != NULL)
             free(tmp->state);
+        if (tmp->thrcnt)
+            free(tmp->thrcnt);
         free(tmp);
     }
 }
