@@ -62,7 +62,7 @@ int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype,
                           processes->nice);
             mvwprintw(stdscr, cur_y, LINE_X + LPRIO, "%s", processes->ioprio);
             mvwprintw(stdscr, cur_y, LINE_X + LSTATE, "%s", processes->state);
-            mvwprintw(stdscr, cur_y, LINE_X + LVMEM, "%d", processes->vmem);
+            mvwprintw(stdscr, cur_y, LINE_X + LVMEM, "%s", processes->vmem);
             mvwprintw(stdscr, cur_y, LINE_X + LPTE, "%d", processes->pte);
             mvwprintw(stdscr, cur_y, LINE_X + LRSS, "%d", processes->rss); 
             mvwprintw(stdscr, cur_y, LINE_X + LREAD, "%llu", 
