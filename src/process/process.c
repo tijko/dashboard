@@ -63,18 +63,22 @@ void get_process_stats(proc_t *process, sysaux_t *system)
         free(process->ioprio);
     
     process->cpuset = current_cpus(process->pid);
-    process->mempcent = memory_percentage(path, system->memtotal);
 
     process->nice = nice(process->pid);
     process->ioprio = ioprio_class(process->pid);
 
-    process->state = state(path);
-
     process->pte = get_field(path, PTE);
+
+    process->mempcent = memory_percentage(path, system->memtotal);
+    process->state = state(path);
+/*
     process->rss = get_field(path, RSS);
     process->vmem = get_field(path, VMEM);
     process->thrcnt = get_field(path, THRS);
-
+*/
+    process->rss = 0;
+    process->vmem = 0;
+    process->thrcnt = parse_stat(process->pidstr, THRS);
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
     process->open_fds = current_fds(path);
