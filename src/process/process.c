@@ -71,13 +71,9 @@ void get_process_stats(proc_t *process, sysaux_t *system)
 
     process->mempcent = memory_percentage(path, system->memtotal);
     process->state = state(path);
-/*
-    process->rss = get_field(path, RSS);
-    process->vmem = get_field(path, VMEM);
-    process->thrcnt = get_field(path, THRS);
-*/
-    process->rss = 0;
-    process->vmem = 0;
+
+//    process->rss = parse_stat(process->pidstr, RSS);
+//    process->vmem = parse_stat(process->vmem, VMEM);
     process->thrcnt = parse_stat(process->pidstr, THRS);
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
