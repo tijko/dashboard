@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "sort_fields.h"
 #include "../process/process.h"
@@ -93,8 +94,8 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
             case (KEY_T):
-                cmp_fields[0] = cur->thrcnt;
-                cmp_fields[1] = proc_arr[proc_index]->thrcnt;
+                cmp_fields[0] = atoi(cur->thrcnt);
+                cmp_fields[1] = atoi(proc_arr[proc_index]->thrcnt);
                 break;
 
             case (KEY_V):
