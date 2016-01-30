@@ -23,7 +23,8 @@ float memory_percentage(char *path, long totalmem)
 {
     float total_usage, total_mem_percent;
 
-    char *percentage = proc_parser(path, VMEM);
+    char *percentage = proc_parser(path, "VmSize");
+   
 
     if (percentage != NULL) {
         total_usage = (float) strtol(percentage, NULL, 10);
