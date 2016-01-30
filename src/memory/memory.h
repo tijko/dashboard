@@ -1,7 +1,6 @@
 #ifndef MEM_H
 #define MEM_H
 
-//#define VMEM "VmSize"
 #define TOTALMEM "MemTotal"
 #define MEMINFO "/proc/meminfo"
 
