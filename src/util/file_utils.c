@@ -62,6 +62,7 @@ char *parse_stat(char *pid, int field)
         return NULL;
 
     int rbytes = read(stat_fd, stat_buffer, STAT_BUFFER);
+    close(stat_fd);
     if (rbytes < 0)
         return NULL;
 
@@ -72,5 +73,5 @@ char *parse_stat(char *pid, int field)
     for (int i = 1; i < field; i++)
         stat_str = strtok(NULL, " ");
 
-    return stat_str;
+    return strdup(stat_str);
 }
