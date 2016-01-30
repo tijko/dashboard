@@ -99,8 +99,8 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
             case (KEY_V):
-                cmp_fields[0] = cur->vmem;
-                cmp_fields[1] = proc_arr[proc_index]->vmem;
+                cmp_fields[0] = atoi(cur->vmem);
+                cmp_fields[1] = atoi(proc_arr[proc_index]->vmem);
                 break;
         }
 }
