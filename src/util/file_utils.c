@@ -1,7 +1,9 @@
 #define _POSIX_C_SOURCE 200810L
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -46,4 +48,29 @@ char *proc_parser(char *path, char *field)
     fclose(fp);
 
     return tmp;
+}
+
+char *parse_stat(char *pid, int field)
+{
+    char path[PATHLEN];
+    snprintf(path, PATHLEN - 1, STAT, pid);
+
+    char stat_buffer[STAT_BUFFER];
+
+    int stat_fd = open(path, O_RDONLY);
+    if (stat_fd < 0)
+        return NULL;
+
+    int rbytes = read(stat_fd, stat_buffer, STAT_BUFFER);
+    if (rbytes < 0)
+        return NULL;
+
+    char *stat_str = strtok(stat_buffer, " ");
+    if (stat_str == NULL)
+        return NULL;
+
+    for (int i = 1; i < field; i++)
+        stat_str = strtok(NULL, " ");
+
+    return stat_str;
 }
