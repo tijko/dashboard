@@ -77,7 +77,7 @@ int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype,
                           processes->open_fds);
             mvwprintw(stdscr, cur_y, LINE_X + LINVOL, "%d", 
                       processes->invol_sw);
-            mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%d", 
+            mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%s", 
                       processes->thrcnt);
         } else 
             process_line_num--;
