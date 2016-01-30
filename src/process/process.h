@@ -31,7 +31,7 @@ typedef struct process_attr {
     int vmem;
     int pte;
     int rss;
-    int thrcnt;
+    char *thrcnt;
     uint64_t io_read;
     uint64_t io_write;
     struct process_attr *prev;
