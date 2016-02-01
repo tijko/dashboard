@@ -289,14 +289,22 @@ proc_t *copy_proc(proc_t *process)
 {
     proc_t *copy = create_proc();
 
-    copy->ioprio = strdup(process->ioprio);
-    copy->pidstr = strdup(process->pidstr);
-    copy->state = strdup(process->state);
-    copy->name = strdup(process->name);
-    copy->user = strdup(process->user);
-    copy->thrcnt = strdup(process->thrcnt);
-    copy->vmem = strdup(process->vmem);
-    copy->rss = strdup(process->rss);
+    if (process->ioprio)
+        copy->ioprio = strdup(process->ioprio);
+    if (process->pidstr != NULL)
+        copy->pidstr = strdup(process->pidstr);
+    if (process->state != NULL)
+        copy->state = strdup(process->state);
+    if (process->name)
+        copy->name = strdup(process->name);
+    if (process->user)
+        copy->user = strdup(process->user);
+    if (process->thrcnt)
+        copy->thrcnt = strdup(process->thrcnt);
+    if (process->vmem)
+        copy->vmem = strdup(process->vmem);
+    if (process->rss)
+        copy->rss = strdup(process->rss);
 
     copy->pid = process->pid;
     copy->uid = process->uid;
@@ -349,15 +357,15 @@ void free_process_list(proc_t *process_list)
 {
     for (proc_t *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
-        if (tmp->pidstr != NULL)
+        if (tmp->pidstr)
             free(tmp->pidstr);
-        if (tmp->name != NULL)
+        if (tmp->name)
             free(tmp->name);
-        if (tmp->user != NULL)
+        if (tmp->user)
             free(tmp->user);
-        if (tmp->ioprio != NULL)
+        if (tmp->ioprio)
             free(tmp->ioprio);
-        if (tmp->state != NULL)
+        if (tmp->state)
             free(tmp->state);
         if (tmp->thrcnt)
             free(tmp->thrcnt);
