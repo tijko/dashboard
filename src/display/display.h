@@ -38,7 +38,7 @@ enum {
     LTHRDS = 144
 };
 
-#define DELAY 1 
+#define DELAY 5 
 
 #define FIELDS 15
 
