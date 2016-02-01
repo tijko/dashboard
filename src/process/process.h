@@ -29,7 +29,7 @@ typedef struct process_attr {
     char *state;
     float mempcent;
     int pte;
-    int rss;
+    char *rss;
     char *vmem;
     char *thrcnt;
     uint64_t io_read;
