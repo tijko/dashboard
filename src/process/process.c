@@ -65,6 +65,8 @@ void get_process_stats(proc_t *process, sysaux_t *system)
         free(process->thrcnt);
     if (process->vmem != NULL)
         free(process->vmem);
+    if (process->rss != NULL)
+        free(process->rss);
     
     process->cpuset = current_cpus(process->pid);
 
@@ -76,7 +78,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->mempcent = memory_percentage(path, system->memtotal);
     process->state = state(path);
 
-//    process->rss = parse_stat(process->pidstr, RSS);
+    process->rss = parse_stat(process->pidstr, RSS);
     process->vmem = parse_stat(process->pidstr, VMEM);
     process->thrcnt = parse_stat(process->pidstr, THRS);
     memset(path, 0, STAT_PATHMAX - 1); 
@@ -294,6 +296,7 @@ proc_t *copy_proc(proc_t *process)
     copy->user = strdup(process->user);
     copy->thrcnt = strdup(process->thrcnt);
     copy->vmem = strdup(process->vmem);
+    copy->rss = strdup(process->rss);
 
     copy->pid = process->pid;
     copy->uid = process->uid;
@@ -303,7 +306,6 @@ proc_t *copy_proc(proc_t *process)
     copy->invol_sw = process->invol_sw;
     copy->mempcent = process->mempcent;
     copy->pte = process->pte;
-    copy->rss = process->rss;
     copy->io_read = process->io_read;
     copy->io_write = process->io_write;
 
@@ -327,8 +329,8 @@ proc_t *create_proc(void)
     p->mempcent = 0;
     p->vmem = NULL;
     p->thrcnt = NULL;
+    p->rss = NULL;
     p->pte = 0;
-    p->rss = 0;
     p->io_read = 0;
     p->io_write = 0;
     p->prev = NULL;
@@ -361,6 +363,8 @@ void free_process_list(proc_t *process_list)
             free(tmp->thrcnt);
         if (tmp->vmem)
             free(tmp->vmem);
+        if (tmp->rss)
+            free(tmp->rss);
         free(tmp);
     }
 }
