@@ -84,8 +84,8 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
             case (KEY_R):
-                cmp_fields[0] = cur->rss;
-                cmp_fields[1] = proc_arr[proc_index]->rss;
+                cmp_fields[0] = atoi(cur->rss);
+                cmp_fields[1] = atoi(proc_arr[proc_index]->rss);
                 break;
             
             case (KEY_S):
