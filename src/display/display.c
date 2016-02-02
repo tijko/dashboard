@@ -8,76 +8,102 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <ncurses.h>
 
 #include "display.h"
 #include "../process/process.h"
 #include "../system/sys_stats.h"
 
 
-void init_screen(void)
+void init_windows(WINDOW **display_windows)
 {
+
     initscr();
     noecho();
     halfdelay(DELAY);
-    keypad(stdscr, TRUE);
     curs_set(0);
+    keypad(stdscr, TRUE);
 
     start_color();
     init_pair(1, COLOR_GREEN, COLOR_BLACK);
-    attron(COLOR_PAIR(1));
+
+    display_windows[0] = newwin(LINE_Y, 0, 0, 0);
+    display_windows[1] = newwin(0, 0, LINE_Y, 0);
+
+    wattron(display_windows[0], COLOR_PAIR(1));
+    wattron(display_windows[1], COLOR_PAIR(1));
 }
 
-int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype, 
-                  char *fieldbar, int process_line_num, int max_x, int max_y)
+int update_system_window(WINDOW *system_window, char *fstype)
 {
-    int cur_y = LINE_Y;
+    int max_x = getmaxx(system_window);
 
-    attron(A_BOLD);
-    mvwprintw(stdscr, 1, (max_x / 2) - 4, DASHBOARD);
-    attroff(A_BOLD);
+    werase(system_window);
 
-    if (sys_fields_refresh)
-        build_sys_info(fstype);
+    wattron(system_window, A_BOLD);
+    mvwprintw(system_window, 1, (max_x / 2) - 4, DASHBOARD);
+    wattroff(system_window, A_BOLD);
 
-    attron(A_REVERSE);
-    mvwprintw(stdscr, cur_y++, 1, fieldbar);
-    attroff(A_REVERSE);
+    build_sys_info(system_window, fstype);
+
+    box(system_window, 0, 0);
+    wrefresh(system_window);
+
+    return 0;
+}
+
+int update_process_window(WINDOW *process_window, proc_t *processes,
+                          char *fieldbar, int process_line_num, int max_y)
+{
+    int cur_y = 1;
+
+    wattron(process_window, A_REVERSE);
+    mvwprintw(process_window, cur_y++, 1, fieldbar);
+    wattroff(process_window, A_REVERSE);
 
     while (processes && cur_y < max_y - 1) {
         if (process_line_num == 0) {
-            mvwprintw(stdscr, cur_y, LINE_X, "%s  ", processes->name);
-            mvwprintw(stdscr, cur_y, LINE_X + LPID, "%d   ", processes->pid);
-            mvwprintw(stdscr, cur_y, LINE_X + LUSER, "%s   ", processes->user);
-            mvwprintw(stdscr, cur_y, LINE_X + LCPU, "%d ", processes->cpuset);
-            mvwprintw(stdscr, cur_y, LINE_X + LMEM, "%.2f%", 
+            mvwprintw(process_window, cur_y, LINE_X, "%s  ", processes->name);
+            mvwprintw(process_window, cur_y, LINE_X + LPID, 
+                      "%d   ", processes->pid);
+            mvwprintw(process_window, cur_y, LINE_X + LUSER, 
+                      "%s   ", processes->user);
+            mvwprintw(process_window, cur_y, LINE_X + LCPU, 
+                      "%d ", processes->cpuset);
+            mvwprintw(process_window, cur_y, LINE_X + LMEM, "%.2f%", 
                       processes->mempcent);
             if (processes->nice >= 0 && processes->nice < 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + LNNICE, "%d", 
+                mvwprintw(process_window, cur_y, LINE_X + LNNICE, "%d", 
                           processes->nice);
             else if (processes->nice >= 10) 
-                mvwprintw(stdscr, cur_y, LINE_X + LMNICE, "%d", 
+                mvwprintw(process_window, cur_y, LINE_X + LMNICE, "%d", 
                           processes->nice);
             else 
-                mvwprintw(stdscr, cur_y, LINE_X + LLNICE, "%d", 
+                mvwprintw(process_window, cur_y, LINE_X + LLNICE, "%d", 
                           processes->nice);
-            mvwprintw(stdscr, cur_y, LINE_X + LPRIO, "%s", processes->ioprio);
-            mvwprintw(stdscr, cur_y, LINE_X + LSTATE, "%s", processes->state);
-            mvwprintw(stdscr, cur_y, LINE_X + LVMEM, "%s", processes->vmem);
-            mvwprintw(stdscr, cur_y, LINE_X + LPTE, "%d", processes->pte);
-            mvwprintw(stdscr, cur_y, LINE_X + LRSS, "%s", processes->rss); 
-            mvwprintw(stdscr, cur_y, LINE_X + LREAD, "%llu", 
+            mvwprintw(process_window, cur_y, LINE_X + LPRIO, 
+                      "%s", processes->ioprio);
+            mvwprintw(process_window, cur_y, LINE_X + LSTATE, 
+                      "%s", processes->state);
+            mvwprintw(process_window, cur_y, LINE_X + LVMEM, 
+                      "%s", processes->vmem);
+            mvwprintw(process_window, cur_y, LINE_X + LPTE, 
+                      "%d", processes->pte);
+            mvwprintw(process_window, cur_y, LINE_X + LRSS, 
+                      "%s", processes->rss);
+            mvwprintw(process_window, cur_y, LINE_X + LREAD, "%llu", 
                       processes->io_read);
-            mvwprintw(stdscr, cur_y, LINE_X + LWRITE, "%llu", 
+            mvwprintw(process_window, cur_y, LINE_X + LWRITE, "%llu", 
                       processes->io_write);
             if (processes->open_fds != -1)
-                mvwprintw(stdscr, cur_y, LINE_X + LFDS, "%d", 
+                mvwprintw(process_window, cur_y, LINE_X + LFDS, "%d", 
                           processes->open_fds);
             else
-                mvwprintw(stdscr, cur_y, LINE_X + LFDS, "N/A", 
+                mvwprintw(process_window, cur_y, LINE_X + LFDS, "N/A", 
                           processes->open_fds);
-            mvwprintw(stdscr, cur_y, LINE_X + LINVOL, "%d", 
+            mvwprintw(process_window, cur_y, LINE_X + LINVOL, "%d", 
                       processes->invol_sw);
-            mvwprintw(stdscr, cur_y++, LINE_X + LTHRDS, "%s", 
+            mvwprintw(process_window, cur_y++, LINE_X + LTHRDS, "%s", 
                       processes->thrcnt);
         } else 
             process_line_num--;
@@ -85,8 +111,8 @@ int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype,
         processes = processes->next;
     }
 
-    box(stdscr, 0, 0);
-    refresh();
+    box(process_window, 0, 0);
+    wrefresh(process_window);
 
     return 0;
 }
