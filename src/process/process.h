@@ -72,4 +72,6 @@ int get_field(char *path, char *field);
 
 char *get_process_name(char *process);
 
+bool is_valid_process(proc_t *process);
+
 #endif
