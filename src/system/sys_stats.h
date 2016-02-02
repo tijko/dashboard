@@ -2,6 +2,7 @@
 #define SYSSTATS_H
 
 #include <stdbool.h>
+#include <ncurses.h>
 #include <sys/timerfd.h>
 
 
@@ -19,7 +20,7 @@
 
 #define SYS_TIMER_EXPIRED_SEC 0
 #define SYS_TIMER_EXPIRED_NSEC 0
-#define SYS_TIMER_LENGTH 2000005 // XXX
+#define SYS_TIMER_LENGTH 1 
 
 #define PTY_BUFFER_SZ 64
 #define NRPTYS "/proc/sys/kernel/pty/nr"
@@ -31,11 +32,11 @@ typedef struct {
     char **current_pids;
 } sysaux_t;
 
-void build_sys_info(char *fstype);
+void build_sys_info(WINDOW *system_window, char *fstype);
 
 char *mem_avail(unsigned long memory, unsigned long base);
 
-void current_uptime(unsigned long seconds, int y, int x);
+void current_uptime(WINDOW *system_window, unsigned long seconds, int y, int x);
 
 int nr_ptys(void);
 
