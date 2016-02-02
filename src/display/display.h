@@ -6,6 +6,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <ncurses.h>
 #include <sys/types.h>
 
 #include "../process/process.h"
@@ -16,7 +17,7 @@
 
 #define LINE_X 2 
 #define LINE_Y 9
-#define PROC_LINE_SIZE 12
+#define PROC_LINE_SIZE 4 
 
 enum {
     LPID   = 18,
@@ -38,7 +39,7 @@ enum {
     LTHRDS = 144
 };
 
-#define DELAY 5 
+#define DELAY 1 
 
 #define FIELDS 15
 
@@ -57,10 +58,12 @@ static const unsigned int fieldattr_size = (sizeof fieldattrs /
 static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 
                                 6, 6, 6, 10, 8, 6, 4, 0, 0};
 
-void init_screen(void);
+void init_windows(WINDOW **windows);
 
-int update_screen(proc_t *processes, bool sys_fields_refresh, char *fstype, 
-                  char *fieldbar, int process_line_num, int max_x, int max_y);
+int update_system_window(WINDOW *system_window, char *fstype);
+
+int update_process_window(WINDOW *process_window, proc_t *processes,
+                          char *fieldbar, int process_line_num, int max_y);
 
 char *build_fieldbar(void);
 
