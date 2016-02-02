@@ -27,10 +27,10 @@ char *mem_avail(unsigned long memory, unsigned long base)
     return memsz;
 }
 
-void build_sys_info(char *fstype)
+void build_sys_info(WINDOW *system_window, char *fstype)
 {
     int ptys = nr_ptys();
-    int max_x = getmaxx(stdscr);
+    int max_x = getmaxx(system_window);
     int cur_y = 3;
     int cur_x = 2;
     int inc_x = max_x / 5; 
@@ -41,56 +41,56 @@ void build_sys_info(char *fstype)
     char *totalfree_str = proc_parser(MEMINFO, MEMFREE);
     long totalfree = atol(totalfree_str) * BASE;
 
-    current_uptime(info->uptime, cur_y, cur_x);
+    current_uptime(system_window, info->uptime, cur_y, cur_x);
 
     cur_x += inc_x;
-    mvwprintw(stdscr, cur_y, cur_x, "Processes: %d", info->procs);
+    mvwprintw(system_window, cur_y, cur_x, "Processes: %d", info->procs);
     cur_x += inc_x;
-    mvwprintw(stdscr, cur_y, cur_x, "FileSystem: %s", fstype);
+    mvwprintw(system_window, cur_y, cur_x, "FileSystem: %s", fstype);
     cur_x += inc_x;
-    mvwprintw(stdscr, cur_y++, cur_x, "PTYs: %d", ptys);
+    mvwprintw(system_window, cur_y++, cur_x, "PTYs: %d", ptys);
     cur_x = 2;
 
     char *memsz = mem_avail(info->totalram, info->mem_unit);
-    mvwprintw(stdscr, ++cur_y, cur_x, "TotalMem: %s", memsz);
+    mvwprintw(system_window, ++cur_y, cur_x, "TotalMem: %s", memsz);
     free(memsz);
 
     memsz = mem_avail(totalfree, info->mem_unit);
-    mvwprintw(stdscr, ++cur_y, cur_x, "FreeMem: %s", memsz);
+    mvwprintw(system_window, ++cur_y, cur_x, "FreeMem: %s", memsz);
     free(memsz);
 
     cur_x += inc_x;
     memsz = mem_avail(info->bufferram, info->mem_unit);
-    mvwprintw(stdscr, --cur_y, cur_x, "Buffer: %s", memsz);
+    mvwprintw(system_window, --cur_y, cur_x, "Buffer: %s", memsz);
     free(memsz);
 
     memsz = mem_avail(info->sharedram, info->mem_unit);
-    mvwprintw(stdscr, ++cur_y, cur_x, "Shared: %s", memsz);
+    mvwprintw(system_window, ++cur_y, cur_x, "Shared: %s", memsz);
     free(memsz);
 
     cur_x += inc_x;
     memsz = mem_avail(info->totalswap, info->mem_unit);
-    mvwprintw(stdscr, --cur_y, cur_x, "Total Swap: %s", memsz);
+    mvwprintw(system_window, --cur_y, cur_x, "Total Swap: %s", memsz);
     free(memsz);
 
     memsz = mem_avail(info->loads[0], info->mem_unit);
-    mvwprintw(stdscr, cur_y, cur_x + inc_x, "AvgLoad: %s", memsz);
+    mvwprintw(system_window, cur_y, cur_x + inc_x, "AvgLoad: %s", memsz);
     free(memsz);
 
     memsz = mem_avail(info->freeswap, info->mem_unit);
-    mvwprintw(stdscr, ++cur_y, cur_x, "Free Swap: %s", memsz);
+    mvwprintw(system_window, ++cur_y, cur_x, "Free Swap: %s", memsz);
     free(memsz);
 
     cur_x = 2;
     memsz = mem_avail(info->totalram - totalfree, info->mem_unit);
-    mvwprintw(stdscr, ++cur_y, cur_x, "UsedMem: %s", memsz); 
+    mvwprintw(system_window, ++cur_y, cur_x, "UsedMem: %s", memsz); 
 
     free(info);
     free(totalfree_str);
     free(memsz);
 }
 
-void current_uptime(unsigned long seconds, int y, int x)
+void current_uptime(WINDOW *system_window, unsigned long seconds, int y, int x)
 {
     int hour, minute;
 
@@ -101,7 +101,8 @@ void current_uptime(unsigned long seconds, int y, int x)
         }
     }
 
-    mvwprintw(stdscr, y, x, "Hrs: %d Mins: %d Secs: %lu\n", hour, minute, seconds);    
+    mvwprintw(system_window, y, x, "Hrs: %d Mins: %d Secs: %lu\n", 
+                                    hour, minute, seconds); 
 }
 
 int nr_ptys(void)
