@@ -71,15 +71,20 @@ char set_sort_option(char *opt)
 
 void dashboard_mainloop(char attr_sort)
 {
-    init_screen();
+    WINDOW *display_windows[2];
+    init_windows(display_windows);
 
-    bool running = true, update_sys = true;
+    WINDOW *system_window = display_windows[0];
+    WINDOW *process_window = display_windows[1];
+
+    bool running = true;
     int process_line_num = 0, prev_process_line_num = 0;
 
     char *fstype = filesystem_type();
 
     if (!fstype)
         fstype = "Unavailable";
+
 
     board_t *dashboard = init_board();
 
@@ -94,6 +99,7 @@ void dashboard_mainloop(char attr_sort)
 
     int sys_timer_fd = set_sys_timer(sys_timer);
     int redraw = 1;
+    bool sys_scr_init = false;
 
     while (running) {
 
@@ -105,7 +111,7 @@ void dashboard_mainloop(char attr_sort)
                                                     attr_sort,
                                                     number_of_processes);
 
-        getmaxyx(stdscr, dashboard->max_y, dashboard->max_x);
+        getmaxyx(process_window, dashboard->max_y, dashboard->max_x);
 
         if (dashboard->max_x ^ dashboard->prev_x) {
             free(dashboard->fieldbar);
@@ -117,7 +123,7 @@ void dashboard_mainloop(char attr_sort)
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
             (process_line_num ^ prev_process_line_num) || redraw == 1) { 
-            clear();
+            werase(process_window);
             redraw = 0;
         }
 
@@ -125,10 +131,11 @@ void dashboard_mainloop(char attr_sort)
         dashboard->prev_x = dashboard->max_x;
         prev_process_line_num = process_line_num;
 
-        if ((update_screen(dashboard->process_list, update_sys, fstype, 
-                           dashboard->fieldbar, process_line_num, 
-                           dashboard->max_x, dashboard->max_y)) < 0)
-            return;
+        if ((update_process_window(process_window, dashboard->process_list,
+                                   dashboard->fieldbar, process_line_num, 
+                                   dashboard->max_y)) < 0)
+            break;
+
 
         int key = wgetch(stdscr);
 
@@ -149,73 +156,73 @@ void dashboard_mainloop(char attr_sort)
 
             case (KEY_C):
                 if (attr_sort != KEY_C)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_C;
                 break;
 
             case (KEY_D):
                 if (attr_sort != KEY_D)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_D;
                 break;
 
             case (KEY_E):
                 if (attr_sort != KEY_E)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_E;
                 break;
 
             case (KEY_I):
                 if (attr_sort != KEY_I)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_I;
                 break;
 
             case (KEY_M):
                 if (attr_sort != KEY_M)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_M;
                 break;
 
             case (KEY_N):
                 if (attr_sort != KEY_N)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_N;
                 break;
 
             case (KEY_O):
                 if (attr_sort != KEY_O)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_O;
                 break;
 
             case (KEY_P):
                 if (attr_sort != KEY_P)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_P;
                 break;
 
             case (KEY_R):
                 if (attr_sort != KEY_R)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_R;
                 break;
 
             case (KEY_S):
                 if (attr_sort != KEY_S)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_S;
                 break;
 
             case (KEY_T):
                 if (attr_sort != KEY_T)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_T;
                 break;
 
             case (KEY_V):
                 if (attr_sort != KEY_V)
-                    clear();
+                    wclear(process_window);
                 attr_sort = KEY_V;
                 break;
 
@@ -233,11 +240,15 @@ void dashboard_mainloop(char attr_sort)
                                                       &redraw);
         delay_output(REFRESH_RATE);
 
-        bool update_sys = is_sysfield_timer_expired(sys_timer_fd); 
+        if (!sys_scr_init) {
+            update_system_window(system_window, fstype);
+            sys_scr_init = true;
+        }
 
-        if (update_sys) {
+        if (is_sysfield_timer_expired(sys_timer_fd)) {
             close(sys_timer_fd);
             sys_timer_fd = set_sys_timer(sys_timer);
+            update_system_window(system_window, fstype);
         }
 
     }
@@ -256,9 +267,9 @@ board_t *init_board(void)
 
     board->system->euid = geteuid();
     board->system->memtotal = total_memory();
-    int high_pid_count = max_pids();
-    board->system->max_pids = high_pid_count;
-    board->system->current_pids = malloc(sizeof(char *) * high_pid_count);
+    int max_pid_count = max_pids();
+    board->system->max_pids = max_pid_count;
+    board->system->current_pids = malloc(sizeof(char *) * max_pid_count);
     getmaxyx(stdscr, board->max_y, board->max_x);
     board->prev_x = 0;
     board->prev_y = 0;
