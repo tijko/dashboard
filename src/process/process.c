@@ -262,8 +262,7 @@ proc_t *filter_process_list(proc_t *process_list, int *redraw)
 
     while (process_list != NULL) {
 
-        if (process_list->state != NULL && 
-            process_list->ioprio != NULL) {
+        if (is_valid_process(process_list)) {
 
             if (current == NULL) {
                 current = copy_proc(process_list);
@@ -283,6 +282,15 @@ proc_t *filter_process_list(proc_t *process_list, int *redraw)
     current->next = NULL;
 
     return head;
+}
+
+bool is_valid_process(proc_t *process)
+{
+    if (process->state != NULL && process->pidstr != NULL &&
+        process->user != NULL && process->name != NULL &&
+        process->ioprio != NULL && process->thrcnt != NULL)
+        return true;
+    return false;
 }
 
 proc_t *copy_proc(proc_t *process)
