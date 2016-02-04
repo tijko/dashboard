@@ -132,6 +132,8 @@ int max_pids(void)
     char max_pids[32];
 
     int max_pids_rbytes = read(max_pidsfd, max_pids, 32);
+    close(max_pidsfd);
+
     if (max_pids_rbytes < 1)
         return 0;
 
