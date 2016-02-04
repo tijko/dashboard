@@ -72,6 +72,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->rss = parse_stat(process->pidstr, RSS);
     process->vmem = parse_stat(process->pidstr, VMEM);
     process->thrcnt = parse_stat(process->pidstr, THRS);
+
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
     process->open_fds = current_fds(path);
@@ -175,16 +176,6 @@ bool process_list_member(proc_t *process_list, char *pid)
     }
 
     return false;
-}
-
-int is_pid(const struct dirent *directory)
-{
-    int name_length = strlen(directory->d_name);
-
-    for (int i=0; i < name_length; i++) 
-        if(!isdigit(directory->d_name[i]))
-            return 0;
-    return 1;
 }
 
 char *get_process_name(char *process)
