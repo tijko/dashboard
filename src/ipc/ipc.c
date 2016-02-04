@@ -10,24 +10,16 @@
 
 int current_fds(char *path)
 {
-    struct dirent *fd_file;
+    struct dirent **fd_files;
 
-    int open_fds = 0;
+    int open_fds = scandir(path, &fd_files, is_pid, NULL);
  
-    DIR *fd_dir = opendir(path);
-
-    if (fd_dir == NULL) 
+    if (open_fds < 0)
         return -1;
 
-    while ((fd_file = readdir(fd_dir))) {
+    for (int i=0; i < open_fds; i++)
+        free(fd_files[i]);
+    free(fd_files);
 
-        if (!isdigit(fd_file->d_name[0]))
-            continue;
-        else
-            open_fds++;
-    }
-
-    closedir(fd_dir);
-    
     return open_fds;
 }
