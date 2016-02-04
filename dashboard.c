@@ -106,7 +106,7 @@ void dashboard_mainloop(char attr_sort)
         int number_of_processes = get_numberof_processes(dashboard->process_list);
 
 
-        if (attr_sort) // XXX return void from sort --
+        if (attr_sort)
             dashboard->process_list = sort_by_field(dashboard->process_list, 
                                                     attr_sort,
                                                     number_of_processes);
