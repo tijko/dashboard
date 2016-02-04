@@ -74,4 +74,6 @@ char *get_process_name(char *process);
 
 bool is_valid_process(proc_t *process);
 
+void free_process_fields(proc_t *process);
+
 #endif
