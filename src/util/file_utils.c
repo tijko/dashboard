@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
@@ -74,4 +75,14 @@ char *parse_stat(char *pid, int field)
         stat_str = strtok(NULL, " ");
 
     return strdup(stat_str);
+}
+
+int is_pid(const struct dirent *directory)
+{
+    int name_length = strlen(directory->d_name);
+
+    for (int i=0; i < name_length; i++) 
+        if(!isdigit(directory->d_name[i]))
+            return 0;
+    return 1;
 }
