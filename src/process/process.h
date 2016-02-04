@@ -60,8 +60,6 @@ proc_t *get_tail(proc_t *process_list);
 
 proc_t *get_head(proc_t *process_list);
 
-int is_pid(const struct dirent *directory);
-
 char *proc_user(char *path);
 
 void add_process_link(proc_t *link, char *pid);
