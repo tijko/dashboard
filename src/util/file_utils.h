@@ -21,6 +21,7 @@
 #define UID "Uid"
 #define PTE "VmPTE"
 
+#define ST 3
 #define THRS 20
 #define VMEM 23
 #define RSS  24
