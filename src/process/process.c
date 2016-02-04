@@ -67,8 +67,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->pte = get_field(path, PTE);
 
     process->mempcent = memory_percentage(path, system->memtotal);
-    process->state = state(path);
-
+    process->state = parse_stat(process->pidstr, ST);
     process->rss = parse_stat(process->pidstr, RSS);
     process->vmem = parse_stat(process->pidstr, VMEM);
     process->thrcnt = parse_stat(process->pidstr, THRS);
