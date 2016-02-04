@@ -2,6 +2,7 @@
 #define FILE_UTILS_H
 
 #include <string.h>
+#include <dirent.h>
 
 
 #define PATHLEN 32
@@ -27,5 +28,7 @@
 char *proc_parser(char *file, char *field);
 
 char *parse_stat(char *pid, int field);
+
+int is_pid(const struct dirent *directory);
 
 #endif
