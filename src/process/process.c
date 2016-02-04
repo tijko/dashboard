@@ -57,17 +57,8 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     memset(path, 0, STAT_PATHMAX);
     snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
 
-    if (process->state != NULL) 
-        free(process->state);
-    if (process->ioprio != NULL)
-        free(process->ioprio);
-    if (process->thrcnt != NULL)
-        free(process->thrcnt);
-    if (process->vmem != NULL)
-        free(process->vmem);
-    if (process->rss != NULL)
-        free(process->rss);
-    
+    free_process_fields(process);
+
     process->cpuset = current_cpus(process->pid);
 
     process->nice = nice(process->pid);
@@ -89,6 +80,20 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->io_read = get_process_taskstat_io(process->pid, 'o');
     process->io_write = get_process_taskstat_io(process->pid, 'i');
     process->invol_sw = get_process_ctxt_switches(process->pid);
+}
+
+void free_process_fields(proc_t *process)
+{
+    if (process->state != NULL) 
+        free(process->state);
+    if (process->ioprio != NULL)
+        free(process->ioprio);
+    if (process->thrcnt != NULL)
+        free(process->thrcnt);
+    if (process->vmem != NULL)
+        free(process->vmem);
+    if (process->rss != NULL)
+        free(process->rss);
 }
 
 proc_t *update_process_list(proc_t *process_list, sysaux_t *system, int *redraw)
