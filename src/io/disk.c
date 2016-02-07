@@ -13,6 +13,7 @@
 #include "disk.h"
 #include "../cpu/cpu.h"
 #include "../util/taskstats.h"
+#include "../util/file_utils.h"
 
 
 char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
@@ -76,4 +77,20 @@ char *ioprio_class_nice(int pid)
 uint64_t get_process_taskstat_io(int pid, char field)
 {
     return task_req(pid, field);
-}    
+} 
+
+char *get_user_ps_write(char *pid)
+{
+    char path[MAXPATH];
+    snprintf(path, MAXPATH, IO_STAT, pid);
+
+    return parse_proc(path, PROC_WRITE); 
+}
+
+char *get_user_ps_read(char *pid)
+{
+    char path[MAXPATH];
+    snprintf(path, MAXPATH, IO_STAT, pid);
+
+    return parse_proc(path, PROC_READ);
+}
