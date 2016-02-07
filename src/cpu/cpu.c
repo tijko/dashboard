@@ -35,3 +35,11 @@ uint64_t get_process_ctxt_switches(int pid)
 {
     return task_req(pid, 's');
 }
+
+char *get_user_ps_ctxt_switches(char *pid)
+{
+    char path[MAXPATH];
+    snprintf(path, MAXPATH, STATUS, pid);
+
+    return parse_proc(path, SWITCHES);
+}
