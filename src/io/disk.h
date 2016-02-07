@@ -16,6 +16,8 @@
 #define IOPRIO_PRIO_MASK ((1UL << IOPRIO_CLASS_SHIFT) - 1)
 
 #define PRIOLEN 8
+#define PROC_READ "read_bytes: "
+#define PROC_WRITE "write_bytes: "
 
 char *filesystem_type(void);
 
@@ -26,5 +28,9 @@ char *ioprio_class(int pid);
 char *ioprio_class_nice(int pid);
 
 uint64_t get_process_taskstat_io(int pid, char field);
+
+char *get_user_ps_write(char *pid);
+
+char *get_user_ps_read(char *pid);
 
 #endif
