@@ -6,9 +6,12 @@
 
 
 #define PATHLEN 32
+#define MAXPATH 1024
 
 #define PROC "/proc/"
 #define STATUS "/proc/%s/status"
+
+#define IO_STAT "/proc/%s/io"
 
 #define STAT "/proc/%s/stat"
 #define STAT_BUFFER 4096
@@ -31,5 +34,7 @@ char *proc_parser(char *file, char *field);
 char *parse_stat(char *pid, int field);
 
 int is_pid(const struct dirent *directory);
+
+char *parse_proc(char *path, char *field);
 
 #endif
