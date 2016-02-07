@@ -76,14 +76,17 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
     process->open_fds = current_fds(path);
 
-    if (system->euid != 0) {
+    if (system->euid == 0) {
         process->io_read = get_process_taskstat_io(process->pid, 'o');
         process->io_write = get_process_taskstat_io(process->pid, 'i');
         process->invol_sw = get_process_ctxt_switches(process->pid);
     } else {
-        process->io_read = atoll(get_user_ps_write(process->pidstr));
-        process->io_write = atoll(get_user_ps_read(process->pidstr));
-        process->invol_sw = atoll(get_user_ps_ctxt_switches(process->pidstr));
+        char *io_write = get_user_ps_write(process->pidstr);
+        process->io_write = io_write == NULL ? 0 : atoll(io_write);
+        char *io_read = get_user_ps_read(process->pidstr);
+        process->io_read = io_read == NULL ? 0 : atoll(io_read);
+        char *invol_sw = get_user_ps_ctxt_switches(process->pidstr);
+        process->invol_sw = invol_sw == NULL ? 0 : atoll(invol_sw);
     }
 }
 
