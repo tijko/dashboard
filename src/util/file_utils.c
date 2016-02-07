@@ -12,6 +12,41 @@
 #include "file_utils.h"
 
 
+char *parse_proc(char *path, char *field)
+{
+    int open_fd = open(path, O_RDONLY);
+    if (open_fd < 0)
+        return NULL;
+
+    char *parse_proc_buffer = malloc(sizeof(char) * 1024);
+
+    int rbytes = read(open_fd, parse_proc_buffer, 1024);
+    close(open_fd);
+
+    if (rbytes < 0) 
+        goto error;
+
+    size_t field_length = strlen(field);
+    char *proc_field = strtok(parse_proc_buffer, "\n");
+    char *field_substr = NULL;
+
+    while (proc_field != NULL && field_substr == NULL) { 
+        field_substr = strstr(proc_field, field); 
+        proc_field = strtok(NULL, "\n");
+    }
+
+    if (field_substr == NULL)
+        goto error;
+
+    free(parse_proc_buffer);
+
+    return field_substr + field_length;
+
+error:
+    free(parse_proc_buffer);
+    return NULL;    
+}
+
 char *proc_parser(char *path, char *field)
 {
     FILE *fp = fopen(path, "r");
