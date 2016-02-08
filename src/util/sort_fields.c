@@ -51,8 +51,9 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
             
             case (KEY_I):
-                cmp_fields[0] = cur->io_write;
-                cmp_fields[1] = proc_arr[proc_index]->io_write;
+                cmp_fields[0] = cur->io_write == NULL ? 0 : atoll(cur->io_write);
+                cmp_fields[1] = proc_arr[proc_index]->io_write == NULL ? 
+                                0 : atoll(proc_arr[proc_index]->io_write);
                 break;
 
             /*
@@ -74,8 +75,9 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
 
             case (KEY_O):
-                cmp_fields[0] = cur->io_read;
-                cmp_fields[1] = proc_arr[proc_index]->io_read;
+                cmp_fields[0] = cur->io_read == NULL ? 0 : atoll(cur->io_read);
+                cmp_fields[1] = proc_arr[proc_index]->io_read == NULL ? 
+                                0 : atoll(proc_arr[proc_index]->io_read);
                 break;
 
             case (KEY_P):
@@ -89,8 +91,9 @@ void cur_fields(proc_t *proc_arr[], proc_t *cur, int proc_index,
                 break;
             
             case (KEY_S):
-                cmp_fields[0] = cur->invol_sw;
-                cmp_fields[1] = proc_arr[proc_index]->invol_sw;
+                cmp_fields[0] = cur->invol_sw == NULL ? 0 : atoll(cur->invol_sw);
+                cmp_fields[1] = proc_arr[proc_index]->invol_sw == NULL ?
+                                0 : atoll(proc_arr[proc_index]->invol_sw);
                 break;
 
             case (KEY_T):
