@@ -77,16 +77,25 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->open_fds = current_fds(path);
 
     if (system->euid == 0) {
-        process->io_read = get_process_taskstat_io(process->pid, 'o');
-        process->io_write = get_process_taskstat_io(process->pid, 'i');
-        process->invol_sw = get_process_ctxt_switches(process->pid);
+        uint64_t io_read = get_process_taskstat_io(process->pid, 'o');
+        process->io_read = malloc(sizeof(char) * MAXFIELD);
+        snprintf(process->io_read, 32, "%llu", io_read);
+        uint64_t io_write = get_process_taskstat_io(process->pid, 'i');
+        process->io_write = malloc(sizeof(char) * MAXFIELD);
+        snprintf(process->io_write, 32, "%llu", io_write);
+        uint64_t invol_sw = get_process_ctxt_switches(process->pid);
+        process->invol_sw = malloc(sizeof(char) * MAXFIELD);
+        snprintf(process->invol_sw, 32, "%llu", invol_sw);
     } else {
         char *io_write = get_user_ps_write(process->pidstr);
-        process->io_write = io_write == NULL ? 0 : atoll(io_write);
+        if (io_write != NULL)
+            process->io_write = strdup(io_write);
         char *io_read = get_user_ps_read(process->pidstr);
-        process->io_read = io_read == NULL ? 0 : atoll(io_read);
+        if (io_read != NULL)
+            process->io_read = strdup(io_read);
         char *invol_sw = get_user_ps_ctxt_switches(process->pidstr);
-        process->invol_sw = invol_sw == NULL ? 0 : atoll(invol_sw);
+        if (invol_sw != NULL)
+            process->invol_sw = strdup(invol_sw);
     }
 }
 
@@ -102,6 +111,12 @@ void free_process_fields(proc_t *process)
         free(process->vmem);
     if (process->rss != NULL)
         free(process->rss);
+    if (process->invol_sw)
+        free(process->invol_sw);
+    if (process->io_read)
+        free(process->io_read);
+    if (process->io_write)
+        free(process->io_write);
 }
 
 proc_t *update_process_list(proc_t *process_list, sysaux_t *system, int *redraw)
@@ -316,17 +331,20 @@ proc_t *copy_proc(proc_t *process)
         copy->vmem = strdup(process->vmem);
     if (process->rss)
         copy->rss = strdup(process->rss);
+    if (process->invol_sw)
+        copy->invol_sw = strdup(process->invol_sw);
+    if(process->io_read)
+        copy->io_read = strdup(process->io_read);
+    if (process->io_write)
+        copy->io_write = strdup(process->io_write);
 
     copy->pid = process->pid;
     copy->uid = process->uid;
     copy->cpuset = process->cpuset;
     copy->nice = process->nice;
     copy->open_fds = process->open_fds;
-    copy->invol_sw = process->invol_sw;
     copy->mempcent = process->mempcent;
     copy->pte = process->pte;
-    copy->io_read = process->io_read;
-    copy->io_write = process->io_write;
 
     return copy;
 }
@@ -342,7 +360,7 @@ proc_t *create_proc(void)
     p->cpuset = 0;
     p->nice = 0;
     p->open_fds = 0;
-    p->invol_sw = 0;
+    p->invol_sw = NULL;
     p->ioprio = NULL;
     p->state = NULL;
     p->mempcent = 0;
@@ -350,8 +368,8 @@ proc_t *create_proc(void)
     p->thrcnt = NULL;
     p->rss = NULL;
     p->pte = 0;
-    p->io_read = 0;
-    p->io_write = 0;
+    p->io_read = NULL;
+    p->io_write = NULL;
     p->prev = NULL;
     p->next = NULL;
     return p;
@@ -384,6 +402,12 @@ void free_process_list(proc_t *process_list)
             free(tmp->vmem);
         if (tmp->rss)
             free(tmp->rss);
+        if (tmp->io_read)
+            free(tmp->io_read);
+        if (tmp->io_write)
+            free(tmp->io_write);
+        if (tmp->invol_sw)
+            free(tmp->invol_sw);
         free(tmp);
     }
 }
