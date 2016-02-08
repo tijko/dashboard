@@ -79,13 +79,13 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     if (system->euid == 0) {
         uint64_t io_read = get_process_taskstat_io(process->pid, 'o');
         process->io_read = malloc(sizeof(char) * MAXFIELD);
-        snprintf(process->io_read, 32, "%llu", io_read);
+        snprintf(process->io_read, MAXFIELD - 1, "%llu", io_read);
         uint64_t io_write = get_process_taskstat_io(process->pid, 'i');
         process->io_write = malloc(sizeof(char) * MAXFIELD);
-        snprintf(process->io_write, 32, "%llu", io_write);
+        snprintf(process->io_write, MAXFIELD - 1, "%llu", io_write);
         uint64_t invol_sw = get_process_ctxt_switches(process->pid);
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
-        snprintf(process->invol_sw, 32, "%llu", invol_sw);
+        snprintf(process->invol_sw, MAXFIELD - 1, "%llu", invol_sw);
     } else {
         char *io_write = get_user_ps_write(process->pidstr);
         if (io_write != NULL)
