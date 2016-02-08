@@ -13,7 +13,7 @@
 #define PROCNAME_MAX 1024
 #define STAT_PATHMAX 32
 #define MAXPROCPATH 2048
-
+#define MAXFIELD 32
 
 typedef struct process_attr {
     char *name;
@@ -24,7 +24,6 @@ typedef struct process_attr {
     int cpuset;
     int nice;
     int open_fds;
-    int invol_sw;
     char *ioprio;
     char *state;
     float mempcent;
@@ -32,8 +31,9 @@ typedef struct process_attr {
     char *rss;
     char *vmem;
     char *thrcnt;
-    uint64_t io_read;
-    uint64_t io_write;
+    char *io_read;
+    char *io_write;
+    char *invol_sw;
     struct process_attr *prev;
     struct process_attr *next;
 } proc_t;
