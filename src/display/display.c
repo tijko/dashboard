@@ -91,18 +91,27 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
                       "%d", processes->pte);
             mvwprintw(process_window, cur_y, LINE_X + LRSS, 
                       "%s", processes->rss);
-            mvwprintw(process_window, cur_y, LINE_X + LREAD, "%llu", 
-                      processes->io_read);
-            mvwprintw(process_window, cur_y, LINE_X + LWRITE, "%llu", 
-                      processes->io_write);
+            if (processes->io_read != NULL)
+                mvwprintw(process_window, cur_y, LINE_X + LREAD, "%s",
+                          processes->io_read);
+            else
+                mvwprintw(process_window, cur_y, LINE_X + LREAD, "N/A");
+            if (processes->io_write != NULL)
+                mvwprintw(process_window, cur_y, LINE_X + LWRITE, "%s",
+                          processes->io_write);
+            else
+                mvwprintw(process_window, cur_y, LINE_X + LWRITE, "N/A");
             if (processes->open_fds != -1)
                 mvwprintw(process_window, cur_y, LINE_X + LFDS, "%d", 
                           processes->open_fds);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LFDS, "N/A", 
-                          processes->open_fds);
-            mvwprintw(process_window, cur_y, LINE_X + LINVOL, "%d", 
-                      processes->invol_sw);
+                mvwprintw(process_window, cur_y, LINE_X + LFDS, "N/A");
+            if (processes->invol_sw != NULL)
+                mvwprintw(process_window, cur_y, LINE_X + LINVOL, "%s", 
+                          processes->invol_sw);
+            else
+                mvwprintw(process_window, cur_y, LINE_X + LINVOL, "N/A");
+            
             mvwprintw(process_window, cur_y++, LINE_X + LTHRDS, "%s", 
                       processes->thrcnt);
         } else 
