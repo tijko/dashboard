@@ -5,14 +5,15 @@
 #include <ncurses.h>
 #include <sys/timerfd.h>
 
+#include "../util/file_utils.h"
+
 
 #define MAXTOT 16
 #define BASE 1024
 
 #define MAXPIDS "/proc/sys/kernel/pid_max"
 
-#define MEMINFO "/proc/meminfo"
-#define MEMFREE "MemFree"
+#define MEMFREE "MemFree:"
 
 #define SECS 60
 
