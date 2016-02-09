@@ -38,7 +38,7 @@ void build_sys_info(WINDOW *system_window, char *fstype)
     struct sysinfo *info = malloc(sizeof *info);
     sysinfo(info);
 
-    char *totalfree_str = proc_parser(MEMINFO, MEMFREE);
+    char *totalfree_str = parse_proc(MEMINFO, MEMFREE);
     long totalfree = atol(totalfree_str) * BASE;
 
     current_uptime(system_window, info->uptime, cur_y, cur_x);
