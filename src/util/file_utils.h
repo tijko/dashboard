@@ -9,6 +9,8 @@
 #define MAXPATH 1024
 
 #define PROC "/proc/"
+
+#define MEMINFO "/proc/meminfo"
 #define STATUS "/proc/%s/status"
 
 #define IO_STAT "/proc/%s/io"
@@ -21,8 +23,8 @@
 
 #define FD "/proc/%s/fd"
 
-#define UID "Uid"
-#define PTE "VmPTE"
+#define UID "Uid:\t"
+#define PTE "VmPTE:\t"
 
 #define ST 3
 #define THRS 20
