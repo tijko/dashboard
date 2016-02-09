@@ -64,7 +64,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->nice = nice(process->pid);
     process->ioprio = ioprio_class(process->pid);
 
-    process->pte = get_field(path, PTE);
+//    process->pte = parse_proc(path, PTE); XXX change type
 
     process->mempcent = memory_percentage(path, system->memtotal);
     process->state = parse_stat(process->pidstr, ST);
@@ -87,15 +87,9 @@ void get_process_stats(proc_t *process, sysaux_t *system)
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->invol_sw, MAXFIELD - 1, "%llu", invol_sw);
     } else {
-        char *io_write = get_user_ps_write(process->pidstr);
-        if (io_write != NULL)
-            process->io_write = strdup(io_write);
-        char *io_read = get_user_ps_read(process->pidstr);
-        if (io_read != NULL)
-            process->io_read = strdup(io_read);
-        char *invol_sw = get_user_ps_ctxt_switches(process->pidstr);
-        if (invol_sw != NULL)
-            process->invol_sw = strdup(invol_sw);
+        process->io_write = get_user_ps_write(process->pidstr);
+        process->io_read = get_user_ps_read(process->pidstr);
+        process->invol_sw = get_user_ps_ctxt_switches(process->pidstr);
     }
 }
 
@@ -235,16 +229,18 @@ char *get_process_name(char *process)
 
 char *proc_user(char *path)
 {
-    int uid = get_field(path, UID);
-    struct passwd *getuser = getpwuid(uid);
+    char *uid = parse_proc(path, UID);
+    if (uid != NULL) 
+        return NULL;
+    struct passwd *getuser = getpwuid(atoi(uid));
     if (getuser == NULL)
         return NULL;
     return strdup(getuser->pw_name);
 }
-
+/*
 int get_field(char *path, char *field)
 {
-    char *field_str_value = proc_parser(path, field);
+    char *field_str_value = parse_(path, field);
     if (field_str_value == NULL)
         return 0;
 
@@ -257,7 +253,7 @@ int get_field(char *path, char *field)
 
     return value;
 }
-
+*/
 int get_numberof_processes(proc_t *process_list)
 {
     int count = 0;
