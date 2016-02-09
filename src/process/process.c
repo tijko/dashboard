@@ -64,7 +64,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->nice = nice(process->pid);
     process->ioprio = ioprio_class(process->pid);
 
-//    process->pte = parse_proc(path, PTE); XXX change type
+    process->pte = parse_proc(path, PTE);
 
     process->mempcent = memory_percentage(path, system->memtotal);
     process->state = parse_stat(process->pidstr, ST);
@@ -105,12 +105,14 @@ void free_process_fields(proc_t *process)
         free(process->vmem);
     if (process->rss != NULL)
         free(process->rss);
-    if (process->invol_sw)
+    if (process->invol_sw != NULL)
         free(process->invol_sw);
-    if (process->io_read)
+    if (process->io_read != NULL)
         free(process->io_read);
-    if (process->io_write)
+    if (process->io_write != NULL)
         free(process->io_write);
+    if (process->pte != NULL)
+        free(process->pte);
 }
 
 proc_t *update_process_list(proc_t *process_list, sysaux_t *system, int *redraw)
@@ -230,30 +232,14 @@ char *get_process_name(char *process)
 char *proc_user(char *path)
 {
     char *uid = parse_proc(path, UID);
-    if (uid != NULL) 
+    if (uid == NULL) 
         return NULL;
     struct passwd *getuser = getpwuid(atoi(uid));
     if (getuser == NULL)
         return NULL;
     return strdup(getuser->pw_name);
 }
-/*
-int get_field(char *path, char *field)
-{
-    char *field_str_value = parse_(path, field);
-    if (field_str_value == NULL)
-        return 0;
 
-    int value = 0;
-
-    if (field_str_value) {
-        value = strtol(field_str_value, NULL, 10);
-        free(field_str_value);
-    }
-
-    return value;
-}
-*/
 int get_numberof_processes(proc_t *process_list)
 {
     int count = 0;
@@ -311,36 +297,36 @@ proc_t *copy_proc(proc_t *process)
 {
     proc_t *copy = create_proc();
 
-    if (process->ioprio)
+    if (process->ioprio != NULL)
         copy->ioprio = strdup(process->ioprio);
     if (process->pidstr != NULL)
         copy->pidstr = strdup(process->pidstr);
     if (process->state != NULL)
         copy->state = strdup(process->state);
-    if (process->name)
+    if (process->name != NULL)
         copy->name = strdup(process->name);
-    if (process->user)
+    if (process->user != NULL)
         copy->user = strdup(process->user);
-    if (process->thrcnt)
+    if (process->thrcnt != NULL)
         copy->thrcnt = strdup(process->thrcnt);
-    if (process->vmem)
+    if (process->vmem != NULL)
         copy->vmem = strdup(process->vmem);
-    if (process->rss)
+    if (process->rss != NULL)
         copy->rss = strdup(process->rss);
-    if (process->invol_sw)
+    if (process->invol_sw != NULL)
         copy->invol_sw = strdup(process->invol_sw);
-    if(process->io_read)
+    if(process->io_read != NULL)
         copy->io_read = strdup(process->io_read);
-    if (process->io_write)
+    if (process->io_write != NULL)
         copy->io_write = strdup(process->io_write);
-
+    if (process->pte != NULL)
+        copy->pte = strdup(process->pte);
     copy->pid = process->pid;
     copy->uid = process->uid;
     copy->cpuset = process->cpuset;
     copy->nice = process->nice;
     copy->open_fds = process->open_fds;
     copy->mempcent = process->mempcent;
-    copy->pte = process->pte;
 
     return copy;
 }
@@ -363,7 +349,7 @@ proc_t *create_proc(void)
     p->vmem = NULL;
     p->thrcnt = NULL;
     p->rss = NULL;
-    p->pte = 0;
+    p->pte = NULL;
     p->io_read = NULL;
     p->io_write = NULL;
     p->prev = NULL;
