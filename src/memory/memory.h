@@ -1,8 +1,10 @@
 #ifndef MEM_H
 #define MEM_H
 
-#define TOTALMEM "MemTotal"
-#define MEMINFO "/proc/meminfo"
+#include "../util/file_utils.h"
+
+#define TOTALMEM "MemTotal:"
+#define VMSIZE "VmSize:\t"
 
 #define MAXFILE 256
 
