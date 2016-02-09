@@ -87,8 +87,11 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
                       "%s", processes->state);
             mvwprintw(process_window, cur_y, LINE_X + LVMEM, 
                       "%s", processes->vmem);
-            mvwprintw(process_window, cur_y, LINE_X + LPTE, 
-                      "%d", processes->pte);
+            if (processes->pte != NULL)
+                mvwprintw(process_window, cur_y, LINE_X + LPTE, 
+                          "%s", processes->pte);
+            else
+                mvwprintw(process_window, cur_y, LINE_X + LPTE, "N/A");
             mvwprintw(process_window, cur_y, LINE_X + LRSS, 
                       "%s", processes->rss);
             if (processes->io_read != NULL)
