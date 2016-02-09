@@ -8,7 +8,7 @@
 
 long total_memory(void)
 {
-    char *memory = proc_parser(MEMINFO, TOTALMEM);
+    char *memory = parse_proc(MEMINFO, TOTALMEM);
 
     if (memory != NULL) {
         long value = strtol(memory, NULL, 10);
@@ -23,7 +23,7 @@ float memory_percentage(char *path, long totalmem)
 {
     float total_usage, total_mem_percent;
 
-    char *percentage = proc_parser(path, "VmSize");
+    char *percentage = parse_proc(path, VMSIZE);
    
 
     if (percentage != NULL) {
