@@ -38,7 +38,7 @@ char *parse_proc(char *path, char *field)
     if (field_substr == NULL)
         goto error;
 
-    char *field_str = strdup(field_substr + field_length);
+    char *field_str = strip(field_substr + field_length);
     free(parse_proc_buffer);
 
     return field_str;
@@ -47,46 +47,7 @@ error:
     free(parse_proc_buffer);
     return NULL;    
 }
-/*
-char *proc_parser(char *path, char *field)
-{
-    FILE *fp = fopen(path, "r");
-    size_t fieldlen = strlen(field);
 
-    if (fp == NULL)
-        return NULL;
-
-    size_t n = 0;
-    char *tmp = NULL;
-
-    int i, j;
-
-    char *ln;
-
-    for (n=0, tmp=NULL, ln=NULL; getline(&ln, &n, fp) != -1;) {
-        *(ln + fieldlen) = '\0';
-        if (!(strcmp(ln, field))) {
-            for (i=0; !(isdigit(*(ln + i))); i++)
-                ;
-
-            tmp = malloc(sizeof(char) * PATHLEN);
-            if (tmp == NULL)
-                return NULL;
-
-            for (j=0; isdigit(*(ln + i)); j++, i++)
-                *(tmp + j) = *(ln + i);
-
-            *(tmp + j) = '\0';
-            break;
-        }
-    }
-
-    free(ln);
-    fclose(fp);
-
-    return tmp;
-}
-*/
 char *parse_stat(char *pid, int field)
 {
     char path[PATHLEN];
@@ -121,4 +82,26 @@ int is_pid(const struct dirent *directory)
         if(!isdigit(directory->d_name[i]))
             return 0;
     return 1;
+}
+
+char *strip(char *stat)
+{
+    char *stripped = malloc(sizeof(char) * strlen(stat));
+
+    int hit_value = 0;    
+    int idx;
+
+    for (idx=0; *stat; ) {
+        if (isdigit(*stat)) {
+            *(stripped + idx++) = *stat;
+            hit_value = 1;
+        }
+
+        if (!isdigit(*stat++) && hit_value)
+            break;
+    }
+
+    *(stripped + idx) = '\0';
+
+    return stripped;
 }
