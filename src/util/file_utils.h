@@ -31,12 +31,12 @@
 #define VMEM 23
 #define RSS  24
 
-char *proc_parser(char *file, char *field);
-
 char *parse_stat(char *pid, int field);
 
 int is_pid(const struct dirent *directory);
 
 char *parse_proc(char *path, char *field);
+
+char *strip(char *stat);
 
 #endif
