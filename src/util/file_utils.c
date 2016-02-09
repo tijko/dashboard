@@ -38,15 +38,16 @@ char *parse_proc(char *path, char *field)
     if (field_substr == NULL)
         goto error;
 
+    char *field_str = strdup(field_substr + field_length);
     free(parse_proc_buffer);
 
-    return field_substr + field_length;
+    return field_str;
 
 error:
     free(parse_proc_buffer);
     return NULL;    
 }
-
+/*
 char *proc_parser(char *path, char *field)
 {
     FILE *fp = fopen(path, "r");
@@ -85,7 +86,7 @@ char *proc_parser(char *path, char *field)
 
     return tmp;
 }
-
+*/
 char *parse_stat(char *pid, int field)
 {
     char path[PATHLEN];
