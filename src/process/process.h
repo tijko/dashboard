@@ -21,14 +21,13 @@ typedef struct process_attr {
     char *user;
     int pid;
     int uid;
-    char *uidstr;
     int cpuset;
     int nice;
     int open_fds;
     char *ioprio;
     char *state;
     float mempcent;
-    int pte;
+    char *pte;
     char *rss;
     char *vmem;
     char *thrcnt;
@@ -66,8 +65,6 @@ char *proc_user(char *path);
 void add_process_link(proc_t *link, char *pid);
 
 void get_current_pids(char **pid_list);
-
-int get_field(char *path, char *field);
 
 char *get_process_name(char *process);
 
