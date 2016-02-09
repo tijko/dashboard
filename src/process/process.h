@@ -21,6 +21,7 @@ typedef struct process_attr {
     char *user;
     int pid;
     int uid;
+    char *uidstr;
     int cpuset;
     int nice;
     int open_fds;
