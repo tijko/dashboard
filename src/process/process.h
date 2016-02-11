@@ -16,24 +16,24 @@
 #define MAXFIELD 32
 
 typedef struct process_attr {
-    char *name;
-    char *pidstr;
-    char *user;
     int pid;
     int uid;
     int cpuset;
     int nice;
     int open_fds;
-    char *ioprio;
-    char *state;
-    float mempcent;
     char *pte;
     char *rss;
     char *vmem;
+    char *name;
+    char *user;
+    char *state;
+    char *pidstr;
+    char *ioprio;
     char *thrcnt;
     char *io_read;
     char *io_write;
     char *invol_sw;
+    float mempcent;
     struct process_attr *prev;
     struct process_attr *next;
 } proc_t;
