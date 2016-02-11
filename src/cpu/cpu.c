@@ -40,6 +40,21 @@ char *get_user_ps_ctxt_switches(char *pid)
 {
     char path[MAXPATH];
     snprintf(path, MAXPATH, STATUS, pid);
+    // convert to size (e.g. kB mB etc)
 
     return parse_proc(path, SWITCHES);
+}
+
+char *get_state(char *pid)
+{
+    char *state = parse_stat(pid, STATE);
+
+    return state;
+}
+
+char *get_thread_count(char *pid)
+{
+    char *threads = parse_stat(pid, THREADS);
+
+    return threads;
 }
