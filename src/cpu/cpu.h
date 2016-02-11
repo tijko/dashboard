@@ -4,7 +4,8 @@
 #include <stdint.h>
 
 
-#define STATE 2 
+#define STATE 3
+#define THREADS 20
 
 #define SWITCHES "nonvoluntary_ctxt_switches:\t"
 
@@ -15,5 +16,9 @@ int nice(int pid);
 uint64_t get_process_ctxt_switches(int pid);
 
 char *get_user_ps_ctxt_switches(char *pid);
+
+char *get_state(char *pid);
+
+char *get_thread_count(char *pid);
 
 #endif
