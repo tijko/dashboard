@@ -64,13 +64,13 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     process->nice = nice(process->pid);
     process->ioprio = ioprio_class(process->pid);
 
-    process->pte = parse_proc(path, PTE);
+    process->pte = get_page_table_entries(path);
 
     process->mempcent = memory_percentage(path, system->memtotal);
-    process->state = parse_stat(process->pidstr, ST);
-    process->rss = parse_stat(process->pidstr, RSS);
-    process->vmem = parse_stat(process->pidstr, VMEM);
-    process->thrcnt = parse_stat(process->pidstr, THRS);
+    process->state = get_state(process->pidstr);
+    process->rss = get_resident_set_size(process->pidstr);
+    process->vmem = get_virtual_memory(process->pidstr);
+    process->thrcnt = get_thread_count(process->pidstr);
 
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
