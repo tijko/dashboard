@@ -24,12 +24,6 @@
 #define FD "/proc/%s/fd"
 
 #define UID "Uid:\t"
-#define PTE "VmPTE:\t"
-
-#define ST 3
-#define THRS 20
-#define VMEM 23
-#define RSS  24
 
 char *parse_stat(char *pid, int field);
 
