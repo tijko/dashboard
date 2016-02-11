@@ -35,3 +35,28 @@ float memory_percentage(char *path, long totalmem)
     
     return total_mem_percent;
 }
+
+char *get_page_table_entries(char *proc_path)
+{
+    char *pte = parse_proc(proc_path, PTE);
+
+    return pte;    
+}
+
+char *get_resident_set_size(char *pid)
+{
+    char *rss = parse_stat(pid, RSS);
+
+    // convert to size (e.g. kB mB etc)
+
+    return rss;
+}
+
+char *get_virtual_memory(char *pid)
+{
+    char *vm = parse_stat(pid, VMEM);
+
+    // convert to size (e.g. kB mB etc)
+
+    return vm;
+}
