@@ -84,7 +84,14 @@ char *get_user_ps_write(char *pid)
     char path[MAXPATH];
     snprintf(path, MAXPATH, IO_STAT, pid);
 
-    return parse_proc(path, PROC_WRITE); 
+    char *wbytes = parse_proc(path, PROC_WRITE);
+
+    if (wbytes == NULL)
+        return NULL;
+
+    char *write_conv = calculate_size(wbytes, 0);
+
+    return write_conv;
 }
 
 char *get_user_ps_read(char *pid)
@@ -92,5 +99,12 @@ char *get_user_ps_read(char *pid)
     char path[MAXPATH];
     snprintf(path, MAXPATH, IO_STAT, pid);
 
-    return parse_proc(path, PROC_READ);
+    char *rbytes = parse_proc(path, PROC_READ);
+
+    if (rbytes == NULL)
+        return NULL;
+
+    char *read_conv = calculate_size(rbytes, 0);
+
+    return read_conv;
 }
