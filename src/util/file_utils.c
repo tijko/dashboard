@@ -108,9 +108,9 @@ char *strip(char *stat)
 
 char *calculate_size(char *field_total, int byte_idx)
 {
-    char *byte_totals[] = {"B", "kB", "mB", "gB"};
+    char *byte_totals[] = {"B", "KB", "MB", "GB"};
 
-    long long field_value = strtoll(field_total, NULL, 10);
+    long double field_value = (long double) strtoll(field_total, NULL, 10);
 
     for (; byte_idx < 4 && field_value > 1024; byte_idx++)
         field_value /= 1024;
@@ -119,7 +119,7 @@ char *calculate_size(char *field_total, int byte_idx)
 
     char *field_str = malloc(sizeof(char) * 16);
 
-    snprintf(field_str, 15, "%llu %s", field_value, byte_totals[byte_idx]);
+    snprintf(field_str, 15, "%.2Lf %s", field_value, byte_totals[byte_idx]);
 
     return field_str;
 }
