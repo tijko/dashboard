@@ -80,9 +80,11 @@ void get_process_stats(proc_t *process, sysaux_t *system)
         uint64_t io_read = get_process_taskstat_io(process->pid, 'o');
         process->io_read = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_read, MAXFIELD - 1, "%llu", io_read);
+        process->io_read = calculate_size(process->io_read, 0);
         uint64_t io_write = get_process_taskstat_io(process->pid, 'i');
         process->io_write = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_write, MAXFIELD - 1, "%llu", io_write);
+        process->io_write = calculate_size(process->io_write, 0);
         uint64_t invol_sw = get_process_ctxt_switches(process->pid);
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->invol_sw, MAXFIELD - 1, "%llu", invol_sw);
