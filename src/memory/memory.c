@@ -47,16 +47,22 @@ char *get_resident_set_size(char *pid)
 {
     char *rss = parse_stat(pid, RSS);
 
-    // convert to size (e.g. kB mB etc)
+    if (rss == NULL)
+        return NULL;
 
-    return rss;
+    char *rss_conv = calculate_size(rss, 0);
+
+    return rss_conv;
 }
 
 char *get_virtual_memory(char *pid)
 {
     char *vm = parse_stat(pid, VMEM);
 
-    // convert to size (e.g. kB mB etc)
+    if (vm == NULL)
+        return NULL;
 
-    return vm;
+    char *vm_conv = calculate_size(vm, 0);
+
+    return vm_conv;
 }
