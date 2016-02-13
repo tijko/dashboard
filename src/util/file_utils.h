@@ -33,4 +33,6 @@ char *parse_proc(char *path, char *field);
 
 char *strip(char *stat);
 
+char *calculate_size(char *field_total, int byte_idx);
+
 #endif
