@@ -92,12 +92,12 @@ int update_process_window(WINDOW *ps_window, proc_t *processes,
             if (processes->io_read != NULL)
                 print_aligned_stat(ps_window, processes->io_read, cur_y, LINE_X + LREAD);
             else
-                mvwprintw(ps_window, cur_y, LINE_X + LREAD, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LREAD + 2, "N/A");
 
             if (processes->io_write != NULL)
                 print_aligned_stat(ps_window, processes->io_write, cur_y, LINE_X + LWRITE);
             else
-                mvwprintw(ps_window, cur_y, LINE_X + LWRITE, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LWRITE + 2, "N/A");
 
             if (processes->open_fds != -1)
                 mvwprintw(ps_window, cur_y, LINE_X + LFDS, "%d", processes->open_fds);
