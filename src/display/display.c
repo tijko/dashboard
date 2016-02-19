@@ -52,94 +52,72 @@ int update_system_window(WINDOW *system_window, char *fstype)
     return 0;
 }
 
-int update_process_window(WINDOW *process_window, proc_t *processes,
+int update_process_window(WINDOW *ps_window, proc_t *processes,
                           char *fieldbar, int process_line_num, int max_y)
 {
     int cur_y = 1;
 
-    wattron(process_window, A_REVERSE);
-    mvwprintw(process_window, cur_y++, 1, fieldbar);
-    wattroff(process_window, A_REVERSE);
+    wattron(ps_window, A_REVERSE);
+    mvwprintw(ps_window, cur_y++, 1, fieldbar);
+    wattroff(ps_window, A_REVERSE);
 
     while (processes && cur_y < max_y - 1) {
         if (process_line_num == 0) {
 
-            mvwprintw(process_window, cur_y, LINE_X, "%s  ", processes->name);
-
-            mvwprintw(process_window, cur_y, LINE_X + LPID, 
-                      "%d   ", processes->pid);
-
-            mvwprintw(process_window, cur_y, LINE_X + LUSER, 
-                      "%s   ", processes->user);
-
-            mvwprintw(process_window, cur_y, LINE_X + LCPU, 
-                      "%d ", processes->cpuset);
-
-            mvwprintw(process_window, cur_y, LINE_X + LMEM, "%.2f%", 
-                      processes->mempcent);
+            mvwprintw(ps_window, cur_y, LINE_X, "%s  ", processes->name);
+            mvwprintw(ps_window, cur_y, LINE_X + LPID, "%d   ", processes->pid);
+            mvwprintw(ps_window, cur_y, LINE_X + LUSER, "%s   ", processes->user);
+            mvwprintw(ps_window, cur_y, LINE_X + LCPU, "%d ", processes->cpuset);
+            mvwprintw(ps_window, cur_y, LINE_X + LMEM, "%.2f%", processes->mempcent);
 
             if (processes->nice >= 0 && processes->nice < 10) 
-                mvwprintw(process_window, cur_y, LINE_X + LNNICE, "%d", 
-                          processes->nice);
+                mvwprintw(ps_window, cur_y, LINE_X + LNNICE, "%d", processes->nice);
             else if (processes->nice >= 10) 
-                mvwprintw(process_window, cur_y, LINE_X + LMNICE, "%d", 
-                          processes->nice);
+                mvwprintw(ps_window, cur_y, LINE_X + LMNICE, "%d", processes->nice);
             else 
-                mvwprintw(process_window, cur_y, LINE_X + LLNICE, "%d", 
-                          processes->nice);
+                mvwprintw(ps_window, cur_y, LINE_X + LLNICE, "%d", processes->nice);
 
-            mvwprintw(process_window, cur_y, LINE_X + LPRIO, 
-                      "%s", processes->ioprio);
+            mvwprintw(ps_window, cur_y, LINE_X + LPRIO, "%s", processes->ioprio);
+            mvwprintw(ps_window, cur_y, LINE_X + LSTATE, "%s", processes->state);
 
-            mvwprintw(process_window, cur_y, LINE_X + LSTATE, 
-                      "%s", processes->state);
-
-            print_aligned_stat(process_window, processes->vmem, 
-                               cur_y, LINE_X + LVMEM);
+            print_aligned_stat(ps_window, processes->vmem, cur_y, LINE_X + LVMEM);
 
             if (processes->pte != NULL)
-                mvwprintw(process_window, cur_y, LINE_X + LPTE, 
-                          "%s", processes->pte);
+                mvwprintw(ps_window, cur_y, LINE_X + LPTE, "%s", processes->pte);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LPTE, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LPTE, "N/A");
 
-            print_aligned_stat(process_window, processes->rss, 
-                               cur_y, LINE_X + LRSS);
+            print_aligned_stat(ps_window, processes->rss, cur_y, LINE_X + LRSS);
 
             if (processes->io_read != NULL)
-                print_aligned_stat(process_window, processes->io_read, 
-                                   cur_y, LINE_X + LREAD);
+                print_aligned_stat(ps_window, processes->io_read, cur_y, LINE_X + LREAD);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LREAD, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LREAD, "N/A");
 
             if (processes->io_write != NULL)
-                print_aligned_stat(process_window, processes->io_write,
-                                   cur_y, LINE_X + LWRITE);
+                print_aligned_stat(ps_window, processes->io_write, cur_y, LINE_X + LWRITE);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LWRITE, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LWRITE, "N/A");
 
             if (processes->open_fds != -1)
-                mvwprintw(process_window, cur_y, LINE_X + LFDS, "%d", 
-                          processes->open_fds);
+                mvwprintw(ps_window, cur_y, LINE_X + LFDS, "%d", processes->open_fds);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LFDS, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LFDS, "N/A");
 
             if (processes->invol_sw != NULL)
-                mvwprintw(process_window, cur_y, LINE_X + LINVOL, "%s", 
-                          processes->invol_sw);
+                mvwprintw(ps_window, cur_y, LINE_X + LINVOL, "%s", processes->invol_sw);
             else
-                mvwprintw(process_window, cur_y, LINE_X + LINVOL, "N/A");
+                mvwprintw(ps_window, cur_y, LINE_X + LINVOL, "N/A");
             
-            mvwprintw(process_window, cur_y++, LINE_X + LTHRDS, "%s", 
-                      processes->thrcnt);
+            mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "%s", processes->thrcnt);
         } else 
             process_line_num--;
 
         processes = processes->next;
     }
 
-    box(process_window, 0, 0);
-    wrefresh(process_window);
+    box(ps_window, 0, 0);
+    wrefresh(ps_window);
 
     return 0;
 }
