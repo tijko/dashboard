@@ -30,13 +30,13 @@ enum {
     LPRIO  = 54,
     LSTATE = 63,
     LVMEM  = 69,
-    LPTE   = 79,
-    LRSS   = 88,
-    LREAD  = 97,
-    LWRITE = 111,
-    LFDS   = 124,
-    LINVOL = 133,
-    LTHRDS = 144
+    LPTE   = 83,
+    LRSS   = 95,
+    LREAD  = 110,
+    LWRITE = 128,
+    LFDS   = 144,
+    LINVOL = 159,
+    LTHRDS = 173
 };
 
 #define DELAY 1 
@@ -55,8 +55,8 @@ static const unsigned int fieldattr_size = (sizeof fieldattrs /
                                             sizeof( __typeof__(fieldattrs[0]) )) 
                                                                              -1;
 
-static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 
-                                6, 6, 6, 10, 8, 6, 4, 0, 0};
+static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 10, 
+                                10, 10, 14, 12, 10, 8, 0, 0};
 
 void init_windows(WINDOW **windows);
 
@@ -68,5 +68,7 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
 char *build_fieldbar(void);
 
 void add_space(char *fieldbar, char const *field, int strterm, int spaces);
+
+void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x);
 
 #endif
