@@ -124,12 +124,10 @@ int update_process_window(WINDOW *ps_window, proc_t *processes,
 
 void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
 {
-    int idx = 0;
-    for (; ps_stat[idx] && ps_stat[idx] != '.'; idx++)
-        ;
-    idx--;
+    char *decimal_str = strchr(ps_stat, '.');
+    int aligned_dec = strlen(ps_stat) - strlen(decimal_str) - 1;
 
-    mvwprintw(ps_window, y, x - idx, "%s", ps_stat);
+    mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
 }
 
 char *build_fieldbar(void)
