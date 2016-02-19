@@ -63,15 +63,21 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
 
     while (processes && cur_y < max_y - 1) {
         if (process_line_num == 0) {
+
             mvwprintw(process_window, cur_y, LINE_X, "%s  ", processes->name);
+
             mvwprintw(process_window, cur_y, LINE_X + LPID, 
                       "%d   ", processes->pid);
+
             mvwprintw(process_window, cur_y, LINE_X + LUSER, 
                       "%s   ", processes->user);
+
             mvwprintw(process_window, cur_y, LINE_X + LCPU, 
                       "%d ", processes->cpuset);
+
             mvwprintw(process_window, cur_y, LINE_X + LMEM, "%.2f%", 
                       processes->mempcent);
+
             if (processes->nice >= 0 && processes->nice < 10) 
                 mvwprintw(process_window, cur_y, LINE_X + LNNICE, "%d", 
                           processes->nice);
@@ -81,34 +87,43 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
             else 
                 mvwprintw(process_window, cur_y, LINE_X + LLNICE, "%d", 
                           processes->nice);
+
             mvwprintw(process_window, cur_y, LINE_X + LPRIO, 
                       "%s", processes->ioprio);
+
             mvwprintw(process_window, cur_y, LINE_X + LSTATE, 
                       "%s", processes->state);
-            mvwprintw(process_window, cur_y, LINE_X + LVMEM, 
-                      "%s", processes->vmem);
+
+            print_aligned_stat(process_window, processes->vmem, 
+                               cur_y, LINE_X + LVMEM);
+
             if (processes->pte != NULL)
                 mvwprintw(process_window, cur_y, LINE_X + LPTE, 
                           "%s", processes->pte);
             else
                 mvwprintw(process_window, cur_y, LINE_X + LPTE, "N/A");
-            mvwprintw(process_window, cur_y, LINE_X + LRSS, 
-                      "%s", processes->rss);
+
+            print_aligned_stat(process_window, processes->rss, 
+                               cur_y, LINE_X + LRSS);
+
             if (processes->io_read != NULL)
-                mvwprintw(process_window, cur_y, LINE_X + LREAD, "%s",
-                          processes->io_read);
+                print_aligned_stat(process_window, processes->io_read, 
+                                   cur_y, LINE_X + LREAD);
             else
                 mvwprintw(process_window, cur_y, LINE_X + LREAD, "N/A");
+
             if (processes->io_write != NULL)
-                mvwprintw(process_window, cur_y, LINE_X + LWRITE, "%s",
-                          processes->io_write);
+                print_aligned_stat(process_window, processes->io_write,
+                                   cur_y, LINE_X + LWRITE);
             else
                 mvwprintw(process_window, cur_y, LINE_X + LWRITE, "N/A");
+
             if (processes->open_fds != -1)
                 mvwprintw(process_window, cur_y, LINE_X + LFDS, "%d", 
                           processes->open_fds);
             else
                 mvwprintw(process_window, cur_y, LINE_X + LFDS, "N/A");
+
             if (processes->invol_sw != NULL)
                 mvwprintw(process_window, cur_y, LINE_X + LINVOL, "%s", 
                           processes->invol_sw);
@@ -127,6 +142,16 @@ int update_process_window(WINDOW *process_window, proc_t *processes,
     wrefresh(process_window);
 
     return 0;
+}
+
+void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
+{
+    int idx = 0;
+    for (; ps_stat[idx] && ps_stat[idx] != '.'; idx++)
+        ;
+    idx--;
+
+    mvwprintw(ps_window, y, x - idx, "%s", ps_stat);
 }
 
 char *build_fieldbar(void)
