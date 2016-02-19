@@ -108,7 +108,7 @@ char *strip(char *stat)
 
 char *calculate_size(char *field_total, int byte_idx)
 {
-    char *byte_totals[] = {"B", "KB", "MB", "GB"};
+    char *byte_totals[] = {"B", "KiB", "MiB", "GiB"};
 
     long double field_value = (long double) strtoll(field_total, NULL, 10);
 
