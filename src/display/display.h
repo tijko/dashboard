@@ -56,7 +56,7 @@ static const unsigned int fieldattr_size = (sizeof fieldattrs /
                                                                              -1;
 
 static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 10, 
-                                10, 10, 14, 12, 10, 8, 0, 0};
+                                10, 12, 14, 10, 10, 8, 0, 0};
 
 void init_windows(WINDOW **windows);
 
