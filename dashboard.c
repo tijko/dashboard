@@ -71,6 +71,7 @@ char set_sort_option(char *opt)
 
 void dashboard_mainloop(char attr_sort)
 {
+    
     WINDOW *display_windows[2];
     init_windows(display_windows);
 
@@ -84,11 +85,11 @@ void dashboard_mainloop(char attr_sort)
 
     if (!fstype)
         fstype = "Unavailable";
+    
 
-
+    ps_list = NULL;
     board_t *dashboard = init_board();
 
-    dashboard->process_list = build_process_list(dashboard->system); 
 
     if (dashboard == NULL)
         return;
@@ -103,13 +104,10 @@ void dashboard_mainloop(char attr_sort)
 
     while (running) {
 
-        int number_of_processes = get_numberof_processes(dashboard->process_list);
-
-
         if (attr_sort)
             dashboard->process_list = sort_by_field(dashboard->process_list, 
                                                     attr_sort,
-                                                    number_of_processes);
+                                                    dashboard->process_tree->ps_number);
 
         getmaxyx(process_window, dashboard->max_y, dashboard->max_x);
 
@@ -148,7 +146,7 @@ void dashboard_mainloop(char attr_sort)
                 break;
 
             case (KEY_DOWN):
-                if (process_line_num < (number_of_processes - 
+                if (process_line_num < (dashboard->process_tree->ps_number - 
                                        (dashboard->max_y - PROC_LINE_SIZE))) 
                     process_line_num++;
                 flushinp();
@@ -233,11 +231,14 @@ void dashboard_mainloop(char attr_sort)
             default:
                 break;
         }
-
+        
+        update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
         update_process_stats(dashboard);
-        dashboard->process_list = update_process_list(dashboard->process_list,
-                                                      dashboard->system,
-                                                      &redraw);
+        
+        ps_list = NULL;
+        tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
+        dashboard->process_list = get_head(ps_list);
+
         delay_output(REFRESH_RATE);
 
         if (!sys_scr_init) {
@@ -256,6 +257,7 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
+
 }
 
 board_t *init_board(void)
@@ -274,6 +276,9 @@ board_t *init_board(void)
     board->prev_x = 0;
     board->prev_y = 0;
     board->fieldbar = build_fieldbar();
+    board->process_tree = build_process_tree(board->system); 
+    tree_to_list(board->process_tree, board->process_tree->root);
+    board->process_list = get_head(ps_list);
 
     return board;
 }
@@ -283,7 +288,8 @@ void free_board(board_t *board)
     free(board->system->current_pids);
     free(board->system);
     free(board->fieldbar);
-    free_process_list(board->process_list);
+//    free_process_list(board->process_list);
+    free_ps_tree(board->process_tree);
     free(board);
 }
 
