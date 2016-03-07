@@ -15,6 +15,13 @@
 #define MAXPROCPATH 2048
 #define MAXFIELD 32
 
+typedef int color_t;
+
+enum color_t {
+    BLACK = 0,
+    RED   = 1
+};
+
 typedef struct process_attr {
     int pid;
     int uid;
@@ -36,25 +43,37 @@ typedef struct process_attr {
     float mempcent;
     struct process_attr *prev;
     struct process_attr *next;
+    struct process_attr *left;
+    struct process_attr *right;
+    struct process_attr *parent;
+    color_t color;
 } proc_t;
 
-proc_t *build_process_list(sysaux_t *system);
+typedef struct process_tree {
+    proc_t *root;
+    proc_t *nil;
+    int ps_number;
+} proc_tree_t;
 
-proc_t *update_process_list(proc_t *process_list, sysaux_t *system, int *redraw);
+proc_t *ps_list;
 
-bool process_list_member(proc_t *process_list, char *pid);
+proc_tree_t *init_process_tree(void);
 
-int get_numberof_processes(proc_t *process_list);
+proc_tree_t *build_process_tree(sysaux_t *system);
 
-proc_t *create_proc(void);
+void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw);
 
-proc_t *filter_process_list(proc_t *process_list, int *redraw);
+bool ps_tree_member(proc_tree_t *ps_tree, pid_t pid);
+
+proc_t *init_proc(void);
+
+proc_t *create_proc(char *pid, sysaux_t *system);
+
+void filter_ps_tree(proc_tree_t *ps_tree, proc_t *ps, int *redraw);
 
 void get_process_stats(proc_t *process, sysaux_t *system);
 
 void free_process_list(proc_t *process_list);
-
-proc_t *copy_proc(proc_t *process_list);
 
 proc_t *get_tail(proc_t *process_list);
 
@@ -62,14 +81,37 @@ proc_t *get_head(proc_t *process_list);
 
 char *proc_user(char *path);
 
-void add_process_link(proc_t *link, char *pid);
-
-void get_current_pids(char **pid_list);
+int get_current_pids(char **pid_list);
 
 char *get_process_name(char *process);
 
 bool is_valid_process(proc_t *process);
 
-void free_process_fields(proc_t *process);
+void free_ps_fields(proc_t *ps);
+
+void insert_process(proc_tree_t *tree, proc_t *process, proc_t *new_process);
+
+void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid);
+
+void insert_fixup(proc_tree_t *tree, proc_t *process);
+
+void delete_fixup(proc_tree_t *tree, proc_t *process);
+
+void left_rotate(proc_tree_t *tree, proc_t *process);
+
+void right_rotate(proc_tree_t *tree, proc_t *process);
+
+proc_t *min_tree(proc_tree_t *tree, proc_t *process);
+
+void transplant_process(proc_tree_t *tree, proc_t *process_out, 
+                                           proc_t *process_in);
+
+void free_ps_tree(proc_tree_t *ps_tree);
+
+void free_ps_tree_nodes(proc_tree_t *ps_tree, proc_t *ps);
+
+void free_ps(proc_t *ps);
+
+void tree_to_list(proc_tree_t *tree, proc_t *ps);
 
 #endif
