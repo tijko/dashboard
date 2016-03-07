@@ -15,6 +15,7 @@ typedef struct {
     char *fieldbar;
     sysaux_t *system;
     proc_t *process_list;
+    proc_tree_t *process_tree;
 } board_t;    
 
 void print_usage(void);
