@@ -232,12 +232,14 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
         
-        update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
-        update_process_stats(dashboard);
         
+        update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
+         
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
         dashboard->process_list = get_head(ps_list);
+        
+        update_process_stats(dashboard);
 
         delay_output(REFRESH_RATE);
 
@@ -288,7 +290,6 @@ void free_board(board_t *board)
     free(board->system->current_pids);
     free(board->system);
     free(board->fieldbar);
-//    free_process_list(board->process_list);
     free_ps_tree(board->process_tree);
     free(board);
 }
