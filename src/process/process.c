@@ -52,6 +52,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     memset(path, 0, STAT_PATHMAX);
     snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
 
+    // have buffer passed in all for all attributes
     free_ps_fields(process);
 
     if (process->user == NULL)
@@ -98,8 +99,8 @@ void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw)
 {
     // adjust ps_tree->ps_number +/-
     // check against current_pids for removal too
-    get_current_pids(system->current_pids);
-    for (int i=0; system->current_pids[i] != NULL; i++) {
+    int ps_number = get_current_pids(system->current_pids);
+    for (int i=0; i < ps_number; i++) {
         pid_t pid = (pid_t) atoi(system->current_pids[i]);
         if (!ps_tree_member(ps_tree, pid)) {
             proc_t *ps = create_proc(system->current_pids[i], system);
@@ -113,6 +114,7 @@ void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw)
     }
 
     filter_ps_tree(ps_tree, ps_tree->root, redraw);
+    ps_tree->ps_number = ps_number;
 }
 
 proc_t *get_tail(proc_t *process_list)
@@ -300,10 +302,12 @@ void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid)
             replace = process->right;
             transplant_process(tree, process, process->right);
             free_ps(process);
+            process = NULL;
         } else if (process->right == tree->nil) {
             replace = process->left;
             transplant_process(tree, process, process->left);
             free_ps(process);
+            process = NULL;
         } else {
             proc_t *successor = min_tree(tree, process->right);
             color = successor->color;
@@ -321,6 +325,7 @@ void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid)
             successor->left->parent = successor;
             successor->color = process->color;
             free_ps(process);
+            process = NULL;
         }
     }
 
@@ -581,6 +586,11 @@ void free_ps(proc_t *ps)
     free(ps->user);
     free(ps->pidstr);
     free_ps_fields(ps);
+    ps->next = NULL;
+    ps->prev = NULL;
+    ps->parent = NULL;
+    ps->left = NULL;
+    ps->right = NULL;
     free(ps);
 }
     
