@@ -24,7 +24,6 @@ char set_sort_option(char *opt);
 
 void dashboard_mainloop(char attr_sort);
 
-//void update_process_stats(board_t *dashboard);
 void update_process_stats(proc_tree_t *ps_tree, proc_t *ps, sysaux_t *sys);
  
 board_t *init_board(void);
