@@ -62,7 +62,7 @@ void init_windows(WINDOW **windows);
 
 int update_system_window(WINDOW *system_window, char *fstype);
 
-int update_process_window(WINDOW *ps_window, proc_t *processes,
+int update_process_window(WINDOW *ps_window, proc_t *ps_list,
                           char *fieldbar, int process_line_num, int max_y);
 
 char *build_fieldbar(void);
