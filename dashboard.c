@@ -71,7 +71,6 @@ char set_sort_option(char *opt)
 
 void dashboard_mainloop(char attr_sort)
 {
-    
     WINDOW *display_windows[2];
     init_windows(display_windows);
 
@@ -232,14 +231,13 @@ void dashboard_mainloop(char attr_sort)
                 break;
         }
         
-        
+        update_process_stats(dashboard->process_tree, 
+                             dashboard->process_tree->root, dashboard->system);
         update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
-         
+
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
         dashboard->process_list = get_head(ps_list);
-        
-        update_process_stats(dashboard);
 
         delay_output(REFRESH_RATE);
 
@@ -259,7 +257,6 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
-
 }
 
 board_t *init_board(void)
@@ -294,12 +291,15 @@ void free_board(board_t *board)
     free(board);
 }
 
-void update_process_stats(board_t *dashboard)
+void update_process_stats(proc_tree_t *ps_tree, proc_t *ps, sysaux_t *sys)
 {
-    proc_t *process_list = dashboard->process_list;
+    if (ps_tree == NULL || ps_tree->root == NULL || 
+        ps_tree->root == ps_tree->nil || ps == NULL || ps == ps_tree->nil)
+        return;
 
-    for (; process_list != NULL; process_list=process_list->next)
-        get_process_stats(process_list, dashboard->system);
+    update_process_stats(ps_tree, ps->left, sys);
+    get_process_stats(ps, sys);
+    update_process_stats(ps_tree, ps->right, sys);
 }
 
 int main(int argc, char *argv[])
