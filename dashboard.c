@@ -232,17 +232,15 @@ void dashboard_mainloop(char attr_sort)
                              dashboard->process_tree->root, dashboard->system);
 
         update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
-        if (prev_ps_number != dashboard->process_tree->ps_number) {
-            if (prev_ps_number > dashboard->process_tree->ps_number) {
-                int diff = prev_ps_number - dashboard->process_tree->ps_number;
-                if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
-                                                       PROC_LINE_SIZE)))
-                    ps_ln_number -= diff;
-                else if ((prev_ps_number - (dashboard->max_y - PROC_LINE_SIZE)) - 
-                                                           ps_ln_number < diff)
-                    ps_ln_number -= (diff - ((prev_ps_number - (dashboard->max_y - 
-                                              PROC_LINE_SIZE)) - ps_ln_number));
-            }
+        if (prev_ps_number > dashboard->process_tree->ps_number) {
+            int diff = prev_ps_number - dashboard->process_tree->ps_number;
+            if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
+                                                   PROC_LINE_SIZE)))
+                ps_ln_number -= diff;
+            else if ((prev_ps_number - (dashboard->max_y - PROC_LINE_SIZE)) - 
+                                                       ps_ln_number < diff)
+                ps_ln_number -= (diff - ((prev_ps_number - (dashboard->max_y - 
+                                          PROC_LINE_SIZE)) - ps_ln_number));
         }
 
         prev_ps_number = dashboard->process_tree->ps_number;
