@@ -55,6 +55,12 @@ typedef struct process_tree {
     int ps_number;
 } proc_tree_t;
 
+typedef struct ps_removal {
+    struct ps_removal *head;
+    proc_t *ps;
+    struct ps_removal *next;
+} proc_rm_t;
+
 proc_t *ps_list;
 
 proc_tree_t *init_process_tree(void);
@@ -69,7 +75,7 @@ proc_t *init_proc(void);
 
 proc_t *create_proc(char *pid, sysaux_t *system);
 
-void filter_ps_tree(proc_tree_t *ps_tree, proc_t *ps, int *redraw);
+void filter_ps_tree(proc_tree_t *ps_tree, int *redraw);
 
 void get_process_stats(proc_t *process, sysaux_t *system);
 
@@ -113,5 +119,7 @@ void free_ps_tree_nodes(proc_tree_t *ps_tree, proc_t *ps);
 void free_ps(proc_t *ps);
 
 void tree_to_list(proc_tree_t *tree, proc_t *ps);
+
+proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid);
 
 #endif
