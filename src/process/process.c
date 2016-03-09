@@ -112,7 +112,7 @@ void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw)
     }
 
     filter_ps_tree(ps_tree, redraw);
-    ps_tree->ps_number = ps_number;
+    ps_tree->ps_number = ps_number - 1;
 }
 
 proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid)
