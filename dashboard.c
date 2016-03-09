@@ -78,18 +78,16 @@ void dashboard_mainloop(char attr_sort)
     WINDOW *process_window = display_windows[1];
 
     bool running = true;
-    int process_line_num = 0, prev_process_line_num = 0;
+    int ps_ln_number = 0, prev_ps_ln_number = 0;
 
     char *fstype = filesystem_type();
 
     if (!fstype)
         fstype = "Unavailable";
     
-
     ps_list = NULL;
     board_t *dashboard = init_board();
-
-
+    int prev_ps_number = dashboard->process_tree->ps_number;
     if (dashboard == NULL)
         return;
 
@@ -119,35 +117,34 @@ void dashboard_mainloop(char attr_sort)
         // if any differ `clear` for a redraw.
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
-            (process_line_num ^ prev_process_line_num) || redraw == 1) { 
+            (ps_ln_number ^ prev_ps_ln_number) || redraw == 1) { 
             werase(process_window);
             redraw = 0;
         }
 
         dashboard->prev_y = dashboard->max_y;
         dashboard->prev_x = dashboard->max_x;
-        prev_process_line_num = process_line_num;
+        prev_ps_ln_number = ps_ln_number;
 
         if ((update_process_window(process_window, dashboard->process_list,
-                                   dashboard->fieldbar, process_line_num, 
+                                   dashboard->fieldbar, ps_ln_number, 
                                    dashboard->max_y)) < 0)
             break;
-
 
         int key = wgetch(stdscr);
 
         switch (key) {
 
             case (KEY_UP):
-                if (process_line_num > 0) 
-                    process_line_num--;
+                if (ps_ln_number > 0) 
+                    ps_ln_number--;
                 flushinp();
                 break;
 
             case (KEY_DOWN):
-                if (process_line_num < (dashboard->process_tree->ps_number - 
+                if (ps_ln_number < (dashboard->process_tree->ps_number - 
                                        (dashboard->max_y - PROC_LINE_SIZE))) 
-                    process_line_num++;
+                    ps_ln_number++;
                 flushinp();
                 break;
 
@@ -233,7 +230,22 @@ void dashboard_mainloop(char attr_sort)
         
         update_process_stats(dashboard->process_tree, 
                              dashboard->process_tree->root, dashboard->system);
+
         update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
+        if (prev_ps_number != dashboard->process_tree->ps_number) {
+            if (prev_ps_number > dashboard->process_tree->ps_number) {
+                int diff = prev_ps_number - dashboard->process_tree->ps_number;
+                if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
+                                                       PROC_LINE_SIZE)))
+                    ps_ln_number -= diff;
+                else if ((prev_ps_number - (dashboard->max_y - PROC_LINE_SIZE)) - 
+                                                           ps_ln_number < diff)
+                    ps_ln_number -= (diff - ((prev_ps_number - (dashboard->max_y - 
+                                              PROC_LINE_SIZE)) - ps_ln_number));
+            }
+        }
+
+        prev_ps_number = dashboard->process_tree->ps_number;
 
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
@@ -251,7 +263,6 @@ void dashboard_mainloop(char attr_sort)
             sys_timer_fd = set_sys_timer(sys_timer);
             update_system_window(system_window, fstype);
         }
-
     }
 
     endwin();
