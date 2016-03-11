@@ -71,6 +71,7 @@ char set_sort_option(char *opt)
 
 void dashboard_mainloop(char attr_sort)
 {
+
     WINDOW *display_windows[2];
     init_windows(display_windows);
 
@@ -100,6 +101,7 @@ void dashboard_mainloop(char attr_sort)
     int sys_timer_fd = set_sys_timer(sys_timer);
     bool sys_scr_init = false;
 
+        
     while (running) {
 
         if (attr_sort)
@@ -232,6 +234,7 @@ void dashboard_mainloop(char attr_sort)
                              dashboard->process_tree->root, dashboard->system);
 
         update_ps_tree(dashboard->process_tree, dashboard->system);
+
         if (prev_ps_number > dashboard->process_tree->ps_number) {
             int diff = prev_ps_number - dashboard->process_tree->ps_number;
             if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
@@ -266,6 +269,7 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
+
 }
 
 board_t *init_board(void)
