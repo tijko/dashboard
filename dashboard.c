@@ -100,7 +100,6 @@ void dashboard_mainloop(char attr_sort)
     int sys_timer_fd = set_sys_timer(sys_timer);
     bool sys_scr_init = false;
 
-        
     while (running) {
 
         if (attr_sort)
