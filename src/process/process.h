@@ -67,7 +67,7 @@ proc_tree_t *init_process_tree(void);
 
 proc_tree_t *build_process_tree(sysaux_t *system);
 
-void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw);
+void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system);
 
 bool ps_tree_member(proc_tree_t *ps_tree, pid_t pid);
 
@@ -75,7 +75,7 @@ proc_t *init_proc(void);
 
 proc_t *create_proc(char *pid, sysaux_t *system);
 
-void filter_ps_tree(proc_tree_t *ps_tree, int *redraw);
+void filter_ps_tree(proc_tree_t *ps_tree);
 
 void get_process_stats(proc_t *process, sysaux_t *system);
 

@@ -95,7 +95,7 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     }
 }
 
-void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw)
+void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system)
 {
     int ps_number = get_current_pids(system->current_pids);
     for (int i=0; i < ps_number; i++) {
@@ -105,13 +105,12 @@ void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system, int *redraw)
             ps->left = ps_tree->nil;
             ps->right = ps_tree->nil;
             insert_process(ps_tree, ps_tree->root, ps);
-            *redraw = 1;
         } 
 
         free(system->current_pids[i]);
     }
 
-    filter_ps_tree(ps_tree, redraw);
+    filter_ps_tree(ps_tree);
     ps_tree->ps_number = ps_number - 1;
 }
 
@@ -486,7 +485,7 @@ void tree_to_list(proc_tree_t *tree, proc_t *ps)
     tree_to_list(tree, ps->right);
 }
 
-void filter_ps_tree(proc_tree_t *ps_tree, int *redraw)
+void filter_ps_tree(proc_tree_t *ps_tree)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || ps_tree->root == ps_tree->nil)
         return;
@@ -500,7 +499,6 @@ void filter_ps_tree(proc_tree_t *ps_tree, int *redraw)
     for (; ps; ps=ps->next) {
         if (!is_valid_process(ps)) {
             delete_process(ps_tree, ps, ps->pid);
-            *redraw = 1;
 
             if (ps_rm == NULL) {
                 ps_rm = malloc(sizeof *ps_rm);
