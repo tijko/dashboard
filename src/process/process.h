@@ -122,4 +122,6 @@ void tree_to_list(proc_tree_t *tree, proc_t *ps);
 
 proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid);
 
+void inorder(proc_tree_t *tree, proc_t *ps);
+
 #endif
