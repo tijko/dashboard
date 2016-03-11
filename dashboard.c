@@ -71,7 +71,6 @@ char set_sort_option(char *opt)
 
 void dashboard_mainloop(char attr_sort)
 {
-
     WINDOW *display_windows[2];
     init_windows(display_windows);
 
