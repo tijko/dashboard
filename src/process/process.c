@@ -270,7 +270,8 @@ void insert_fixup(proc_tree_t *tree, proc_t *process)
                     process = process->parent;
                     left_rotate(tree, process);
                 }
-                process->parent = BLACK;
+
+                process->parent->color = BLACK;
                 process->parent->parent->color = RED;
                 right_rotate(tree, process->parent->parent);
             }
@@ -499,7 +500,6 @@ void filter_ps_tree(proc_tree_t *ps_tree)
     for (; ps; ps=ps->next) {
         if (!is_valid_process(ps)) {
             delete_process(ps_tree, ps, ps->pid);
-
             if (ps_rm == NULL) {
                 ps_rm = malloc(sizeof *ps_rm);
                 ps_rm->head = ps_rm;
