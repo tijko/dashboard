@@ -85,9 +85,11 @@ void dashboard_mainloop(char attr_sort)
     if (!fstype)
         fstype = "Unavailable";
     
+    // XXX init in init_board...
     ps_list = NULL;
     board_t *dashboard = init_board();
     int prev_ps_number = dashboard->process_tree->ps_number;
+
     if (dashboard == NULL)
         return;
 
@@ -96,7 +98,6 @@ void dashboard_mainloop(char attr_sort)
         return;
 
     int sys_timer_fd = set_sys_timer(sys_timer);
-    int redraw = 1;
     bool sys_scr_init = false;
 
     while (running) {
@@ -117,9 +118,8 @@ void dashboard_mainloop(char attr_sort)
         // if any differ `clear` for a redraw.
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
-            (ps_ln_number ^ prev_ps_ln_number) || redraw == 1) { 
+            (ps_ln_number ^ prev_ps_ln_number)) { 
             werase(process_window);
-            redraw = 0;
         }
 
         dashboard->prev_y = dashboard->max_y;
@@ -231,7 +231,7 @@ void dashboard_mainloop(char attr_sort)
         update_process_stats(dashboard->process_tree, 
                              dashboard->process_tree->root, dashboard->system);
 
-        update_ps_tree(dashboard->process_tree, dashboard->system, &redraw);
+        update_ps_tree(dashboard->process_tree, dashboard->system);
         if (prev_ps_number > dashboard->process_tree->ps_number) {
             int diff = prev_ps_number - dashboard->process_tree->ps_number;
             if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
