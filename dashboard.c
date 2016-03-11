@@ -267,7 +267,6 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
-
 }
 
 board_t *init_board(void)
