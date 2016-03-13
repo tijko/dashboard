@@ -80,13 +80,9 @@ void dashboard_mainloop(char attr_sort)
     bool running = true;
     int ps_ln_number = 0, prev_ps_ln_number = 0;
 
-    char *fstype = filesystem_type();
-
-    if (!fstype)
-        fstype = "Unavailable";
-    
     board_t *dashboard = init_board();
     int prev_ps_number = dashboard->process_tree->ps_number;
+    update_system_window(system_window, dashboard->system);
 
     if (dashboard == NULL)
         return;
@@ -96,7 +92,6 @@ void dashboard_mainloop(char attr_sort)
         return;
 
     int sys_timer_fd = set_sys_timer(sys_timer);
-    bool sys_scr_init = false;
 
     while (running) {
 
@@ -114,22 +109,22 @@ void dashboard_mainloop(char attr_sort)
 
         // `xor` the current line positions against the previous
         // if any differ `clear` for a redraw.
+
         if ((dashboard->prev_y ^ dashboard->max_y) | 
             (dashboard->prev_x ^ dashboard->max_x) |
-            (ps_ln_number ^ prev_ps_ln_number)) { 
+            (ps_ln_number ^ prev_ps_ln_number))  
             werase(process_window);
-        }
 
         dashboard->prev_y = dashboard->max_y;
         dashboard->prev_x = dashboard->max_x;
         prev_ps_ln_number = ps_ln_number;
 
-        if ((update_process_window(process_window, dashboard->process_list,
-                                   dashboard->fieldbar, ps_ln_number, 
-                                   dashboard->max_y)) < 0)
-            break;
+        update_process_window(process_window, dashboard->process_list,
+                              dashboard->fieldbar, ps_ln_number, 
+                              dashboard->max_y);
 
         int key = wgetch(stdscr);
+        wrefresh(system_window);
 
         switch (key) {
 
@@ -243,15 +238,10 @@ void dashboard_mainloop(char attr_sort)
 
         delay_output(REFRESH_RATE);
 
-        if (!sys_scr_init) {
-            update_system_window(system_window, fstype);
-            sys_scr_init = true;
-        }
-
         if (is_sysfield_timer_expired(sys_timer_fd)) {
             close(sys_timer_fd);
             sys_timer_fd = set_sys_timer(sys_timer);
-            update_system_window(system_window, fstype);
+            update_system_window(system_window, dashboard->system);
         }
     }
 
@@ -280,6 +270,9 @@ board_t *init_board(void)
     board->system->euid = geteuid();
     board->system->memtotal = total_memory();
     int max_pid_count = max_pids();
+    board->system->fstype = filesystem_type();
+    if (!board->system->fstype)
+        board->system->fstype = "Unavailable";
     board->system->max_pids = max_pid_count;
     board->system->current_pids = malloc(sizeof(char *) * max_pid_count);
     getmaxyx(stdscr, board->max_y, board->max_x);
