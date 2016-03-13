@@ -27,6 +27,7 @@
 #define NRPTYS "/proc/sys/kernel/pty/nr"
 
 typedef struct {
+    char *fstype;
     uid_t euid;
     int max_pids;
     long memtotal;
