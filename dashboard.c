@@ -85,8 +85,6 @@ void dashboard_mainloop(char attr_sort)
     if (!fstype)
         fstype = "Unavailable";
     
-    // XXX init in init_board...
-    ps_list = NULL;
     board_t *dashboard = init_board();
     int prev_ps_number = dashboard->process_tree->ps_number;
 
@@ -233,16 +231,9 @@ void dashboard_mainloop(char attr_sort)
 
         update_ps_tree(dashboard->process_tree, dashboard->system);
 
-        if (prev_ps_number > dashboard->process_tree->ps_number) {
-            int diff = prev_ps_number - dashboard->process_tree->ps_number;
-            if (ps_ln_number == (prev_ps_number - (dashboard->max_y - 
-                                                   PROC_LINE_SIZE)))
-                ps_ln_number -= diff;
-            else if ((prev_ps_number - (dashboard->max_y - PROC_LINE_SIZE)) - 
-                                                       ps_ln_number < diff)
-                ps_ln_number -= (diff - ((prev_ps_number - (dashboard->max_y - 
-                                          PROC_LINE_SIZE)) - ps_ln_number));
-        }
+        if (prev_ps_number > dashboard->process_tree->ps_number) 
+            ps_ln_number = calculate_ln_diff(dashboard, ps_ln_number, 
+                                             prev_ps_number);
 
         prev_ps_number = dashboard->process_tree->ps_number;
 
@@ -269,6 +260,16 @@ void dashboard_mainloop(char attr_sort)
     free_board(dashboard);
 }
 
+int calculate_ln_diff(board_t *board, int ln, int prev_ln)
+{
+    int diff = prev_ln - board->process_tree->ps_number;
+    if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
+        ln -= diff;
+    else if ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln < diff)
+        ln -= (diff - ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln));
+    return ln;
+}
+
 board_t *init_board(void)
 {
     board_t *board = malloc(sizeof *board);
@@ -286,6 +287,7 @@ board_t *init_board(void)
     board->prev_y = 0;
     board->fieldbar = build_fieldbar();
     board->process_tree = build_process_tree(board->system); 
+    ps_list = NULL;
     tree_to_list(board->process_tree, board->process_tree->root);
     board->process_list = get_head(ps_list);
 
