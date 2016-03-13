@@ -34,7 +34,7 @@ void init_windows(WINDOW **display_windows)
     wattron(display_windows[1], COLOR_PAIR(1));
 }
 
-int update_system_window(WINDOW *system_window, char *fstype)
+int update_system_window(WINDOW *system_window, sysaux_t *sys)
 {
     int max_x = getmaxx(system_window);
 
@@ -44,10 +44,9 @@ int update_system_window(WINDOW *system_window, char *fstype)
     mvwprintw(system_window, 1, (max_x / 2) - 4, DASHBOARD);
     wattroff(system_window, A_BOLD);
 
-    build_sys_info(system_window, fstype);
+    build_sys_info(system_window, sys->fstype);
 
     box(system_window, 0, 0);
-    wrefresh(system_window);
 
     return 0;
 }
