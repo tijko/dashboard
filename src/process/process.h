@@ -93,6 +93,8 @@ char *get_process_name(char *process);
 
 bool is_valid_process(proc_t *process);
 
+void rm_ps_links(proc_rm_t *ps_links);
+
 void free_ps_fields(proc_t *ps);
 
 void insert_process(proc_tree_t *tree, proc_t *process, proc_t *new_process);

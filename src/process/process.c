@@ -515,16 +515,20 @@ void filter_ps_tree(proc_tree_t *ps_tree)
         }
     }
 
-    if (ps_rm) {
-        ps_rm = ps_rm->head;
-        for (proc_rm_t *rm=ps_rm; rm; rm=ps_rm) {
-            ps_rm = ps_rm->next;
-            free_ps(rm->ps);
-            free(rm);
-        }
-    }
+    if (ps_rm)
+        rm_ps_links(ps_rm);
 }
 
+void rm_ps_links(proc_rm_t *ps_links)
+{
+    ps_links = ps_links->head;
+
+    for (proc_rm_t *rm=ps_links; rm; rm=ps_links) {
+        ps_links = ps_links->next;
+        free_ps(rm->ps);
+        free(rm);
+    }
+}
 
 bool is_valid_process(proc_t *process)
 {
