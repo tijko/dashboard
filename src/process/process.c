@@ -532,11 +532,15 @@ void rm_ps_links(proc_rm_t *ps_links)
 
 bool is_valid_process(proc_t *process)
 {
-    // check other fields too
-    if (process->state != NULL && process->pidstr != NULL &&
-        process->user != NULL && process->name != NULL &&
-        process->ioprio != NULL && process->thrcnt != NULL &&
-        process->vmem != NULL)
+    if (process->pidstr != NULL &&
+        process->ioprio != NULL && 
+        process->thrcnt != NULL &&
+        process->state != NULL &&
+        process->user != NULL && 
+        process->name != NULL &&
+        process->vmem != NULL && 
+        process->rss != NULL &&
+        process->pte != NULL)
         return true;
     return false;
 }
