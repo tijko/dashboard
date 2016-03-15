@@ -539,8 +539,7 @@ bool is_valid_process(proc_t *process)
         process->user != NULL && 
         process->name != NULL &&
         process->vmem != NULL && 
-        process->rss != NULL &&
-        process->pte != NULL)
+        process->rss != NULL)
         return true;
     return false;
 }
