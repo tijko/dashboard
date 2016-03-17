@@ -32,7 +32,7 @@ typedef struct {
     int max_pids;
     long memtotal;
     char **current_pids;
-} sysaux_t;
+} sysaux;
 
 void build_sys_info(WINDOW *system_window, char *fstype);
 

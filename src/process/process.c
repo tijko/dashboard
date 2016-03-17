@@ -19,9 +19,9 @@
 #include "../system/sys_stats.h"
 
 
-proc_tree_t *init_process_tree(void)
+Tree *init_process_tree(void)
 {
-    proc_tree_t *tree = malloc(sizeof *tree);
+    Tree *tree = malloc(sizeof *tree);
     tree->root = NULL;
     tree->nil = malloc(sizeof *tree->nil);
     tree->nil->color = BLACK;
@@ -30,13 +30,13 @@ proc_tree_t *init_process_tree(void)
     return tree;
 }
 
-proc_tree_t *build_process_tree(sysaux_t *system)
+Tree *build_process_tree(sysaux *system)
 {
-    proc_tree_t *tree = init_process_tree();
+    Tree *tree = init_process_tree();
     tree->ps_number = get_current_pids(system->current_pids);
     
     for (int i=0; i < tree->ps_number; i++) { 
-        proc_t *ps = create_proc(system->current_pids[i], system);
+        ps_node *ps = create_proc(system->current_pids[i], system);
         ps->left = tree->nil;
         ps->right = tree->nil;
         insert_process(tree, tree->root, ps);
@@ -46,7 +46,7 @@ proc_tree_t *build_process_tree(sysaux_t *system)
     return tree; 
 }
 
-void get_process_stats(proc_t *process, sysaux_t *system)
+void get_process_stats(ps_node *process, sysaux *system)
 {
     char path[STAT_PATHMAX];
     memset(path, 0, STAT_PATHMAX);
@@ -95,13 +95,13 @@ void get_process_stats(proc_t *process, sysaux_t *system)
     }
 }
 
-void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system)
+void update_ps_tree(Tree *ps_tree, sysaux *system)
 {
     int ps_number = get_current_pids(system->current_pids);
     for (int i=0; i < ps_number; i++) {
         pid_t pid = (pid_t) atoi(system->current_pids[i]);
         if (!ps_tree_member(ps_tree, pid)) {
-            proc_t *ps = create_proc(system->current_pids[i], system);
+            ps_node *ps = create_proc(system->current_pids[i], system);
             ps->left = ps_tree->nil;
             ps->right = ps_tree->nil;
             insert_process(ps_tree, ps_tree->root, ps);
@@ -114,7 +114,7 @@ void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system)
     ps_tree->ps_number = ps_number - 1;
 }
 
-proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid)
+ps_node *get_proc(Tree *tree, ps_node *proc, pid_t pid)
 {
     if (tree == NULL || tree->root == NULL || proc == NULL || proc == tree->nil)
         return NULL;
@@ -131,14 +131,14 @@ proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid)
     return NULL;
 }
 
-proc_t *get_tail(proc_t *process_list)
+ps_node *get_tail(ps_node *process_list)
 {
     while (process_list->next != NULL)
         process_list = process_list->next;
     return process_list;
 }
 
-proc_t *get_head(proc_t *process_list)
+ps_node *get_head(ps_node *process_list)
 {
     while (process_list->prev != NULL)
         process_list = process_list->prev;
@@ -163,13 +163,13 @@ int get_current_pids(char **pid_list)
     return total_processes;
 }
 
-bool ps_tree_member(proc_tree_t *ps_tree, pid_t pid)
+bool ps_tree_member(Tree *ps_tree, pid_t pid)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || 
         ps_tree->root == ps_tree->nil)
         return false;
 
-    proc_t *ps = ps_tree->root;
+    ps_node *ps = ps_tree->root;
     while (ps != ps_tree->nil) {
         if (ps->pid == pid)
             return true;
@@ -227,7 +227,7 @@ char *proc_user(char *path)
     return strdup(getuser->pw_name);
 }
 
-void insert_process(proc_tree_t *tree, proc_t *process, proc_t *new_process)
+void insert_process(Tree *tree, ps_node *process, ps_node *new_process)
 {
     if (!tree->root || tree->root == tree->nil) {
         tree->root = new_process;
@@ -255,11 +255,11 @@ void insert_process(proc_tree_t *tree, proc_t *process, proc_t *new_process)
     insert_fixup(tree, new_process);
 }
 
-void insert_fixup(proc_tree_t *tree, proc_t *process)
+void insert_fixup(Tree *tree, ps_node *process)
 {
     while (process->parent->color == RED) {
         if (process->parent == process->parent->parent->left) {
-            proc_t *uncle = process->parent->parent->right;
+            ps_node *uncle = process->parent->parent->right;
             if (uncle->color == RED) {
                 uncle->color = BLACK;
                 process->parent->color = BLACK;
@@ -276,7 +276,7 @@ void insert_fixup(proc_tree_t *tree, proc_t *process)
                 right_rotate(tree, process->parent->parent);
             }
         } else {
-            proc_t *uncle = process->parent->parent->left;
+            ps_node *uncle = process->parent->parent->left;
             if (uncle->color == RED) {
                 uncle->color = BLACK;
                 process->parent->color = BLACK;
@@ -297,14 +297,14 @@ void insert_fixup(proc_tree_t *tree, proc_t *process)
     tree->root->color = BLACK;
 }
 
-void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid)
+void delete_process(Tree *tree, ps_node *process, pid_t pid)
 {
     if (!tree || !tree->root || !tree->nil || !process || 
         tree->root == tree->nil || process == tree->nil)
         return;
 
     int color;
-    proc_t *replace;
+    ps_node *replace;
     if (process->pid < pid) {
         delete_process(tree, process->left, pid);
         return;
@@ -320,7 +320,7 @@ void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid)
             replace = process->left;
             transplant_process(tree, process, process->left);
         } else {
-            proc_t *successor = min_tree(tree, process->right);
+            ps_node *successor = min_tree(tree, process->right);
             color = successor->color;
             replace = successor->right;
             if (process->right == successor)
@@ -342,12 +342,12 @@ void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid)
         delete_fixup(tree, replace);
 }
 
-void delete_fixup(proc_tree_t *tree, proc_t *process)
+void delete_fixup(Tree *tree, ps_node *process)
 {
     while (process != tree->root && process->color == BLACK)
     {
         if (process == process->parent->left) {
-            proc_t *sibling = process->parent->right;
+            ps_node *sibling = process->parent->right;
             if (sibling->color == RED) {
                 sibling->color = BLACK;
                 process->parent->color = RED;
@@ -375,7 +375,7 @@ void delete_fixup(proc_tree_t *tree, proc_t *process)
                 process = tree->root;
             }
         } else {
-            proc_t *sibling = process->parent->left;
+            ps_node *sibling = process->parent->left;
             if (sibling->color == RED) {
                 sibling->color = BLACK;
                 process->parent->color = RED;
@@ -408,8 +408,8 @@ void delete_fixup(proc_tree_t *tree, proc_t *process)
     process->color = BLACK;
 }
 
-void transplant_process(proc_tree_t *tree, proc_t *process_out,
-                                           proc_t *process_in)
+void transplant_process(Tree *tree, ps_node *process_out,
+                                           ps_node *process_in)
 {
     if (process_out == tree->root)
         tree->root = process_in;
@@ -420,9 +420,9 @@ void transplant_process(proc_tree_t *tree, proc_t *process_out,
     process_in->parent = process_out->parent;
 }
 
-void left_rotate(proc_tree_t *tree, proc_t *process)
+void left_rotate(Tree *tree, ps_node *process)
 {
-    proc_t *process_up = process->right;
+    ps_node *process_up = process->right;
     process->right = process_up->left;
     if (process->right != tree->nil)
         process->right->parent = process;
@@ -439,9 +439,9 @@ void left_rotate(proc_tree_t *tree, proc_t *process)
     process->parent = process_up;
 }
 
-void right_rotate(proc_tree_t *tree, proc_t *process)
+void right_rotate(Tree *tree, ps_node *process)
 {
-    proc_t *process_up = process->left;
+    ps_node *process_up = process->left;
     process->left = process_up->right;
     if (process->left != tree->nil)
         process->left->parent = process;
@@ -458,14 +458,14 @@ void right_rotate(proc_tree_t *tree, proc_t *process)
     process->parent = process_up;
 }
 
-proc_t *min_tree(proc_tree_t *tree, proc_t *process)
+ps_node *min_tree(Tree *tree, ps_node *process)
 {
     while (process->left != tree->nil)
         process = process->left;
     return process;
 }
 
-void tree_to_list(proc_tree_t *tree, proc_t *ps)
+void tree_to_list(Tree *tree, ps_node *ps)
 {
     if (ps == tree->nil)
         return;
@@ -486,16 +486,16 @@ void tree_to_list(proc_tree_t *tree, proc_t *ps)
     tree_to_list(tree, ps->right);
 }
 
-void filter_ps_tree(proc_tree_t *ps_tree)
+void filter_ps_tree(Tree *ps_tree)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || ps_tree->root == ps_tree->nil)
         return;
 
     ps_list = NULL;
     tree_to_list(ps_tree, ps_tree->root);
-    proc_t *ps = get_head(ps_list);
+    ps_node *ps = get_head(ps_list);
 
-    proc_rm_t *ps_rm = NULL;
+    ps_unlink *ps_rm = NULL;
 
     for (; ps; ps=ps->next) {
         if (!is_valid_process(ps)) {
@@ -519,18 +519,18 @@ void filter_ps_tree(proc_tree_t *ps_tree)
         rm_ps_links(ps_rm);
 }
 
-void rm_ps_links(proc_rm_t *ps_links)
+void rm_ps_links(ps_unlink *ps_links)
 {
     ps_links = ps_links->head;
 
-    for (proc_rm_t *rm=ps_links; rm; rm=ps_links) {
+    for (ps_unlink *rm=ps_links; rm; rm=ps_links) {
         ps_links = ps_links->next;
         free_ps(rm->ps);
         free(rm);
     }
 }
 
-bool is_valid_process(proc_t *process)
+bool is_valid_process(ps_node *process)
 {
     if (process->pidstr != NULL &&
         process->ioprio != NULL && 
@@ -544,9 +544,9 @@ bool is_valid_process(proc_t *process)
     return false;
 }
 
-proc_t *create_proc(char *pid, sysaux_t *system)
+ps_node *create_proc(char *pid, sysaux *system)
 {
-    proc_t *ps = init_proc();
+    ps_node *ps = init_proc();
     ps->pid = atoi(pid);
     ps->pidstr = strdup(pid);
     ps->color = RED;
@@ -555,9 +555,9 @@ proc_t *create_proc(char *pid, sysaux_t *system)
     return ps;
 }
 
-proc_t *init_proc(void)
+ps_node *init_proc(void)
 {
-    proc_t *ps = malloc(sizeof *ps);
+    ps_node *ps = malloc(sizeof *ps);
     ps->pid = 0;
     ps->uid = 0;
     ps->nice = 0;
@@ -581,14 +581,14 @@ proc_t *init_proc(void)
     return ps;
 }
 
-void free_ps_tree(proc_tree_t *ps_tree)
+void free_ps_tree(Tree *ps_tree)
 {
     free_ps_tree_nodes(ps_tree, ps_tree->root);
     free(ps_tree->nil);
     free(ps_tree);
 }
 
-void free_ps_tree_nodes(proc_tree_t *ps_tree, proc_t *ps)
+void free_ps_tree_nodes(Tree *ps_tree, ps_node *ps)
 {
     if (ps_tree == NULL || ps == NULL || ps == ps_tree->nil)
         return;
@@ -597,7 +597,7 @@ void free_ps_tree_nodes(proc_tree_t *ps_tree, proc_t *ps)
     free_ps_tree_nodes(ps_tree, ps->right);
 }
 
-void free_ps(proc_t *ps)
+void free_ps(ps_node *ps)
 {
     free(ps->name);
     free(ps->user);
@@ -611,7 +611,7 @@ void free_ps(proc_t *ps)
     free(ps);
 }
     
-void free_ps_fields(proc_t *ps)
+void free_ps_fields(ps_node *ps)
 {
     if (ps->state != NULL) 
         free(ps->state);
@@ -633,9 +633,9 @@ void free_ps_fields(proc_t *ps)
         free(ps->pte);
 }
 
-void free_process_list(proc_t *process_list)
+void free_process_list(ps_node *process_list)
 {
-    for (proc_t *tmp=process_list; process_list != NULL; tmp=process_list) {
+    for (ps_node *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
         if (tmp->pidstr)
             free(tmp->pidstr);
@@ -663,7 +663,7 @@ void free_process_list(proc_t *process_list)
     }
 }
 
-void inorder(proc_tree_t *tree, proc_t *ps)
+void inorder(Tree *tree, ps_node *ps)
 {
     if (ps == tree->nil)
         return;

@@ -80,7 +80,7 @@ void dashboard_mainloop(char attr_sort)
     bool running = true;
     int ps_ln_number = 0, prev_ps_ln_number = 0;
 
-    board_t *dashboard = init_board();
+    Board *dashboard = init_board();
     int prev_ps_number = dashboard->process_tree->ps_number;
     update_system_window(system_window, dashboard->system);
 
@@ -250,7 +250,7 @@ void dashboard_mainloop(char attr_sort)
     free_board(dashboard);
 }
 
-int calculate_ln_diff(board_t *board, int ln, int prev_ln)
+int calculate_ln_diff(Board *board, int ln, int prev_ln)
 {
     int diff = prev_ln - board->process_tree->ps_number;
     if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
@@ -260,9 +260,9 @@ int calculate_ln_diff(board_t *board, int ln, int prev_ln)
     return ln;
 }
 
-board_t *init_board(void)
+Board *init_board(void)
 {
-    board_t *board = malloc(sizeof *board);
+    Board *board = malloc(sizeof *board);
     board->system = malloc(sizeof *(board->system));
     if (board == NULL)
         return NULL;
@@ -287,7 +287,7 @@ board_t *init_board(void)
     return board;
 }
 
-void free_board(board_t *board)
+void free_board(Board *board)
 {
     free(board->system->current_pids);
     free(board->system);
@@ -296,7 +296,7 @@ void free_board(board_t *board)
     free(board);
 }
 
-void update_process_stats(proc_tree_t *ps_tree, proc_t *ps, sysaux_t *sys)
+void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || 
         ps_tree->root == ps_tree->nil || ps == NULL || ps == ps_tree->nil)

@@ -13,10 +13,10 @@ typedef struct {
     int prev_x;
     int prev_y;
     char *fieldbar;
-    sysaux_t *system;
-    proc_t *process_list;
-    proc_tree_t *process_tree;
-} board_t;    
+    sysaux *system;
+    ps_node *process_list;
+    Tree *process_tree;
+} Board;    
 
 void print_usage(void);
 
@@ -24,12 +24,12 @@ char set_sort_option(char *opt);
 
 void dashboard_mainloop(char attr_sort);
 
-void update_process_stats(proc_tree_t *ps_tree, proc_t *ps, sysaux_t *sys);
+void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys);
  
-int calculate_ln_diff(board_t *board, int ln, int prev_ln);
+int calculate_ln_diff(Board *board, int ln, int prev_ln);
 
-board_t *init_board(void);
+Board *init_board(void);
 
-void free_board(board_t *board);
+void free_board(Board *board);
 
 #endif

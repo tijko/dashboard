@@ -15,14 +15,14 @@
 #define MAXPROCPATH 2048
 #define MAXFIELD 32
 
-typedef int color_t;
+typedef int Color;
 
-enum color_t {
+enum Color {
     BLACK = 0,
     RED   = 1
 };
 
-typedef struct process_attr {
+typedef struct process_node {
     int pid;
     int uid;
     int cpuset;
@@ -41,49 +41,49 @@ typedef struct process_attr {
     char *io_write;
     char *invol_sw;
     float mempcent;
-    struct process_attr *prev;
-    struct process_attr *next;
-    struct process_attr *left;
-    struct process_attr *right;
-    struct process_attr *parent;
-    color_t color;
-} proc_t;
+    struct process_node *prev;
+    struct process_node *next;
+    struct process_node *left;
+    struct process_node *right;
+    struct process_node *parent;
+    Color color;
+} ps_node;
 
 typedef struct process_tree {
-    proc_t *root;
-    proc_t *nil;
+    ps_node *root;
+    ps_node *nil;
     int ps_number;
-} proc_tree_t;
+} Tree;
 
 typedef struct ps_removal {
     struct ps_removal *head;
-    proc_t *ps;
+    ps_node *ps;
     struct ps_removal *next;
-} proc_rm_t;
+} ps_unlink;
 
-proc_t *ps_list;
+ps_node *ps_list;
 
-proc_tree_t *init_process_tree(void);
+Tree *init_process_tree(void);
 
-proc_tree_t *build_process_tree(sysaux_t *system);
+Tree *build_process_tree(sysaux *system);
 
-void update_ps_tree(proc_tree_t *ps_tree, sysaux_t *system);
+void update_ps_tree(Tree *ps_tree, sysaux *system);
 
-bool ps_tree_member(proc_tree_t *ps_tree, pid_t pid);
+bool ps_tree_member(Tree *ps_tree, pid_t pid);
 
-proc_t *init_proc(void);
+ps_node *init_proc(void);
 
-proc_t *create_proc(char *pid, sysaux_t *system);
+ps_node *create_proc(char *pid, sysaux *system);
 
-void filter_ps_tree(proc_tree_t *ps_tree);
+void filter_ps_tree(Tree *ps_tree);
 
-void get_process_stats(proc_t *process, sysaux_t *system);
+void get_process_stats(ps_node *process, sysaux *system);
 
-void free_process_list(proc_t *process_list);
+void free_process_list(ps_node *process_list);
 
-proc_t *get_tail(proc_t *process_list);
+ps_node *get_tail(ps_node *process_list);
 
-proc_t *get_head(proc_t *process_list);
+ps_node *get_head(ps_node *process_list);
 
 char *proc_user(char *path);
 
@@ -91,39 +91,39 @@ int get_current_pids(char **pid_list);
 
 char *get_process_name(char *process);
 
-bool is_valid_process(proc_t *process);
+bool is_valid_process(ps_node *process);
 
-void rm_ps_links(proc_rm_t *ps_links);
+void rm_ps_links(ps_unlink *ps_links);
 
-void free_ps_fields(proc_t *ps);
+void free_ps_fields(ps_node *ps);
 
-void insert_process(proc_tree_t *tree, proc_t *process, proc_t *new_process);
+void insert_process(Tree *tree, ps_node *process, ps_node *new_process);
 
-void delete_process(proc_tree_t *tree, proc_t *process, pid_t pid);
+void delete_process(Tree *tree, ps_node *process, pid_t pid);
 
-void insert_fixup(proc_tree_t *tree, proc_t *process);
+void insert_fixup(Tree *tree, ps_node *process);
 
-void delete_fixup(proc_tree_t *tree, proc_t *process);
+void delete_fixup(Tree *tree, ps_node *process);
 
-void left_rotate(proc_tree_t *tree, proc_t *process);
+void left_rotate(Tree *tree, ps_node *process);
 
-void right_rotate(proc_tree_t *tree, proc_t *process);
+void right_rotate(Tree *tree, ps_node *process);
 
-proc_t *min_tree(proc_tree_t *tree, proc_t *process);
+ps_node *min_tree(Tree *tree, ps_node *process);
 
-void transplant_process(proc_tree_t *tree, proc_t *process_out, 
-                                           proc_t *process_in);
+void transplant_process(Tree *tree, ps_node *process_out, 
+                                           ps_node *process_in);
 
-void free_ps_tree(proc_tree_t *ps_tree);
+void free_ps_tree(Tree *ps_tree);
 
-void free_ps_tree_nodes(proc_tree_t *ps_tree, proc_t *ps);
+void free_ps_tree_nodes(Tree *ps_tree, ps_node *ps);
 
-void free_ps(proc_t *ps);
+void free_ps(ps_node *ps);
 
-void tree_to_list(proc_tree_t *tree, proc_t *ps);
+void tree_to_list(Tree *tree, ps_node *ps);
 
-proc_t *get_proc(proc_tree_t *tree, proc_t *proc, pid_t pid);
+ps_node *get_proc(Tree *tree, ps_node *proc, pid_t pid);
 
-void inorder(proc_tree_t *tree, proc_t *ps);
+void inorder(Tree *tree, ps_node *ps);
 
 #endif

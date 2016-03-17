@@ -34,7 +34,7 @@ void init_windows(WINDOW **display_windows)
     wattron(display_windows[1], COLOR_PAIR(1));
 }
 
-int update_system_window(WINDOW *system_window, sysaux_t *sys)
+int update_system_window(WINDOW *system_window, sysaux *sys)
 {
     int max_x = getmaxx(system_window);
 
@@ -51,7 +51,7 @@ int update_system_window(WINDOW *system_window, sysaux_t *sys)
     return 0;
 }
 
-int update_process_window(WINDOW *ps_window, proc_t *ps_list,
+int update_process_window(WINDOW *ps_window, ps_node *ps_list,
                           char *fieldbar, int process_line_num, int max_y)
 {
     int cur_y = 1;

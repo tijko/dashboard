@@ -60,9 +60,9 @@ static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 10,
 
 void init_windows(WINDOW **windows);
 
-int update_system_window(WINDOW *system_window, sysaux_t *sys);
+int update_system_window(WINDOW *system_window, sysaux *sys);
 
-int update_process_window(WINDOW *ps_window, proc_t *ps_list,
+int update_process_window(WINDOW *ps_window, ps_node *ps_list,
                           char *fieldbar, int process_line_num, int max_y);
 
 char *build_fieldbar(void);

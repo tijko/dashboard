@@ -20,13 +20,13 @@
 #define KEY_V 118
 #define KEY_ESCAPE 113
 
-proc_t *sort_by_field(proc_t *procs, int field, int nproc);
+ps_node *sort_by_field(ps_node *procs, int field, int nproc);
 
-void cur_fields(proc_t *ps_array[], proc_t *cur, int proc_index,
+void cur_fields(ps_node *ps_array[], ps_node *cur, int proc_index,
                 int field, uint64_t cmp_fields[]);
 
-proc_t *reorder(proc_t *ps_array[], int nproc);
+ps_node *reorder(ps_node *ps_array[], int nproc);
 
-void init_ps_array(proc_t *ps_array[], proc_t *procs, int nproc);
+void init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc);
 
 #endif

@@ -6,15 +6,15 @@
 #include "../process/process.h"
 
 
-proc_t *sort_by_field(proc_t *procs, int field, int nproc)
+ps_node *sort_by_field(ps_node *procs, int field, int nproc)
 {
-    proc_t *ps_array[nproc + 1];
+    ps_node *ps_array[nproc + 1];
     uint64_t cmp_fields[2] = {0, 0};
 
     init_ps_array(ps_array, procs, nproc);
  
     for (int i=0; i < nproc; i++) {
-        proc_t *cur = ps_array[i + 1];
+        ps_node *cur = ps_array[i + 1];
         int j = i;
         cur_fields(ps_array, cur, j, field, cmp_fields);
         while (j >= 0 && cmp_fields[0] > cmp_fields[1]) {
@@ -30,7 +30,7 @@ proc_t *sort_by_field(proc_t *procs, int field, int nproc)
     return reorder(ps_array, nproc);
 }
 
-void cur_fields(proc_t *ps_array[], proc_t *cur, int ps_idx, 
+void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx, 
                 int field, uint64_t cmp_fields[])
 {
         switch (field) {
@@ -109,7 +109,7 @@ void cur_fields(proc_t *ps_array[], proc_t *cur, int ps_idx,
         }
 }
 
-proc_t *reorder(proc_t *ps_array[], int nproc)
+ps_node *reorder(ps_node *ps_array[], int nproc)
 {
     int i = 0;
     for (; i < nproc; i++) {
@@ -123,7 +123,7 @@ proc_t *reorder(proc_t *ps_array[], int nproc)
     return ps_array[0];
 }
 
-void init_ps_array(proc_t *ps_array[], proc_t *procs, int nproc)
+void init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
 {
     for (int i=0; i < nproc + 1; i++) {
         ps_array[i] = procs;
