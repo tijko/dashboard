@@ -123,3 +123,30 @@ char *calculate_size(char *field_total, int byte_idx)
 
     return field_str;
 }
+
+uint64_t value_from_string(char *field_value)
+{
+    char *value = strtok(field_value, " "); 
+    char *size = strtok(NULL, " ");
+
+    int mul = 0;
+    char *byte_totals[] = {"B", "KiB", "MiB", "GiB"};
+
+    if (size != NULL) {
+        for (int i=0; i < 4; i++) {
+            if (!strcmp(byte_totals[i], size)) {
+                mul = i;
+                break;
+            }
+        }
+    }
+
+    uint64_t field = (uint64_t) strtod(value, NULL);
+
+    for (; mul > 0; mul--) {
+        field *= 1024;
+    }
+
+    return field;
+}
+
