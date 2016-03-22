@@ -1,6 +1,7 @@
 #ifndef FILE_UTILS_H
 #define FILE_UTILS_H
 
+#include <stdint.h>
 #include <string.h>
 #include <dirent.h>
 
@@ -34,5 +35,7 @@ char *parse_proc(char *path, char *field);
 char *strip(char *stat);
 
 char *calculate_size(char *field_total, int byte_idx);
+
+uint64_t value_from_string(char *field_value);
 
 #endif
