@@ -96,8 +96,7 @@ void dashboard_mainloop(char attr_sort)
     while (running) {
 
         if (attr_sort)
-            dashboard->process_list = sort_by_field(dashboard->process_list, 
-                                                    attr_sort,
+            dashboard->process_list = sort_by_field(dashboard->process_list, attr_sort,
                                                     dashboard->process_tree->ps_number);
 
         getmaxyx(process_window, dashboard->max_y, dashboard->max_x);
