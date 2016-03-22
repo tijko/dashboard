@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "file_utils.h"
 #include "sort_fields.h"
 #include "../process/process.h"
 
@@ -52,9 +53,9 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
                 break;
             
             case (KEY_I):
-                cmp_fields[0] = cur->io_write == NULL ? 0 : atoll(cur->io_write);
+                cmp_fields[0] = cur->io_write == NULL ? 0 : value_from_string(cur->io_write);
                 cmp_fields[1] = ps_array[ps_idx]->io_write == NULL ? 
-                                0 : atoll(ps_array[ps_idx]->io_write);
+                                0 : value_from_string(ps_array[ps_idx]->io_write);
                 break;
 
             /*
@@ -76,9 +77,9 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
                 break;
 
             case (KEY_O):
-                cmp_fields[0] = cur->io_read == NULL ? 0 : atoll(cur->io_read);
+                cmp_fields[0] = cur->io_read == NULL ? 0 : value_from_string(cur->io_read);
                 cmp_fields[1] = ps_array[ps_idx]->io_read == NULL ? 
-                                0 : atoll(ps_array[ps_idx]->io_read);
+                                0 : value_from_string(ps_array[ps_idx]->io_read);
                 break;
 
             case (KEY_P):
@@ -87,8 +88,8 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
                 break;
 
             case (KEY_R):
-                cmp_fields[0] = atoi(cur->rss);
-                cmp_fields[1] = atoi(ps_array[ps_idx]->rss);
+                cmp_fields[0] = value_from_string(cur->rss);
+                cmp_fields[1] = value_from_string(ps_array[ps_idx]->rss);
                 break;
             
             case (KEY_S):
@@ -103,8 +104,8 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
                 break;
 
             case (KEY_V):
-                cmp_fields[0] = atoi(cur->vmem);
-                cmp_fields[1] = atoi(ps_array[ps_idx]->vmem);
+                cmp_fields[0] = value_from_string(cur->vmem);
+                cmp_fields[1] = value_from_string(ps_array[ps_idx]->vmem);
                 break;
         }
 }
