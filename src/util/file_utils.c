@@ -124,8 +124,9 @@ char *calculate_size(char *field_total, int byte_idx)
     return field_str;
 }
 
-uint64_t value_from_string(char *field_value)
+uint64_t value_from_string(char *ps_field_value)
 {
+    char *field_value = strdup(ps_field_value);    
     char *value = strtok(field_value, " "); 
     char *size = strtok(NULL, " ");
 
@@ -146,6 +147,8 @@ uint64_t value_from_string(char *field_value)
     for (; mul > 0; mul--) {
         field *= 1024;
     }
+
+    free(field_value);
 
     return field;
 }
