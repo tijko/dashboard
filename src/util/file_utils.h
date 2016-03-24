@@ -36,6 +36,6 @@ char *strip(char *stat);
 
 char *calculate_size(char *field_total, int byte_idx);
 
-uint64_t value_from_string(char *field_value);
+uint64_t value_from_string(char *ps_field_value);
 
 #endif
