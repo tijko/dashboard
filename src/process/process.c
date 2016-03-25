@@ -532,7 +532,7 @@ void rm_ps_links(ps_unlink *ps_links)
 
 bool is_valid_process(ps_node *process)
 {
-    if (process->pidstr != NULL &&
+    if (process && process->pidstr != NULL &&
         process->ioprio != NULL && 
         process->thrcnt != NULL &&
         process->state != NULL &&
