@@ -12,7 +12,7 @@ ps_node *sort_by_field(ps_node *procs, int field, int nproc)
     ps_node *ps_array[nproc + 1];
     uint64_t cmp_fields[2] = {0, 0};
 
-    init_ps_array(ps_array, procs, nproc);
+    nproc = init_ps_array(ps_array, procs, nproc);
  
     for (int i=0; i < nproc; i++) {
         ps_node *cur = ps_array[i + 1];
@@ -125,13 +125,16 @@ ps_node *reorder(ps_node *ps_array[], int nproc)
     return ps_array[0];
 }
 
-void init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
+int init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
 {
     for (int i=0; i < nproc; i++) {
         ps_array[i] = procs;
         procs = procs->next;
     }
 
-    if (procs)
+    if (is_valid_process(procs))
         ps_array[nproc] = procs;
+    else nproc--;
+
+    return nproc;
 }    
