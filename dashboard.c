@@ -233,6 +233,7 @@ void dashboard_mainloop(char attr_sort)
 
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
+        ps_list->next = NULL;
         dashboard->process_list = get_head(ps_list);
 
         delay_output(REFRESH_RATE);
