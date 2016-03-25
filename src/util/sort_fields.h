@@ -27,6 +27,6 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int proc_index,
 
 ps_node *reorder(ps_node *ps_array[], int nproc);
 
-void init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc);
+int init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc);
 
 #endif
