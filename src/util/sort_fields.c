@@ -127,8 +127,11 @@ ps_node *reorder(ps_node *ps_array[], int nproc)
 
 void init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
 {
-    for (int i=0; i < nproc + 1; i++) {
+    for (int i=0; i < nproc; i++) {
         ps_array[i] = procs;
         procs = procs->next;
     }
+
+    if (procs)
+        ps_array[nproc] = procs;
 }    
