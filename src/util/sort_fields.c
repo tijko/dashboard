@@ -127,14 +127,12 @@ ps_node *reorder(ps_node *ps_array[], int nproc)
 
 int init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
 {
-    for (int i=0; i < nproc; i++) {
+    for (int i=0; i < nproc + 1; i++) {
         ps_array[i] = procs;
         procs = procs->next;
+        if (!is_valid_process(procs))
+            return i;
     }
-
-    if (is_valid_process(procs))
-        ps_array[nproc] = procs;
-    else nproc--;
 
     return nproc;
 }    
