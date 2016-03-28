@@ -130,8 +130,10 @@ int init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
     for (int i=0; i < nproc + 1; i++) {
         ps_array[i] = procs;
         procs = procs->next;
-        if (!is_valid_process(procs))
+        if (!is_valid_process(procs)) {
+            free_process_list(procs);
             return i;
+        }
     }
 
     return nproc;
