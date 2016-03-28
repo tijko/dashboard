@@ -64,12 +64,13 @@ char *parse_stat(char *pid, int field)
     if (rbytes < 0)
         return NULL;
 
-    char *stat_str = strtok(stat_buffer, " ");
+    char *delimiter = " ";
+    char *stat_str = strtok(stat_buffer, delimiter);
     if (stat_str == NULL)
         return NULL;
 
     for (int i = 1; i < field; i++)
-        stat_str = strtok(NULL, " ");
+        stat_str = strtok(NULL, delimiter);
 
     return strdup(stat_str);
 }
