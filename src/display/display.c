@@ -34,7 +34,7 @@ void init_windows(WINDOW **display_windows)
     wattron(display_windows[1], COLOR_PAIR(1));
 }
 
-int update_system_window(WINDOW *system_window, sysaux *sys)
+void update_system_window(WINDOW *system_window, sysaux *sys)
 {
     int max_x = getmaxx(system_window);
 
@@ -47,12 +47,10 @@ int update_system_window(WINDOW *system_window, sysaux *sys)
     build_sys_info(system_window, sys->fstype);
 
     box(system_window, 0, 0);
-
-    return 0;
 }
 
-int update_process_window(WINDOW *ps_window, ps_node *ps_list,
-                          char *fieldbar, int process_line_num, int max_y)
+void update_process_window(WINDOW *ps_window, ps_node *ps_list,
+                           char *fieldbar, int process_line_num, int max_y)
 {
     int cur_y = 1;
 
@@ -139,8 +137,6 @@ int update_process_window(WINDOW *ps_window, ps_node *ps_list,
 
     box(ps_window, 0, 0);
     wrefresh(ps_window);
-
-    return 0;
 }
 
 void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
