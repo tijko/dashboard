@@ -77,7 +77,7 @@ void dashboard_mainloop(char attr_sort)
     WINDOW *system_window = display_windows[0];
     WINDOW *process_window = display_windows[1];
 
-    bool running = true;
+    static bool running = true;
     int ps_ln_number = 0, prev_ps_ln_number = 0;
 
     Board *dashboard = init_board();
