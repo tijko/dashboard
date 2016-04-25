@@ -35,8 +35,8 @@ enum {
     LREAD  = 110,
     LWRITE = 128,
     LFDS   = 144,
-    LINVOL = 159,
-    LTHRDS = 173
+    LINVOL = 157,
+    LTHRDS = 172
 };
 
 #define DELAY 1 
@@ -66,9 +66,5 @@ void update_process_window(WINDOW *ps_window, ps_node *ps_list,
                            char *fieldbar, int process_line_num, int max_y);
 
 char *build_fieldbar(void);
-
-void add_space(char *fieldbar, char const *field, int strterm, int spaces);
-
-void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x);
 
 #endif
