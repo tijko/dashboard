@@ -67,6 +67,15 @@ char set_sort_option(char *opt)
     return 0;
 }
 
+static int calculate_ln_diff(Board *board, int ln, int prev_ln)
+{
+    int diff = prev_ln - board->process_tree->ps_number;
+    if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
+        ln -= diff;
+    else if ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln < diff)
+        ln -= (diff - ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln));
+    return ln;
+}
 
 void dashboard_mainloop(char attr_sort)
 {
@@ -79,7 +88,7 @@ void dashboard_mainloop(char attr_sort)
     static bool running = true;
     int ps_ln_number = 0, prev_ps_ln_number = 0;
 
-    Board *dashboard = init_board();
+    Board *restrict dashboard = init_board();
     int prev_ps_number = dashboard->process_tree->ps_number;
     update_system_window(system_window, dashboard->system);
 
@@ -247,16 +256,6 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
-}
-
-static int calculate_ln_diff(Board *board, int ln, int prev_ln)
-{
-    int diff = prev_ln - board->process_tree->ps_number;
-    if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
-        ln -= diff;
-    else if ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln < diff)
-        ln -= (diff - ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln));
-    return ln;
 }
 
 Board *init_board(void)
