@@ -26,7 +26,7 @@ void dashboard_mainloop(char attr_sort);
 
 void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys);
  
-int calculate_ln_diff(Board *board, int ln, int prev_ln);
+static int calculate_ln_diff(Board *board, int ln, int prev_ln);
 
 Board *init_board(void);
 
