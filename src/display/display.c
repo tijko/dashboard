@@ -49,6 +49,27 @@ void update_system_window(WINDOW *system_window, sysaux *sys)
     box(system_window, 0, 0);
 }
 
+static void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
+{
+    char *decimal_str = strchr(ps_stat, '.');
+    int aligned_dec = strlen(ps_stat) - strlen(decimal_str) - 1;
+
+    mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
+}
+
+static void add_space(char *curbar, char const *field, int strterm, int spaces)
+{
+    int space;
+
+    strcat(curbar + strterm, field);
+    strterm += strlen(field);
+
+    for (space=0; space < spaces; space++)
+        curbar[strterm + space] = ' ';
+
+    curbar[strterm + space] = '\0';
+}
+
 void update_process_window(WINDOW *ps_window, ps_node *ps_list,
                            char *fieldbar, int process_line_num, int max_y)
 {
@@ -139,14 +160,6 @@ void update_process_window(WINDOW *ps_window, ps_node *ps_list,
     wrefresh(ps_window);
 }
 
-void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
-{
-    char *decimal_str = strchr(ps_stat, '.');
-    int aligned_dec = strlen(ps_stat) - strlen(decimal_str) - 1;
-
-    mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
-}
-
 char *build_fieldbar(void)
 {
     unsigned int max_x = getmaxx(stdscr);
@@ -178,15 +191,3 @@ char *build_fieldbar(void)
     return fieldbar;
 }
     
-void add_space(char *curbar, char const *field, int strterm, int spaces)
-{
-    int space;
-
-    strcat(curbar + strterm, field);
-    strterm += strlen(field);
-
-    for (space=0; space < spaces; space++)
-        curbar[strterm + space] = ' ';
-
-    curbar[strterm + space] = '\0';
-}
