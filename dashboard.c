@@ -249,7 +249,7 @@ void dashboard_mainloop(char attr_sort)
     free_board(dashboard);
 }
 
-int calculate_ln_diff(Board *board, int ln, int prev_ln)
+static int calculate_ln_diff(Board *board, int ln, int prev_ln)
 {
     int diff = prev_ln - board->process_tree->ps_number;
     if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
