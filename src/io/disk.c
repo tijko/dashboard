@@ -16,7 +16,7 @@
 #include "../util/file_utils.h"
 
 
-char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
+static char *ioprio_classes[4] = {"", "Rt", "Be", "Id"};
 
 char *filesystem_type(void)
 {
