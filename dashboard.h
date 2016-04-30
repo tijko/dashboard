@@ -1,7 +1,6 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
 
-#include <sys/types.h>
 
 #include "src/process/process.h"
 #include "src/system/sys_stats.h"
@@ -17,17 +16,5 @@ typedef struct {
     ps_node *process_list;
     Tree *process_tree;
 } Board;    
-
-void print_usage(void);
-
-char set_sort_option(char *opt);
-
-void dashboard_mainloop(char attr_sort);
-
-void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys);
- 
-Board *init_board(void);
-
-void free_board(Board *board);
 
 #endif
