@@ -20,7 +20,7 @@
 #include "src/util/sort_fields.h"
 
 
-void print_usage(void)
+static void print_usage(void)
 {
     printf("Usage:\n\
             dashboard [options]\n\
@@ -51,7 +51,7 @@ void print_usage(void)
             o, output               The total output done by the process.\n\n");
 }
 
-char set_sort_option(char *opt)
+static char set_sort_option(char *opt)
 {
     char *opts[] = {"cpu", "fds", "pte", "mem", "nice", "pid",
                     "rss", "invol", "vmem", "write", "output"};
@@ -67,9 +67,9 @@ char set_sort_option(char *opt)
     return 0;
 }
 
-static int calculate_ln_diff(Board *board, int ln, int prev_ln)
+static signed int calculate_ln_diff(Board *board, int ln, int prev_ln)
 {
-    int diff = prev_ln - board->process_tree->ps_number;
+    signed int diff = prev_ln - board->process_tree->ps_number;
     if (ln == (prev_ln - (board->max_y - PROC_LINE_SIZE)))
         ln -= diff;
     else if ((prev_ln - (board->max_y - PROC_LINE_SIZE)) - ln < diff)
@@ -77,7 +77,54 @@ static int calculate_ln_diff(Board *board, int ln, int prev_ln)
     return ln;
 }
 
-void dashboard_mainloop(char attr_sort)
+static Board *init_board(void)
+{
+    Board *board = malloc(sizeof *board);
+    board->system = malloc(sizeof *(board->system));
+    if (board == NULL)
+        return NULL;
+
+    board->system->euid = geteuid();
+    board->system->memtotal = total_memory();
+    int max_pid_count = max_pids();
+    board->system->fstype = filesystem_type();
+    if (!board->system->fstype)
+        board->system->fstype = "Unavailable";
+    board->system->max_pids = max_pid_count;
+    board->system->current_pids = malloc(sizeof(char *) * max_pid_count);
+    getmaxyx(stdscr, board->max_y, board->max_x);
+    board->prev_x = 0;
+    board->prev_y = 0;
+    board->fieldbar = build_fieldbar();
+    board->process_tree = build_process_tree(board->system); 
+    ps_list = NULL;
+    tree_to_list(board->process_tree, board->process_tree->root);
+    board->process_list = get_head(ps_list);
+
+    return board;
+}
+
+static void free_board(Board *board)
+{
+    free(board->system->current_pids);
+    free(board->system);
+    free(board->fieldbar);
+    free_ps_tree(board->process_tree);
+    free(board);
+}
+
+static void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys)
+{
+    if (ps_tree == NULL || ps_tree->root == NULL || 
+        ps_tree->root == ps_tree->nil || ps == NULL || ps == ps_tree->nil)
+        return;
+
+    update_process_stats(ps_tree, ps->left, sys);
+    get_process_stats(ps, sys);
+    update_process_stats(ps_tree, ps->right, sys);
+}
+
+static void dashboard_mainloop(char attr_sort)
 {
     WINDOW *display_windows[2];
     init_windows(display_windows);
@@ -256,53 +303,6 @@ void dashboard_mainloop(char attr_sort)
     endwin();
     free(sys_timer);
     free_board(dashboard);
-}
-
-Board *init_board(void)
-{
-    Board *board = malloc(sizeof *board);
-    board->system = malloc(sizeof *(board->system));
-    if (board == NULL)
-        return NULL;
-
-    board->system->euid = geteuid();
-    board->system->memtotal = total_memory();
-    int max_pid_count = max_pids();
-    board->system->fstype = filesystem_type();
-    if (!board->system->fstype)
-        board->system->fstype = "Unavailable";
-    board->system->max_pids = max_pid_count;
-    board->system->current_pids = malloc(sizeof(char *) * max_pid_count);
-    getmaxyx(stdscr, board->max_y, board->max_x);
-    board->prev_x = 0;
-    board->prev_y = 0;
-    board->fieldbar = build_fieldbar();
-    board->process_tree = build_process_tree(board->system); 
-    ps_list = NULL;
-    tree_to_list(board->process_tree, board->process_tree->root);
-    board->process_list = get_head(ps_list);
-
-    return board;
-}
-
-void free_board(Board *board)
-{
-    free(board->system->current_pids);
-    free(board->system);
-    free(board->fieldbar);
-    free_ps_tree(board->process_tree);
-    free(board);
-}
-
-void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys)
-{
-    if (ps_tree == NULL || ps_tree->root == NULL || 
-        ps_tree->root == ps_tree->nil || ps == NULL || ps == ps_tree->nil)
-        return;
-
-    update_process_stats(ps_tree, ps->left, sys);
-    get_process_stats(ps, sys);
-    update_process_stats(ps_tree, ps->right, sys);
 }
 
 int main(int argc, char *argv[])
