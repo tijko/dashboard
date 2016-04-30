@@ -52,7 +52,7 @@ void update_system_window(WINDOW *system_window, sysaux *sys)
 static void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
 {
     char *decimal_str = strchr(ps_stat, '.');
-    int aligned_dec = strlen(ps_stat) - strlen(decimal_str) - 1;
+    size_t aligned_dec = strlen(ps_stat) - strlen(decimal_str) - 1;
 
     mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
 }
