@@ -57,7 +57,8 @@ static void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
     mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
 }
 
-static void add_space(char *curbar, char const *field, int strterm, unsigned int spaces)
+static inline void add_space(char *curbar, char const *field, 
+                             int strterm, unsigned int spaces)
 {
     unsigned int space;
 
