@@ -62,8 +62,8 @@ void init_windows(WINDOW **windows);
 
 void update_system_window(WINDOW *system_window, sysaux *sys);
 
-void update_process_window(WINDOW *ps_window, ps_node *ps_list,
-                           char *fieldbar, int process_line_num, int max_y);
+void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
+                           char const *fieldbar, int process_line_num, int max_y);
 
 char *build_fieldbar(void);
 
