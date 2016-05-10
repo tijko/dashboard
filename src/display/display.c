@@ -71,8 +71,8 @@ static inline void add_space(char *curbar, char const *field,
     curbar[strterm + space] = '\0';
 }
 
-void update_process_window(WINDOW *ps_window, ps_node *ps_list,
-                           char *fieldbar, int process_line_num, int max_y)
+void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
+                           char const *fieldbar, int process_line_num, int max_y)
 {
     int cur_y = 1;
 
