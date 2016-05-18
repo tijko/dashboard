@@ -19,7 +19,7 @@
 #include "../system/sys_stats.h"
 
 
-Tree *init_process_tree(void)
+static Tree *init_process_tree(void)
 {
     Tree *tree = malloc(sizeof *tree);
     tree->root = NULL;
@@ -131,7 +131,7 @@ ps_node *get_proc(Tree *tree, ps_node *proc, pid_t pid)
     return NULL;
 }
 
-ps_node *get_tail(ps_node *process_list)
+static inline ps_node *get_tail(ps_node *process_list)
 {
     while (process_list->next != NULL)
         process_list = process_list->next;
