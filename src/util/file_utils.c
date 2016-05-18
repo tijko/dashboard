@@ -72,7 +72,9 @@ char *parse_stat(char *pid, int field)
     for (int i = 1; i < field; i++)
         stat_str = strtok(NULL, delimiter);
 
-    return strdup(stat_str);
+    char *ps_stat = strdup(stat_str);
+
+    return ps_stat;
 }
 
 int is_pid(const struct dirent *directory)
