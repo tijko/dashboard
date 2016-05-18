@@ -63,8 +63,6 @@ typedef struct ps_removal {
 
 ps_node *ps_list;
 
-Tree *init_process_tree(void);
-
 Tree *build_process_tree(sysaux *system);
 
 void update_ps_tree(Tree *ps_tree, sysaux *system);
@@ -80,8 +78,6 @@ void filter_ps_tree(Tree *ps_tree);
 void get_process_stats(ps_node *process, sysaux *system);
 
 void free_process_list(ps_node *process_list);
-
-ps_node *get_tail(ps_node *process_list);
 
 ps_node *get_head(ps_node *process_list);
 
