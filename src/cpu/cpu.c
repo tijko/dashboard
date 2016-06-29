@@ -31,9 +31,9 @@ int nice(int pid)
     return getpriority(PRIO_PROCESS, pid);
 }
 
-uint64_t get_process_ctxt_switches(int pid)
+uint64_t get_process_ctxt_switches(int pid, int conn)
 {
-    return task_req(pid, 's');
+    return task_req(pid, conn, 's');
 }
 
 char *get_user_ps_ctxt_switches(char *pid)
