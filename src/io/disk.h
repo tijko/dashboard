@@ -27,7 +27,7 @@ char *ioprio_class(int pid);
 
 char *ioprio_class_nice(int pid);
 
-uint64_t get_process_taskstat_io(int pid, char field);
+uint64_t get_process_taskstat_io(int pid, int conn, char field);
 
 char *get_user_ps_write(char *pid);
 

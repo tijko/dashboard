@@ -77,15 +77,18 @@ void get_process_stats(ps_node *process, sysaux *system)
     process->open_fds = current_fds(path);
 
     if (system->euid == 0) {
-        uint64_t io_read = get_process_taskstat_io(process->pid, 'o');
+        uint64_t io_read = get_process_taskstat_io(process->pid, 
+                                                   system->nl_conn, 'o');
         process->io_read = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_read, MAXFIELD - 1, "%lu", io_read);
         process->io_read = calculate_size(process->io_read, 0);
-        uint64_t io_write = get_process_taskstat_io(process->pid, 'i');
+        uint64_t io_write = get_process_taskstat_io(process->pid, 
+                                                    system->nl_conn, 'i');
         process->io_write = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_write, MAXFIELD - 1, "%lu", io_write);
         process->io_write = calculate_size(process->io_write, 0);
-        uint64_t invol_sw = get_process_ctxt_switches(process->pid);
+        uint64_t invol_sw = get_process_ctxt_switches(process->pid, 
+                                                      system->nl_conn);
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->invol_sw, MAXFIELD - 1, "%lu", invol_sw);
     } else {
