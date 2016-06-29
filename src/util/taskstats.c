@@ -186,39 +186,34 @@ uint64_t taskstats_reply(struct nl_msg *reply, char field)
     return 0;
 }
 
-uint64_t task_req(int pid, char field)
+uint64_t task_req(int pid, int conn, char field)
 {
     struct nl_msg req;
 
-    int conn = create_conn();
     struct nl_msg *nlreq_msg = malloc(sizeof *nlreq_msg);
     uint64_t tstat_reply_value = 0;
-
-    if (conn == -1) 
-        goto close_conn;
 
     int family_id = get_family_id(conn);
 
     if (family_id == -1) 
-        goto close_conn;
+        goto free_msg;
 
     build_req(nlreq_msg, family_id, TASKSTATS_CMD_GET, 
               TASKSTATS_CMD_ATTR_PID, &pid, sizeof(uint32_t));
 
     int req_len = GET_REQUEST_LENGTH(nlreq_msg);
     if (!nl_req(conn, (char *) nlreq_msg, req_len))
-        goto close_conn;
+        goto free_msg;
 
     memset(&req, 0, sizeof(req));
 
     if (!nl_recv(conn, &req) || req.nlh.nlmsg_type == NLMSG_ERROR)
-        goto close_conn;
+        goto free_msg;
 
     tstat_reply_value = taskstats_reply(&req, field);
 
-    close_conn:
+free_msg:
         free(nlreq_msg);
-        close(conn);
 
     return tstat_reply_value; 
 }
