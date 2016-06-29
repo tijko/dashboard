@@ -13,6 +13,7 @@
 #include "src/io/disk.h"
 #include "src/ipc/ipc.h"
 #include "src/memory/memory.h"
+#include "src/util/taskstats.h"
 #include "src/process/process.h"
 #include "src/display/display.h"
 #include "src/util/file_utils.h"
@@ -85,6 +86,8 @@ static Board *init_board(void)
         return NULL;
 
     board->system->euid = geteuid();
+    if (board->system->euid == 0)
+        board->system->nl_conn = create_conn();
     board->system->memtotal = total_memory();
     int max_pid_count = max_pids();
     board->system->fstype = filesystem_type();
