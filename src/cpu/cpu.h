@@ -13,7 +13,7 @@ int current_cpus(int pid);
 
 int nice(int pid);
 
-uint64_t get_process_ctxt_switches(int pid);
+uint64_t get_process_ctxt_switches(int pid, int conn);
 
 char *get_user_ps_ctxt_switches(char *pid);
 
