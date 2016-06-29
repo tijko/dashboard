@@ -37,6 +37,6 @@ bool nl_recv(int conn, struct nl_msg *req);
 
 uint64_t taskstats_reply(struct nl_msg *reply, char field);
 
-uint64_t task_req(int pid, char field);
+uint64_t task_req(int pid, int conn, char field);
 
 #endif
