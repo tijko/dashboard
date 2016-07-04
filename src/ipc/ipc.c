@@ -19,6 +19,7 @@ int current_fds(char *path)
 
     for (int i=0; i < open_fds; i++)
         free(fd_files[i]);
+
     free(fd_files);
 
     return open_fds;
