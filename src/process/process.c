@@ -150,9 +150,10 @@ ps_node *get_head(ps_node *process_list)
 
 int get_current_pids(char **pid_list)
 {
-    struct dirent **proc_dir;
 
-    int total_processes = scandir(PROC, &proc_dir, is_pid, NULL);
+    struct dirent **proc_dir;
+    int total_processes = scandir(PROC, &proc_dir, NULL, NULL);//is_pid, NULL);
+
     if (total_processes == -1)
         return -1;
 

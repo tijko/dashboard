@@ -28,9 +28,9 @@
 
 char *parse_stat(char *pid, int field);
 
-int is_pid(const struct dirent *directory);
-
 char *parse_proc(char *path, char *field);
+
+int is_pid(const struct dirent *directory);
 
 char *strip(char *stat);
 

@@ -166,8 +166,8 @@ char *build_fieldbar(void)
     unsigned int max_x = getmaxx(stdscr);
     char *fieldbar;
 
-    if ((fieldbar = calloc(sizeof(char) * ALLOC_ALIGN(max_x), 
-                                     sizeof(char))) == NULL)
+    if ((fieldbar = calloc(sizeof(char) * (ALLOC_ALIGN(max_x)) + 1, 
+                                           sizeof(char))) == NULL)
         return NULL;
 
     unsigned i, head; 
