@@ -594,11 +594,12 @@ void free_ps_tree(Tree *ps_tree)
 
 void free_ps_tree_nodes(Tree *ps_tree, ps_node *ps)
 {
+
     if (ps_tree == NULL || ps == NULL || ps == ps_tree->nil)
         return;
     free_ps_tree_nodes(ps_tree, ps->left);
-    free_ps(ps);
     free_ps_tree_nodes(ps_tree, ps->right);
+    free_ps(ps);
 }
 
 void free_ps(ps_node *ps)
