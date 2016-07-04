@@ -8,6 +8,7 @@
 
 #define PATHLEN 32
 #define MAXPATH 1024
+#define PROC_SIZE 1024
 
 #define PROC "/proc/"
 
