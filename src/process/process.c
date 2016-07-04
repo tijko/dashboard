@@ -152,7 +152,7 @@ int get_current_pids(char **pid_list)
 {
 
     struct dirent **proc_dir;
-    int total_processes = scandir(PROC, &proc_dir, NULL, NULL);//is_pid, NULL);
+    int total_processes = scandir(PROC, &proc_dir, is_pid, NULL);
 
     if (total_processes == -1)
         return -1;
