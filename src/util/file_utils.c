@@ -18,34 +18,37 @@ char *parse_proc(char *path, char *field)
     if (open_fd < 0)
         return NULL;
 
-    char *parse_proc_buffer = malloc(sizeof(char) * 1024);
+    char parse_proc_buffer[PROC_SIZE];
+    char *delimiter = "\n";
 
-    int rbytes = read(open_fd, parse_proc_buffer, 1024);
+    int rbytes = read(open_fd, parse_proc_buffer, PROC_SIZE - 1);
     close(open_fd);
 
     if (rbytes < 0) 
-        goto error;
+        return NULL;
+
+    parse_proc_buffer[PROC_SIZE - 1] = '\0';
 
     size_t field_length = strlen(field);
-    char *proc_field = strtok(parse_proc_buffer, "\n");
+
+    char *proc_field = strtok(parse_proc_buffer, delimiter);
+
+    if (!proc_field)
+        return NULL;
+
     char *field_substr = NULL;
 
     while (proc_field != NULL && field_substr == NULL) { 
         field_substr = strstr(proc_field, field); 
-        proc_field = strtok(NULL, "\n");
+        proc_field = strtok(NULL, delimiter);
     }
 
     if (field_substr == NULL)
-        goto error;
+        return NULL;
 
     char *field_str = strip(field_substr + field_length);
-    free(parse_proc_buffer);
 
     return field_str;
-
-error:
-    free(parse_proc_buffer);
-    return NULL;    
 }
 
 char *parse_stat(char *pid, int field)
@@ -89,7 +92,7 @@ int is_pid(const struct dirent *directory)
 
 char *strip(char *stat)
 {
-    char *stripped = malloc(sizeof(char) * strlen(stat));
+    char *stripped = malloc(sizeof(char) * strlen(stat) + 1);
 
     int hit_value = 0;    
     int idx;
