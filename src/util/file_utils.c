@@ -19,6 +19,8 @@ char *parse_proc(char *path, char *field)
         return NULL;
 
     char parse_proc_buffer[PROC_SIZE];
+    memset(parse_proc_buffer, '\0', PROC_SIZE - 1);
+
     char *delimiter = "\n";
 
     int rbytes = read(open_fd, parse_proc_buffer, PROC_SIZE - 1);
