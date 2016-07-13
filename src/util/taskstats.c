@@ -10,6 +10,66 @@
 #include "taskstats.h"
 
 
+static inline void build_req(struct nl_msg *req, uint32_t nl_type, 
+                             uint8_t gnl_cmd, uint16_t nla_type, 
+                             void *nla_data, uint16_t nla_len)
+{
+    struct nl_msg nlreq;
+    struct nlattr *nla;
+
+    int pid = getpid();
+    nlreq.nlh.nlmsg_type = nl_type;
+    nlreq.nlh.nlmsg_flags = NLM_F_REQUEST;
+    nlreq.nlh.nlmsg_seq = 0;
+    nlreq.nlh.nlmsg_pid = pid;
+    nlreq.nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
+
+    nlreq.genlh.cmd = gnl_cmd;
+    nlreq.genlh.version = 0x1;
+
+    nla = (struct nlattr *) GENLMSG_DATA(&nlreq);
+    nla->nla_type = nla_type;
+    nla->nla_len = nla_len + 1 + NLA_HDRLEN;
+    memcpy(NLA_DATA(nla), nla_data, nla->nla_len);
+    nlreq.nlh.nlmsg_len += NLA_ALIGN(nla->nla_len);
+
+    memcpy(req, &nlreq, sizeof(nlreq));
+}
+
+static bool nl_req(int conn, char *buf, int buflen)
+{
+    int bytes_sent;
+    struct sockaddr_nl nladdr;
+    
+    socklen_t nladdr_len = sizeof(struct sockaddr_nl);
+    memset(&nladdr, 0, nladdr_len);
+    nladdr.nl_family = AF_NETLINK;
+
+    while ((bytes_sent = sendto(conn, buf, buflen, 0, 
+           (struct sockaddr *) &nladdr, nladdr_len)) < buflen) {
+        if (bytes_sent > 0) {
+            buf += bytes_sent;
+            buflen -= bytes_sent;
+        } else if (bytes_sent == -1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool nl_recv(int conn, struct nl_msg *req)
+{
+    int bytes_recv;
+    size_t msg_size = sizeof(*req);
+
+    bytes_recv = recv(conn, req, msg_size, 0);
+    if (bytes_recv == -1)
+        return false;
+
+    return true;
+}
+
 int create_conn(void)
 {
     struct sockaddr_nl nladdr;
@@ -76,65 +136,6 @@ int get_family_id(int conn)
     free(nlreq_msg);
 
     return family_id;
-}
-
-void build_req(struct nl_msg *req, uint32_t nl_type, uint8_t gnl_cmd,
-               uint16_t nla_type, void *nla_data, uint16_t nla_len)
-{
-    struct nl_msg nlreq;
-    struct nlattr *nla;
-
-    int pid = getpid();
-    nlreq.nlh.nlmsg_type = nl_type;
-    nlreq.nlh.nlmsg_flags = NLM_F_REQUEST;
-    nlreq.nlh.nlmsg_seq = 0;
-    nlreq.nlh.nlmsg_pid = pid;
-    nlreq.nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
-
-    nlreq.genlh.cmd = gnl_cmd;
-    nlreq.genlh.version = 0x1;
-
-    nla = (struct nlattr *) GENLMSG_DATA(&nlreq);
-    nla->nla_type = nla_type;
-    nla->nla_len = nla_len + 1 + NLA_HDRLEN;
-    memcpy(NLA_DATA(nla), nla_data, nla->nla_len);
-    nlreq.nlh.nlmsg_len += NLA_ALIGN(nla->nla_len);
-
-    memcpy(req, &nlreq, sizeof(nlreq));
-}
-            
-bool nl_req(int conn, char *buf, int buflen)
-{
-    int bytes_sent;
-    struct sockaddr_nl nladdr;
-    
-    socklen_t nladdr_len = sizeof(struct sockaddr_nl);
-    memset(&nladdr, 0, nladdr_len);
-    nladdr.nl_family = AF_NETLINK;
-
-    while ((bytes_sent = sendto(conn, buf, buflen, 0, 
-           (struct sockaddr *) &nladdr, nladdr_len)) < buflen) {
-        if (bytes_sent > 0) {
-            buf += bytes_sent;
-            buflen -= bytes_sent;
-        } else if (bytes_sent == -1) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool nl_recv(int conn, struct nl_msg *req)
-{
-    int bytes_recv;
-    size_t msg_size = sizeof(*req);
-
-    bytes_recv = recv(conn, req, msg_size, 0);
-    if (bytes_recv == -1)
-        return false;
-
-    return true;
 }
 
 uint64_t taskstats_reply(struct nl_msg *reply, char field)
