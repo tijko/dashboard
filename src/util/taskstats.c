@@ -17,11 +17,8 @@ static inline void build_req(struct nl_msg *req, uint32_t nl_type,
     struct nl_msg nlreq;
     struct nlattr *nla;
 
-    int pid = getpid();
     nlreq.nlh.nlmsg_type = nl_type;
     nlreq.nlh.nlmsg_flags = NLM_F_REQUEST;
-    nlreq.nlh.nlmsg_seq = 0;
-    nlreq.nlh.nlmsg_pid = pid;
     nlreq.nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
 
     nlreq.genlh.cmd = gnl_cmd;
@@ -47,12 +44,12 @@ static bool nl_req(int conn, char *buf, int buflen)
 
     while ((bytes_sent = sendto(conn, buf, buflen, 0, 
            (struct sockaddr *) &nladdr, nladdr_len)) < buflen) {
-        if (bytes_sent > 0) {
-            buf += bytes_sent;
-            buflen -= bytes_sent;
-        } else if (bytes_sent == -1) {
+
+        if (bytes_sent == -1)
             return false;
-        }
+
+        buf += bytes_sent;
+        buflen -= bytes_sent;
     }
 
     return true;
