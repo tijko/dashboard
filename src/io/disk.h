@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "../util/taskstats.h"
+
 
 #ifdef __i386__
 #define IOPRIO_GET 290
@@ -27,7 +29,7 @@ char *ioprio_class(int pid);
 
 char *ioprio_class_nice(int pid);
 
-uint64_t get_process_taskstat_io(int pid, int conn, char field);
+uint64_t get_process_taskstat_io(int pid, struct nl_session *nls, char field);
 
 char *get_user_ps_write(char *pid);
 

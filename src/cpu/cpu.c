@@ -5,7 +5,6 @@
 #include <sys/resource.h>
 
 #include "cpu.h"
-#include "../util/taskstats.h"
 #include "../util/file_utils.h"
 
 
@@ -29,9 +28,9 @@ int nice(int pid)
     return getpriority(PRIO_PROCESS, pid);
 }
 
-uint64_t get_process_ctxt_switches(int pid, int conn)
+uint64_t get_process_ctxt_switches(int pid, struct nl_session *nls)
 {
-    return task_req(pid, conn, 's');
+    return task_req(pid, nls, 's');
 }
 
 char *get_user_ps_ctxt_switches(char *pid)

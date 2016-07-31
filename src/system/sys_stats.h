@@ -30,7 +30,6 @@ typedef struct {
     char *fstype;
     uid_t euid;
     int max_pids;
-    int nl_conn;
     long memtotal;
     char **current_pids;
 } sysaux;

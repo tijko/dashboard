@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include "../util/taskstats.h"
 #include "../system/sys_stats.h"
 
 
@@ -63,19 +64,19 @@ typedef struct ps_removal {
 
 ps_node *ps_list;
 
-Tree *build_process_tree(sysaux *system);
+Tree *build_process_tree(sysaux *system, struct nl_session *nls);
 
-void update_ps_tree(Tree *ps_tree, sysaux *system);
+void update_ps_tree(Tree *ps_tree, sysaux *system, struct nl_session *nls);
 
 bool ps_tree_member(Tree *ps_tree, pid_t pid);
 
 ps_node *init_proc(void);
 
-ps_node *create_proc(char *pid, sysaux *system);
+ps_node *create_proc(char *pid, sysaux *system, struct nl_session *nls);
 
 void filter_ps_tree(Tree *ps_tree);
 
-void get_process_stats(ps_node *process, sysaux *system);
+void get_process_stats(ps_node *process, sysaux *sys, struct nl_session *nls);
 
 void free_process_list(ps_node *process_list);
 

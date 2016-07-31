@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "../util/taskstats.h"
 
 #define STATE 3
 #define THREADS 20
@@ -13,7 +14,7 @@ int current_cpus(int pid);
 
 int nice(int pid);
 
-uint64_t get_process_ctxt_switches(int pid, int conn);
+uint64_t get_process_ctxt_switches(int pid, struct nl_session *nls);
 
 char *get_user_ps_ctxt_switches(char *pid);
 

@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <linux/genetlink.h>
 
@@ -22,14 +23,19 @@ struct nl_msg {
     char buf[MAX_MSG_SZ];
 };
 
+struct nl_session {
+    int nl_conn;
+    int nl_family_id;
+};
+
 #define GET_REQUEST_LENGTH(msg) (((struct nl_msg *) msg)->nlh.nlmsg_len)
 
-int create_conn(void);
+struct nl_session *create_nl_session(void);
 
 int get_family_id(int conn);
 
 uint64_t taskstats_reply(struct nl_msg *reply, char field);
 
-uint64_t task_req(int pid, int conn, char field);
+uint64_t task_req(int pid, struct nl_session *nls, char field);
 
 #endif

@@ -2,9 +2,9 @@
 #define DASHBOARD_H
 
 
+#include "src/util/taskstats.h"
 #include "src/process/process.h"
 #include "src/system/sys_stats.h"
-
 
 typedef struct {
     int max_x;
@@ -13,6 +13,7 @@ typedef struct {
     int prev_y;
     char *fieldbar;
     sysaux *system;
+    struct nl_session *nls;
     ps_node *process_list;
     Tree *process_tree;
 } Board;    

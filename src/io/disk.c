@@ -10,7 +10,6 @@
 
 #include "disk.h"
 #include "../cpu/cpu.h"
-#include "../util/taskstats.h"
 #include "../util/file_utils.h"
 
 
@@ -72,9 +71,9 @@ char *ioprio_class_nice(int pid)
     return class;
 }
 
-uint64_t get_process_taskstat_io(int pid, int conn, char field)
+uint64_t get_process_taskstat_io(int pid, struct nl_session *nls, char field)
 {
-    return task_req(pid, conn, field);
+    return task_req(pid, nls, field);
 } 
 
 char *get_user_ps_write(char *pid)

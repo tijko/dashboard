@@ -87,7 +87,7 @@ static Board *init_board(void)
 
     board->system->euid = geteuid();
     if (board->system->euid == 0)
-        board->system->nl_conn = create_conn();
+        board->nls = create_nl_session();
     board->system->memtotal = total_memory();
     int max_pid_count = max_pids();
     board->system->fstype = filesystem_type();
@@ -99,7 +99,7 @@ static Board *init_board(void)
     board->prev_x = 0;
     board->prev_y = 0;
     board->fieldbar = build_fieldbar();
-    board->process_tree = build_process_tree(board->system); 
+    board->process_tree = build_process_tree(board->system, board->nls); 
     ps_list = NULL;
     tree_to_list(board->process_tree, board->process_tree->root);
     board->process_list = get_head(ps_list);
@@ -112,19 +112,21 @@ static void free_board(Board *board)
     free(board->system->current_pids);
     free(board->system);
     free(board->fieldbar);
+    free(board->nls);
     free_ps_tree(board->process_tree);
     free(board);
 }
 
-static void update_process_stats(Tree *ps_tree, ps_node *ps, sysaux *sys)
+static void update_process_stats(Tree *ps_tree, ps_node *ps, 
+                                 sysaux *sys, struct nl_session *nls)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || 
         ps_tree->root == ps_tree->nil || ps == NULL || ps == ps_tree->nil)
         return;
 
-    update_process_stats(ps_tree, ps->left, sys);
-    get_process_stats(ps, sys);
-    update_process_stats(ps_tree, ps->right, sys);
+    update_process_stats(ps_tree, ps->left, sys, nls);
+    get_process_stats(ps, sys, nls);
+    update_process_stats(ps_tree, ps->right, sys, nls);
 }
 
 static void dashboard_mainloop(char attr_sort)
@@ -279,9 +281,11 @@ static void dashboard_mainloop(char attr_sort)
         }
         
         update_process_stats(dashboard->process_tree, 
-                             dashboard->process_tree->root, dashboard->system);
+                             dashboard->process_tree->root, 
+                             dashboard->system, dashboard->nls);
 
-        update_ps_tree(dashboard->process_tree, dashboard->system);
+        update_ps_tree(dashboard->process_tree, dashboard->system, 
+                                                dashboard->nls);
 
         if (prev_ps_number > dashboard->process_tree->ps_number) 
             ps_ln_number = calculate_ln_diff(dashboard, ps_ln_number, 

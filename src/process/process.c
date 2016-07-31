@@ -16,7 +16,6 @@
 #include "../io/disk.h"
 #include "../memory/memory.h"
 #include "../util/file_utils.h"
-#include "../system/sys_stats.h"
 
 
 static Tree *init_process_tree(void)
@@ -30,13 +29,13 @@ static Tree *init_process_tree(void)
     return tree;
 }
 
-Tree *build_process_tree(sysaux *system)
+Tree *build_process_tree(sysaux *system, struct nl_session *nls)
 {
     Tree *tree = init_process_tree();
     tree->ps_number = get_current_pids(system->current_pids);
     
     for (int i=0; i < tree->ps_number; i++) { 
-        ps_node *ps = create_proc(system->current_pids[i], system);
+        ps_node *ps = create_proc(system->current_pids[i], system, nls);
         ps->left = tree->nil;
         ps->right = tree->nil;
         insert_process(tree, tree->root, ps);
@@ -46,7 +45,8 @@ Tree *build_process_tree(sysaux *system)
     return tree; 
 }
 
-void get_process_stats(ps_node *process, sysaux *system)
+void get_process_stats(ps_node *process, sysaux *system,
+                       struct nl_session *nls)
 {
     char path[STAT_PATHMAX];
     memset(path, 0, STAT_PATHMAX);
@@ -77,18 +77,15 @@ void get_process_stats(ps_node *process, sysaux *system)
     process->open_fds = current_fds(path);
 
     if (system->euid == 0) {
-        uint64_t io_read = get_process_taskstat_io(process->pid, 
-                                                   system->nl_conn, 'o');
+        uint64_t io_read = get_process_taskstat_io(process->pid, nls, 'o');
         process->io_read = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_read, MAXFIELD - 1, "%lu", io_read);
         process->io_read = calculate_size(process->io_read, 0);
-        uint64_t io_write = get_process_taskstat_io(process->pid, 
-                                                    system->nl_conn, 'i');
+        uint64_t io_write = get_process_taskstat_io(process->pid, nls, 'i');
         process->io_write = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_write, MAXFIELD - 1, "%lu", io_write);
         process->io_write = calculate_size(process->io_write, 0);
-        uint64_t invol_sw = get_process_ctxt_switches(process->pid, 
-                                                      system->nl_conn);
+        uint64_t invol_sw = get_process_ctxt_switches(process->pid, nls);
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->invol_sw, MAXFIELD - 1, "%lu", invol_sw);
     } else {
@@ -98,13 +95,13 @@ void get_process_stats(ps_node *process, sysaux *system)
     }
 }
 
-void update_ps_tree(Tree *ps_tree, sysaux *system)
+void update_ps_tree(Tree *ps_tree, sysaux *system, struct nl_session *nls)
 {
     int ps_number = get_current_pids(system->current_pids);
     for (int i=0; i < ps_number; i++) {
         pid_t pid = (pid_t) atoi(system->current_pids[i]);
         if (!ps_tree_member(ps_tree, pid)) {
-            ps_node *ps = create_proc(system->current_pids[i], system);
+            ps_node *ps = create_proc(system->current_pids[i], system, nls);
             ps->left = ps_tree->nil;
             ps->right = ps_tree->nil;
             insert_process(ps_tree, ps_tree->root, ps);
@@ -548,13 +545,13 @@ bool is_valid_process(ps_node *process)
     return false;
 }
 
-ps_node *create_proc(char *pid, sysaux *system)
+ps_node *create_proc(char *pid, sysaux *sys, struct nl_session *nls)
 {
     ps_node *ps = init_proc();
     ps->pid = atoi(pid);
     ps->pidstr = strdup(pid);
     ps->color = RED;
-    get_process_stats(ps, system);
+    get_process_stats(ps, sys, nls);
 
     return ps;
 }
