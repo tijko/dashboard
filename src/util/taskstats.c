@@ -14,8 +14,6 @@ static inline void build_req(struct nl_msg *req, uint32_t nl_type,
                              uint8_t gnl_cmd, uint16_t nla_type, 
                              void *nla_data, uint16_t nla_len)
 {
-    struct nlattr *nla;
-
     req->nlh.nlmsg_type = nl_type;
     req->nlh.nlmsg_flags = NLM_F_REQUEST;
     req->nlh.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
@@ -23,10 +21,11 @@ static inline void build_req(struct nl_msg *req, uint32_t nl_type,
     req->genlh.cmd = gnl_cmd;
     req->genlh.version = 0x1;
 
-    nla = (struct nlattr *) GENLMSG_DATA(req);
+    struct nlattr *nla = (struct nlattr *) GENLMSG_DATA(req);
     nla->nla_type = nla_type;
     nla->nla_len = nla_len + NLA_HDRLEN;
     memcpy(NLA_DATA(nla), nla_data, nla_len);
+
     req->nlh.nlmsg_len += NLA_ALIGN(nla->nla_len);
 }
 
@@ -54,11 +53,9 @@ static bool nl_req(int conn, char *buf, int buflen)
 
 static bool nl_recv(int conn, struct nl_msg *req)
 {
-    int bytes_recv;
     size_t msg_size = sizeof(*req);
 
-    bytes_recv = recv(conn, req, msg_size, 0);
-    if (bytes_recv == -1)
+    if (recv(conn, req, msg_size, 0) < 0)
         return false;
 
     return true;
@@ -113,7 +110,7 @@ int get_family_id(int conn)
     int family_id = -1;
     struct nlattr *nla = (struct nlattr *) GENLMSG_DATA(&fam_msg);
 
-    while (msgleft) {
+    while (msgleft > 0) {
         switch (nla->nla_type) {
             case (CTRL_ATTR_FAMILY_ID):
                 family_id = *((int *) NLA_DATA(nla));                
@@ -124,6 +121,7 @@ int get_family_id(int conn)
                 if (strcmp(TASKSTATS_GENL_NAME, name))
                     msgleft = 0;
                 break;
+
         }
 
         msgleft -= NLA_ALIGN(nla->nla_len);
