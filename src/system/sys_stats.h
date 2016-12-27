@@ -13,7 +13,7 @@
 
 #define MAXPIDS "/proc/sys/kernel/pid_max"
 
-#define MEMFREE "MemFree:"
+#define MEMFREE "MemAvailable:"
 
 #define SECS 60
 
