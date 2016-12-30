@@ -76,7 +76,7 @@ uint64_t get_process_taskstat_io(int pid, struct nl_session *nls, char field)
     return task_req(pid, nls, field);
 } 
 
-char *get_user_ps_write(char *pid)
+char *get_user_ps_write(int pid)
 {
     char path[MAXPATH];
     snprintf(path, MAXPATH, IO_STAT, pid);
@@ -91,7 +91,7 @@ char *get_user_ps_write(char *pid)
     return write_conv;
 }
 
-char *get_user_ps_read(char *pid)
+char *get_user_ps_read(int pid)
 {
     char path[MAXPATH];
     snprintf(path, MAXPATH, IO_STAT, pid);

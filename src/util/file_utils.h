@@ -13,9 +13,9 @@
 #define PROC "/proc/"
 
 #define MEMINFO "/proc/meminfo"
-#define STATUS "/proc/%s/status"
+#define STATUS "/proc/%d/status"
 
-#define IO_STAT "/proc/%s/io"
+#define IO_STAT "/proc/%d/io"
 
 #define STAT "/proc/%s/stat"
 #define STAT_BUFFER 4096
@@ -23,7 +23,7 @@
 #define COMM "/proc/%s/comm"
 #define COMM_LEN strlen(COMM)
 
-#define FD "/proc/%s/fd"
+#define FD "/proc/%d/fd"
 
 #define UID "Uid:\t"
 

@@ -83,49 +83,33 @@ void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
     while (ps_list && cur_y < max_y - 1) {
         if (process_line_num == 0) {
 
-            if (ps_list->name != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X, "%s  ", ps_list->name);
+            if (ps_list->ps->cmd != NULL)
+                mvwprintw(ps_window, cur_y, LINE_X, "%s  ", ps_list->ps->cmd);
             else
                 mvwprintw(ps_window, cur_y, LINE_X, "N/A");
-            mvwprintw(ps_window, cur_y, LINE_X + LPID, "%d   ", ps_list->pid);
-            if (ps_list->user != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LUSER, "%s   ", ps_list->user);
+            mvwprintw(ps_window, cur_y, LINE_X + LPID, "%d   ", ps_list->ps->tid);
+            if (ps_list->ps->euser != NULL)
+                mvwprintw(ps_window, cur_y, LINE_X + LUSER, "%s   ", ps_list->ps->euser);
             else
                 mvwprintw(ps_window, cur_y, LINE_X + LUSER, "N/A");
                 
             mvwprintw(ps_window, cur_y, LINE_X + LCPU, "%d ", ps_list->cpuset);
-            mvwprintw(ps_window, cur_y, LINE_X + LMEM, "%.2f%", ps_list->mempcent);
 
-            if (ps_list->nice >= 0 && ps_list->nice < 10) 
-                mvwprintw(ps_window, cur_y, LINE_X + LNNICE, "%d", ps_list->nice);
-            else if (ps_list->nice >= 10) 
-                mvwprintw(ps_window, cur_y, LINE_X + LMNICE, "%d", ps_list->nice);
+            if (ps_list->ps->nice >= 0 && ps_list->ps->nice < 10) 
+                mvwprintw(ps_window, cur_y, LINE_X + LNNICE, "%d", ps_list->ps->nice);
+            else if (ps_list->ps->nice >= 10) 
+                mvwprintw(ps_window, cur_y, LINE_X + LMNICE, "%d", ps_list->ps->nice);
             else 
-                mvwprintw(ps_window, cur_y, LINE_X + LLNICE, "%d", ps_list->nice);
+                mvwprintw(ps_window, cur_y, LINE_X + LLNICE, "%d", ps_list->ps->nice);
 
             if (ps_list->ioprio != NULL)
                 mvwprintw(ps_window, cur_y, LINE_X + LPRIO, "%s", ps_list->ioprio);
             else
                 mvwprintw(ps_window, cur_y, LINE_X + LPRIO, "N/A");
-            if (ps_list->state != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LSTATE, "%s", ps_list->state);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LSTATE, "N/A");
+            mvwprintw(ps_window, cur_y, LINE_X + LSTATE, "%c", ps_list->ps->state);
+            mvwprintw(ps_window, cur_y, LINE_X + LVMEM, "%ld", ps_list->ps->size);
 
-            if (ps_list->vmem != NULL)
-                print_aligned_stat(ps_window, ps_list->vmem, cur_y, LINE_X + LVMEM);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LVMEM, "N/A");
-
-            if (ps_list->pte != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LPTE, "%s", ps_list->pte);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LPTE, "N/A");
-
-            if (ps_list->rss != NULL)
-                print_aligned_stat(ps_window, ps_list->rss, cur_y, LINE_X + LRSS);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LRSS, "N/A");
+            mvwprintw(ps_window, cur_y, LINE_X + LRSS, "%ld", ps_list->ps->rss);
 
             if (ps_list->io_read != NULL)
                 print_aligned_stat(ps_window, ps_list->io_read, cur_y, LINE_X + LREAD);
@@ -143,14 +127,14 @@ void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
                 mvwprintw(ps_window, cur_y, LINE_X + LFDS, "N/A");
 
             if (ps_list->invol_sw != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LINVOL, "%s", ps_list->invol_sw);
+                mvwprintw(ps_window, cur_y++, LINE_X + LINVOL, "%s", ps_list->invol_sw);
             else
-                mvwprintw(ps_window, cur_y, LINE_X + LINVOL, "N/A");
+                mvwprintw(ps_window, cur_y++, LINE_X + LINVOL, "N/A");
             
-            if (ps_list->thrcnt != NULL)
-                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "%s", ps_list->thrcnt);
-            else
-                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "N/A");
+//            if (ps_list->ps->thrcnt != NULL)
+//                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "%s", ps_list->ps->thrcnt);
+ //           else
+//                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "N/A");
         } else 
             process_line_num--;
 

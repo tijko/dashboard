@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <proc/readproc.h>
 
 #include "../util/taskstats.h"
 #include "../system/sys_stats.h"
@@ -24,24 +25,14 @@ enum Color {
 };
 
 typedef struct process_node {
-    int pid;
-    int uid;
+    proc_t *ps;
     int cpuset;
-    int nice;
     int open_fds;
-    char *pte;
-    char *rss;
-    char *vmem;
-    char *name;
-    char *user;
-    char *state;
-    char *pidstr;
     char *ioprio;
-    char *thrcnt;
+    //char *thrcnt; ? nlwp 0
     char *io_read;
     char *io_write;
     char *invol_sw;
-    float mempcent;
     struct process_node *prev;
     struct process_node *next;
     struct process_node *left;
@@ -72,9 +63,7 @@ bool ps_tree_member(Tree *ps_tree, pid_t pid);
 
 ps_node *init_proc(void);
 
-ps_node *create_proc(char *pid, sysaux *system, struct nl_session *nls);
-
-void filter_ps_tree(Tree *ps_tree);
+ps_node *create_proc(sysaux *system, struct nl_session *nls);
 
 void get_process_stats(ps_node *process, sysaux *sys, struct nl_session *nls);
 
@@ -87,10 +76,6 @@ char *proc_user(char *path);
 int get_current_pids(char **pid_list);
 
 char *get_process_name(char *process);
-
-bool is_valid_process(ps_node *process);
-
-void rm_ps_links(ps_unlink *ps_links);
 
 void free_ps_fields(ps_node *ps);
 

@@ -32,15 +32,21 @@ static Tree *init_process_tree(void)
 Tree *build_process_tree(sysaux *system, struct nl_session *nls)
 {
     Tree *tree = init_process_tree();
-    tree->ps_number = get_current_pids(system->current_pids);
-    
-    for (int i=0; i < tree->ps_number; i++) { 
-        ps_node *ps = create_proc(system->current_pids[i], system, nls);
-        ps->left = tree->nil;
-        ps->right = tree->nil;
-        insert_process(tree, tree->root, ps);
-        free(system->current_pids[i]);
+    proc_t **ps = readproctab(PROC_FILLSTAT | PROC_FILLMEM |
+                              PROC_FILLENV  | PROC_FILLUSR |
+                              PROC_FILLOOM  | PROC_FILLARG |
+                              PROC_FILLSTATUS);
+
+    int nproc = 0;
+    for (; ps[nproc]; nproc++) {
+        ps_node *node = create_proc(system, nls);
+        node->ps = ps[nproc];
+        node->left = tree->nil;
+        node->right = tree->nil;
+        insert_process(tree, tree->root, node);
     }
+
+    tree->ps_number = nproc;
 
     return tree; 
 }
@@ -48,70 +54,31 @@ Tree *build_process_tree(sysaux *system, struct nl_session *nls)
 void get_process_stats(ps_node *process, sysaux *system,
                        struct nl_session *nls)
 {
+    process->cpuset = current_cpus(process->ps->tid);
+    process->ioprio = ioprio_class(process->ps->tid);
     char path[STAT_PATHMAX];
-    memset(path, 0, STAT_PATHMAX);
-    snprintf(path, STAT_PATHMAX - 1, STATUS, process->pidstr);
-
-    // have buffer passed in all for all attributes
-    free_ps_fields(process);
-
-    if (process->user == NULL)
-        process->user = proc_user(path);
-    if (process->name == NULL)
-        process->name = get_process_name(process->pidstr);
-    process->cpuset = current_cpus(process->pid);
-
-    process->nice = nice(process->pid);
-    process->ioprio = ioprio_class(process->pid);
-
-    process->pte = get_page_table_entries(path);
-
-    process->mempcent = memory_percentage(path, system->memtotal);
-    process->state = get_state(process->pidstr);
-    process->rss = get_resident_set_size(process->pidstr);
-    process->vmem = get_virtual_memory(process->pidstr);
-    process->thrcnt = get_thread_count(process->pidstr);
-
+    //process->thrcnt = get_thread_count(process->pidstr);
     memset(path, 0, STAT_PATHMAX - 1); 
-    snprintf(path, STAT_PATHMAX - 1, FD, process->pidstr);
+    snprintf(path, STAT_PATHMAX - 1, FD, process->ps->tid);
     process->open_fds = current_fds(path);
-
+    
     if (system->euid == 0) {
-        uint64_t io_read = get_process_taskstat_io(process->pid, nls, 'o');
+        uint64_t io_read = get_process_taskstat_io(process->ps->tid, nls, 'o');
         process->io_read = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_read, MAXFIELD - 1, "%lu", io_read);
         process->io_read = calculate_size(process->io_read, 0);
-        uint64_t io_write = get_process_taskstat_io(process->pid, nls, 'i');
+        uint64_t io_write = get_process_taskstat_io(process->ps->tid, nls, 'i');
         process->io_write = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->io_write, MAXFIELD - 1, "%lu", io_write);
         process->io_write = calculate_size(process->io_write, 0);
-        uint64_t invol_sw = get_process_ctxt_switches(process->pid, nls);
+        uint64_t invol_sw = get_process_ctxt_switches(process->ps->tid, nls);
         process->invol_sw = malloc(sizeof(char) * MAXFIELD);
         snprintf(process->invol_sw, MAXFIELD - 1, "%lu", invol_sw);
     } else {
-        process->io_write = get_user_ps_write(process->pidstr);
-        process->io_read = get_user_ps_read(process->pidstr);
-        process->invol_sw = get_user_ps_ctxt_switches(process->pidstr);
+        process->io_write = get_user_ps_write(process->ps->tid);
+        process->io_read = get_user_ps_read(process->ps->tid);
+        process->invol_sw = get_user_ps_ctxt_switches(process->ps->tid);
     }
-}
-
-void update_ps_tree(Tree *ps_tree, sysaux *system, struct nl_session *nls)
-{
-    int ps_number = get_current_pids(system->current_pids);
-    for (int i=0; i < ps_number; i++) {
-        pid_t pid = (pid_t) atoi(system->current_pids[i]);
-        if (!ps_tree_member(ps_tree, pid)) {
-            ps_node *ps = create_proc(system->current_pids[i], system, nls);
-            ps->left = ps_tree->nil;
-            ps->right = ps_tree->nil;
-            insert_process(ps_tree, ps_tree->root, ps);
-        } 
-
-        free(system->current_pids[i]);
-    }
-
-    filter_ps_tree(ps_tree);
-    ps_tree->ps_number = ps_number - 1;
 }
 
 ps_node *get_proc(Tree *tree, ps_node *proc, pid_t pid)
@@ -120,9 +87,9 @@ ps_node *get_proc(Tree *tree, ps_node *proc, pid_t pid)
         return NULL;
 
     while (proc != tree->nil) {
-        if (proc->pid == pid)
+        if (proc->ps->tid == pid)
             return proc;
-        else if (proc->pid < pid)
+        else if (proc->ps->tid < pid)
             proc = proc->right;
         else
             proc = proc->left;
@@ -145,25 +112,6 @@ ps_node *get_head(ps_node *process_list)
     return process_list;
 }
 
-int get_current_pids(char **pid_list)
-{
-
-    struct dirent **proc_dir;
-    int total_processes = scandir(PROC, &proc_dir, is_pid, NULL);
-
-    if (total_processes == -1)
-        return -1;
-
-    for (int i=0; i < total_processes; i++) {
-        pid_list[i] = strdup(proc_dir[i]->d_name);
-        free(proc_dir[i]);
-    }
-
-    free(proc_dir);
-
-    return total_processes;
-}
-
 bool ps_tree_member(Tree *ps_tree, pid_t pid)
 {
     if (ps_tree == NULL || ps_tree->root == NULL || 
@@ -172,9 +120,9 @@ bool ps_tree_member(Tree *ps_tree, pid_t pid)
 
     ps_node *ps = ps_tree->root;
     while (ps != ps_tree->nil) {
-        if (ps->pid == pid)
+        if (ps->ps->tid == pid)
             return true;
-        else if (ps->pid < pid)
+        else if (ps->ps->tid < pid)
             ps = ps->right;
         else
             ps = ps->left;
@@ -235,7 +183,7 @@ void insert_process(Tree *tree, ps_node *process, ps_node *new_process)
         tree->root->color = BLACK;
         tree->root->parent = tree->nil;
         return;
-    } else if (process->pid < new_process->pid) {
+    } else if (process->ps->tid < new_process->ps->tid) {
         if (process->right == tree->nil) {
             process->right = new_process;
             new_process->parent = process;
@@ -306,10 +254,10 @@ void delete_process(Tree *tree, ps_node *process, pid_t pid)
 
     int color;
     ps_node *replace;
-    if (process->pid < pid) {
+    if (process->ps->tid < pid) {
         delete_process(tree, process->left, pid);
         return;
-    } else if (process->pid > pid) {
+    } else if (process->ps->tid > pid) {
         delete_process(tree, process->right, pid);
         return;
     } else {
@@ -366,7 +314,6 @@ void delete_fixup(Tree *tree, ps_node *process)
                     sibling->color = RED;
                     right_rotate(tree, sibling);
                     sibling = process->parent->right;
-
                 }
 
                 sibling->color = process->parent->color;
@@ -410,7 +357,7 @@ void delete_fixup(Tree *tree, ps_node *process)
 }
 
 void transplant_process(Tree *tree, ps_node *process_out,
-                                           ps_node *process_in)
+                                    ps_node *process_in)
 {
     if (process_out == tree->root)
         tree->root = process_in;
@@ -487,69 +434,9 @@ void tree_to_list(Tree *tree, ps_node *ps)
     tree_to_list(tree, ps->right);
 }
 
-void filter_ps_tree(Tree *ps_tree)
-{
-    if (ps_tree == NULL || ps_tree->root == NULL || ps_tree->root == ps_tree->nil)
-        return;
-
-    ps_list = NULL;
-    tree_to_list(ps_tree, ps_tree->root);
-    ps_node *ps = get_head(ps_list);
-
-    ps_unlink *ps_rm = NULL;
-
-    for (; ps; ps=ps->next) {
-        if (!is_valid_process(ps)) {
-            delete_process(ps_tree, ps, ps->pid);
-            if (ps_rm == NULL) {
-                ps_rm = malloc(sizeof *ps_rm);
-                ps_rm->head = ps_rm;
-                ps_rm->ps = ps;
-                ps_rm->next = NULL;
-            } else {
-                ps_rm->next = malloc(sizeof *ps_rm);
-                ps_rm->next->ps = ps;
-                ps_rm->next->head = ps_rm->head;
-                ps_rm->next->next = NULL;
-                ps_rm = ps_rm->next;
-            }
-        }
-    }
-
-    if (ps_rm)
-        rm_ps_links(ps_rm);
-}
-
-void rm_ps_links(ps_unlink *ps_links)
-{
-    ps_links = ps_links->head;
-
-    for (ps_unlink *rm=ps_links; rm; rm=ps_links) {
-        ps_links = ps_links->next;
-        free_ps(rm->ps);
-        free(rm);
-    }
-}
-
-bool is_valid_process(ps_node *process)
-{
-    if (process && process->pidstr != NULL &&
-        process->ioprio != NULL && 
-        process->thrcnt != NULL &&
-        process->state != NULL &&
-        process->user != NULL && 
-        process->name != NULL &&
-        process->vmem != NULL && 
-        process->rss != NULL)
-        return true;
-    return false;
-}
-
-ps_node *create_proc(char *pid, sysaux *sys, struct nl_session *nls)
+ps_node *create_proc(sysaux *sys, struct nl_session *nls)
 {
     ps_node *ps = init_proc();
-    ps->pid = atoi(pid);
-    ps->pidstr = strdup(pid);
     ps->color = RED;
     get_process_stats(ps, sys, nls);
 
@@ -559,26 +446,18 @@ ps_node *create_proc(char *pid, sysaux *sys, struct nl_session *nls)
 ps_node *init_proc(void)
 {
     ps_node *ps = malloc(sizeof *ps);
-    ps->pid = 0;
-    ps->uid = 0;
-    ps->nice = 0;
     ps->cpuset = 0;
     ps->open_fds = 0;
-    ps->mempcent = 0;
-    ps->rss = NULL;
-    ps->pte = NULL;
-    ps->user = NULL;
-    ps->name = NULL;
-    ps->vmem = NULL;
+    ps->ioprio = NULL;
+    //ps->thrcnt = NULL;
+    ps->io_read = NULL;
+    ps->io_write = NULL;
+    ps->invol_sw = NULL;
     ps->prev = NULL;
     ps->next = NULL;
-    ps->state = NULL;
-    ps->pidstr = NULL;
-    ps->ioprio = NULL;
-    ps->thrcnt = NULL;
-    ps->io_read = NULL;
-    ps->invol_sw = NULL;
-    ps->io_write = NULL;
+    ps->left = NULL;
+    ps->right = NULL;
+    ps->parent = NULL;
     return ps;
 }
 
@@ -601,10 +480,6 @@ void free_ps_tree_nodes(Tree *ps_tree, ps_node *ps)
 
 void free_ps(ps_node *ps)
 {
-    free(ps->name);
-    free(ps->user);
-    free(ps->pidstr);
-    free_ps_fields(ps);
     ps->next = NULL;
     ps->prev = NULL;
     ps->parent = NULL;
@@ -615,46 +490,26 @@ void free_ps(ps_node *ps)
     
 void free_ps_fields(ps_node *ps)
 {
-    if (ps->state != NULL) 
-        free(ps->state);
     if (ps->ioprio != NULL)
         free(ps->ioprio);
-    if (ps->thrcnt != NULL)
-        free(ps->thrcnt);
-    if (ps->vmem != NULL)
-        free(ps->vmem);
-    if (ps->rss != NULL)
-        free(ps->rss);
+    //if (ps->thrcnt != NULL)
+    //    free(ps->thrcnt);
     if (ps->invol_sw != NULL)
         free(ps->invol_sw);
     if (ps->io_read != NULL)
         free(ps->io_read);
     if (ps->io_write != NULL)
         free(ps->io_write);
-    if (ps->pte != NULL)
-        free(ps->pte);
 }
 
 void free_process_list(ps_node *process_list)
 {
     for (ps_node *tmp=process_list; process_list != NULL; tmp=process_list) {
         process_list = process_list->next;
-        if (tmp->pidstr)
-            free(tmp->pidstr);
-        if (tmp->name)
-            free(tmp->name);
-        if (tmp->user)
-            free(tmp->user);
         if (tmp->ioprio)
             free(tmp->ioprio);
-        if (tmp->state)
-            free(tmp->state);
-        if (tmp->thrcnt)
-            free(tmp->thrcnt);
-        if (tmp->vmem)
-            free(tmp->vmem);
-        if (tmp->rss)
-            free(tmp->rss);
+        //if (tmp->thrcnt)
+        //    free(tmp->thrcnt);
         if (tmp->io_read)
             free(tmp->io_read);
         if (tmp->io_write)
@@ -671,6 +526,6 @@ void inorder(Tree *tree, ps_node *ps)
         return;
 
     inorder(tree, ps->left);
-    printf("%d ", ps->pid);
+    printf("%d ", ps->ps->tid);
     inorder(tree, ps->right);
 }
