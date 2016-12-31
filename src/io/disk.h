@@ -31,8 +31,8 @@ char *ioprio_class_nice(int pid);
 
 uint64_t get_process_taskstat_io(int pid, struct nl_session *nls, char field);
 
-char *get_user_ps_write(char *pid);
+char *get_user_ps_write(int pid);
 
-char *get_user_ps_read(char *pid);
+char *get_user_ps_read(int pid);
 
 #endif

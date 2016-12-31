@@ -23,31 +23,29 @@ enum {
     LPID   = 18,
     LUSER  = 26,
     LCPU   = 36,
-    LMEM   = 40,
-    LLNICE = 48,
-    LMNICE = 49,
-    LNNICE = 50,
-    LPRIO  = 54,
-    LSTATE = 63,
-    LVMEM  = 69,
-    LPTE   = 83,
-    LRSS   = 95,
-    LREAD  = 110,
-    LWRITE = 128,
-    LFDS   = 144,
-    LINVOL = 157,
-    LTHRDS = 172
+    LLNICE = 42,
+    LMNICE = 44,
+    LNNICE = 43,
+    LPRIO  = 49,
+    LSTATE = 57,
+    LVMEM  = 63,
+    LRSS   = 77,
+    LREAD  = 91,
+    LWRITE = 109,
+    LFDS   = 125,
+    LINVOL = 144,
+    LTHRDS = 157
 };
 
 #define DELAY 1 
 
-#define FIELDS 15
+#define FIELDS 14
 
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
 
-static char const *fieldattrs[] = {"  NAME", "PID", "USER", "CPU", "MEM%%", 
-                                   "NI", "IO", "ST", "VMEM", "PTE", "RES",
+static char const *fieldattrs[] = {"  NAME", "PID", "USER", "CPU", 
+                                   "NI", "IO", "ST", "VMEM", "RES",
                                    "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
                                                                            ""};
 
@@ -55,8 +53,8 @@ static const unsigned int fieldattr_size = (sizeof fieldattrs /
                                             sizeof( __typeof__(fieldattrs[0]) )) 
                                                                              -1;
 
-static const int attrspace[] = {13, 5, 5, 2, 5, 4, 5, 5, 10, 
-                                10, 12, 14, 10, 10, 8, 0, 0};
+static const int attrspace[] = {13, 5, 5, 5, 4, 5, 5, 10, 
+                                12, 14, 10, 5, 8, 0, 0};
 
 void init_windows(WINDOW **windows);
 

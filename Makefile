@@ -3,7 +3,7 @@ CC = gcc
 TARGET = dashboard
 DASH = dashboard.c
 
-FLAGS = -g -lcurses -Wall -Wextra -std=gnu99 -lrt -D_GNU_SOURCE
+FLAGS = -g -lcurses -Wall -Wextra -std=gnu99 -lrt -lprocps -D_GNU_SOURCE
 
 LIBCVER := $(shell ldd --version | grep "(GNU libc)" | cut -d '.' -f 2)
 RT := $(shell if [[ $(LIBCVER) -lt 18 ]]; then echo -lrt; fi)

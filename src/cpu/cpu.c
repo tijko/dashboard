@@ -33,7 +33,7 @@ uint64_t get_process_ctxt_switches(int pid, struct nl_session *nls)
     return task_req(pid, nls, 's');
 }
 
-char *get_user_ps_ctxt_switches(char *pid)
+char *get_user_ps_ctxt_switches(int pid)
 {
     char path[MAXPATH];
     snprintf(path, MAXPATH, STATUS, pid);

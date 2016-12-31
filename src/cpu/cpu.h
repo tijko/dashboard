@@ -16,7 +16,7 @@ int nice(int pid);
 
 uint64_t get_process_ctxt_switches(int pid, struct nl_session *nls);
 
-char *get_user_ps_ctxt_switches(char *pid);
+char *get_user_ps_ctxt_switches(int pid);
 
 char *get_state(char *pid);
 
