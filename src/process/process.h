@@ -61,9 +61,7 @@ void update_ps_tree(Tree *ps_tree, sysaux *system, struct nl_session *nls);
 
 bool ps_tree_member(Tree *ps_tree, pid_t pid);
 
-ps_node *init_proc(void);
-
-ps_node *create_proc(sysaux *system, struct nl_session *nls);
+ps_node *init_proc_node(void);
 
 void get_process_stats(ps_node *process, sysaux *sys, struct nl_session *nls);
 

@@ -39,8 +39,10 @@ Tree *build_process_tree(sysaux *system, struct nl_session *nls)
 
     int nproc = 0;
     for (; ps[nproc]; nproc++) {
-        ps_node *node = create_proc(system, nls);
+        ps_node *node = init_proc_node();
+        node->color = RED;
         node->ps = ps[nproc];
+        get_process_stats(node, system, nls);
         node->left = tree->nil;
         node->right = tree->nil;
         insert_process(tree, tree->root, node);
@@ -434,31 +436,22 @@ void tree_to_list(Tree *tree, ps_node *ps)
     tree_to_list(tree, ps->right);
 }
 
-ps_node *create_proc(sysaux *sys, struct nl_session *nls)
+ps_node *init_proc_node(void)
 {
-    ps_node *ps = init_proc();
-    ps->color = RED;
-    get_process_stats(ps, sys, nls);
-
-    return ps;
-}
-
-ps_node *init_proc(void)
-{
-    ps_node *ps = malloc(sizeof *ps);
-    ps->cpuset = 0;
-    ps->open_fds = 0;
-    ps->ioprio = NULL;
-    //ps->thrcnt = NULL;
-    ps->io_read = NULL;
-    ps->io_write = NULL;
-    ps->invol_sw = NULL;
-    ps->prev = NULL;
-    ps->next = NULL;
-    ps->left = NULL;
-    ps->right = NULL;
-    ps->parent = NULL;
-    return ps;
+    ps_node *node = malloc(sizeof *node);
+    node->cpuset = 0;
+    node->open_fds = 0;
+    node->ioprio = NULL;
+    //node->thrcnt = NULL;
+    node->io_read = NULL;
+    node->io_write = NULL;
+    node->invol_sw = NULL;
+    node->prev = NULL;
+    node->next = NULL;
+    node->left = NULL;
+    node->right = NULL;
+    node->parent = NULL;
+    return node;
 }
 
 void free_ps_tree(Tree *ps_tree)
