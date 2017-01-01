@@ -268,6 +268,7 @@ static void dashboard_mainloop(char attr_sort)
 
         prev_ps_number = dashboard->process_tree->ps_number;
 
+        free_ps_tree(dashboard->process_tree);
         dashboard->process_tree = build_process_tree(dashboard->system, dashboard->nls); 
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
