@@ -86,6 +86,7 @@ static Board *init_board(void)
         return NULL;
 
     board->system->euid = geteuid();
+    board->nls = NULL;
     if (board->system->euid == 0)
         board->nls = create_nl_session();
     board->system->memtotal = total_memory();
