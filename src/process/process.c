@@ -49,6 +49,7 @@ Tree *build_process_tree(sysaux *system, struct nl_session *nls)
     }
 
     tree->ps_number = nproc;
+    free(ps);
 
     return tree; 
 }
@@ -120,14 +121,14 @@ bool ps_tree_member(Tree *ps_tree, pid_t pid)
         ps_tree->root == ps_tree->nil)
         return false;
 
-    ps_node *ps = ps_tree->root;
-    while (ps != ps_tree->nil) {
-        if (ps->ps->tid == pid)
+    ps_node *node = ps_tree->root;
+    while (node != ps_tree->nil) {
+        if (node->ps->tid == pid)
             return true;
-        else if (ps->ps->tid < pid)
-            ps = ps->right;
+        else if (node->ps->tid < pid)
+            node = node->right;
         else
-            ps = ps->left;
+            node = node->left;
     }
 
     return false;
@@ -415,25 +416,25 @@ ps_node *min_tree(Tree *tree, ps_node *process)
     return process;
 }
 
-void tree_to_list(Tree *tree, ps_node *ps)
+void tree_to_list(Tree *tree, ps_node *node)
 {
-    if (ps == tree->nil)
+    if (node == tree->nil)
         return;
 
-    tree_to_list(tree, ps->left);
+    tree_to_list(tree, node->left);
 
     if (ps_list == NULL) {
-        ps_list = ps;
+        ps_list = node;
         ps_list->prev = NULL;
         ps_list->next = NULL;
     } else {
-        ps_list->next = ps;
-        ps->prev = ps_list;
+        ps_list->next = node;
+        node->prev = ps_list;
         ps_list = ps_list->next;
         ps_list->next = NULL;
     }
 
-    tree_to_list(tree, ps->right);
+    tree_to_list(tree, node->right);
 }
 
 ps_node *init_proc_node(void)
@@ -461,38 +462,41 @@ void free_ps_tree(Tree *ps_tree)
     free(ps_tree);
 }
 
-void free_ps_tree_nodes(Tree *ps_tree, ps_node *ps)
+void free_ps_tree_nodes(Tree *ps_tree, ps_node *node)
 {
 
-    if (ps_tree == NULL || ps == NULL || ps == ps_tree->nil)
+    if (ps_tree == NULL || node == NULL || node == ps_tree->nil)
         return;
-    free_ps_tree_nodes(ps_tree, ps->left);
-    free_ps_tree_nodes(ps_tree, ps->right);
-    free_ps(ps);
+    free_ps_tree_nodes(ps_tree, node->left);
+    free_ps_tree_nodes(ps_tree, node->right);
+    free_ps(node);
 }
 
-void free_ps(ps_node *ps)
+void free_ps(ps_node *node)
 {
-    ps->next = NULL;
-    ps->prev = NULL;
-    ps->parent = NULL;
-    ps->left = NULL;
-    ps->right = NULL;
-    free(ps);
+    node->next = NULL;
+    node->prev = NULL;
+    node->parent = NULL;
+    node->left = NULL;
+    node->right = NULL;
+    free_ps_fields(node);
+    free(node);
 }
     
-void free_ps_fields(ps_node *ps)
+void free_ps_fields(ps_node *node)
 {
-    if (ps->ioprio != NULL)
-        free(ps->ioprio);
-    //if (ps->thrcnt != NULL)
-    //    free(ps->thrcnt);
-    if (ps->invol_sw != NULL)
-        free(ps->invol_sw);
-    if (ps->io_read != NULL)
-        free(ps->io_read);
-    if (ps->io_write != NULL)
-        free(ps->io_write);
+    if (node->ps)
+        freeproc(node->ps);
+    if (node->ioprio != NULL)
+        free(node->ioprio);
+    //if (node->thrcnt != NULL)
+    //    free(node->thrcnt);
+    if (node->invol_sw != NULL)
+        free(node->invol_sw);
+    if (node->io_read != NULL)
+        free(node->io_read);
+    if (node->io_write != NULL)
+        free(node->io_write);
 }
 
 void free_process_list(ps_node *process_list)
@@ -513,12 +517,12 @@ void free_process_list(ps_node *process_list)
     }
 }
 
-void inorder(Tree *tree, ps_node *ps)
+void inorder(Tree *tree, ps_node *node)
 {
-    if (ps == tree->nil)
+    if (node == tree->nil)
         return;
 
-    inorder(tree, ps->left);
-    printf("%d ", ps->ps->tid);
-    inorder(tree, ps->right);
+    inorder(tree, node->left);
+    printf("%d ", node->ps->tid);
+    inorder(tree, node->right);
 }

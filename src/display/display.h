@@ -24,7 +24,7 @@ enum {
     LUSER  = 26,
     LCPU   = 36,
     LLNICE = 42,
-    LMNICE = 44,
+    LMNICE = 43,
     LNNICE = 43,
     LPRIO  = 49,
     LSTATE = 57,
