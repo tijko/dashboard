@@ -20,8 +20,6 @@
 #define PROC_LINE_SIZE 4 
 
 enum {
-    LPID   = 18,
-    LUSER  = 26,
     LCPU   = 36,
     LLNICE = 42,
     LMNICE = 43,
@@ -32,10 +30,24 @@ enum {
     LRSS   = 77,
     LREAD  = 91,
     LWRITE = 109,
-    LFDS   = 125,
     LINVOL = 144,
     LTHRDS = 157
 };
+
+// LUPTM or uptime display on proc specific screen
+
+enum {
+    LCMD  = 3,
+    LPID  = 19,
+    LPPID = 27,
+    LUSER = 36,
+    LTTY  = 50,
+    LUTM  = 57,
+    LSTM  = 67,
+    LFDS  = 77,
+    LNLWP = 90
+};
+
 
 #define DELAY 1 
 
@@ -44,17 +56,19 @@ enum {
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
 
-static char const *fieldattrs[] = {"  NAME", "PID", "USER", "CPU", 
-                                   "NI", "IO", "ST", "VMEM", "RES",
-                                   "READ", "WRITE", "FDS", "NIVCSW", "THRS", 
-                                                                           ""};
+/*
+ * Separate into groups based off of screen type
+ */
 
-static const unsigned int fieldattr_size = (sizeof fieldattrs / 
-                                            sizeof( __typeof__(fieldattrs[0]) )) 
-                                                                             -1;
+static char const *default_attrs[] = {"  CMD", "PID", "PPID", "USER", "TTY",
+                                      "UTIME", "STIME", "FDS","NLWP", ""};
 
-static const int attrspace[] = {13, 5, 5, 5, 4, 5, 5, 10, 
-                                12, 14, 10, 5, 8, 0, 0};
+static const unsigned int default_attrsize = (sizeof default_attrs / 
+                                              sizeof(
+                                              __typeof__(default_attrs[0]) ))
+                                                                          -1;
+
+static const int default_attrspace[] = {13, 5, 5, 10, 4, 5, 5, 10, 12};
 
 void init_windows(WINDOW **windows);
 

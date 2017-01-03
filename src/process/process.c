@@ -42,6 +42,7 @@ Tree *build_process_tree(sysaux *system, struct nl_session *nls)
         ps_node *node = init_proc_node();
         node->color = RED;
         node->ps = ps[nproc];
+        node->ps->tty &= 0xff;
         get_process_stats(node, system, nls);
         node->left = tree->nil;
         node->right = tree->nil;
