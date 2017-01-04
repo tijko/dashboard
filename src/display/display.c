@@ -48,7 +48,7 @@ void update_system_window(WINDOW *system_window, sysaux *sys)
 
     box(system_window, 0, 0);
 }
-
+/*
 static void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
 {
     char *decimal_str = strchr(ps_stat, '.');
@@ -56,7 +56,7 @@ static void print_aligned_stat(WINDOW *ps_window, char *ps_stat, int y, int x)
 
     mvwprintw(ps_window, y, x - aligned_dec, "%s", ps_stat);
 }
-
+*/
 static inline void add_space(char *curbar, char const *field, 
                              int strterm, unsigned int spaces)
 {
@@ -80,61 +80,23 @@ void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
     mvwprintw(ps_window, cur_y++, 1, fieldbar);
     wattroff(ps_window, A_REVERSE);
 
-    while (ps_list && cur_y < max_y - 1) {
+    long clk_tcks = sysconf(_SC_CLK_TCK);
+
+    while (ps_list && cur_y < max_y) {
+        proc_t *ps = ps_list->ps;
         if (process_line_num == 0) {
-
-            if (ps_list->ps->cmd != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X, "%s  ", ps_list->ps->cmd);
+            mvwprintw(ps_window, cur_y, LCMD, "%s", ps->cmd);
+            mvwprintw(ps_window, cur_y, LPID, "%d", ps->tid);
+            mvwprintw(ps_window, cur_y, LPPID, "%d", ps->ppid);
+            mvwprintw(ps_window, cur_y, LUSER, "%s", ps->ruser);
+            mvwprintw(ps_window, cur_y, LTTY, "%d", ps->tty);
+            mvwprintw(ps_window, cur_y, LUTM, "%lld", ps->utime / clk_tcks);
+            mvwprintw(ps_window, cur_y, LSTM, "%lld", ps->stime / clk_tcks);
+            if (ps_list->open_fds == -1)
+                mvwprintw(ps_window, cur_y, LFDS, "N/A");
             else
-                mvwprintw(ps_window, cur_y, LINE_X, "N/A");
-            mvwprintw(ps_window, cur_y, LINE_X + LPID, "%d   ", ps_list->ps->tid);
-            if (ps_list->ps->euser != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LUSER, "%s   ", ps_list->ps->euser);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LUSER, "N/A");
-                
-            mvwprintw(ps_window, cur_y, LINE_X + LCPU, "%d ", ps_list->cpuset);
-
-            if (ps_list->ps->nice >= 0 && ps_list->ps->nice < 10) 
-                mvwprintw(ps_window, cur_y, LINE_X + LNNICE, "%d", ps_list->ps->nice);
-            else if (ps_list->ps->nice >= 10) 
-                mvwprintw(ps_window, cur_y, LINE_X + LMNICE, "%d", ps_list->ps->nice);
-            else 
-                mvwprintw(ps_window, cur_y, LINE_X + LLNICE, "%d", ps_list->ps->nice);
-
-            if (ps_list->ioprio != NULL)
-                mvwprintw(ps_window, cur_y, LINE_X + LPRIO, "%s", ps_list->ioprio);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LPRIO, "N/A");
-            mvwprintw(ps_window, cur_y, LINE_X + LSTATE, "%c", ps_list->ps->state);
-            mvwprintw(ps_window, cur_y, LINE_X + LVMEM, "%ld", ps_list->ps->size);
-
-            mvwprintw(ps_window, cur_y, LINE_X + LRSS, "%ld", ps_list->ps->rss);
-
-            if (ps_list->io_read != NULL)
-                print_aligned_stat(ps_window, ps_list->io_read, cur_y, LINE_X + LREAD);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LREAD + 2, "N/A");
-
-            if (ps_list->io_write != NULL)
-                print_aligned_stat(ps_window, ps_list->io_write, cur_y, LINE_X + LWRITE);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LWRITE + 2, "N/A");
-
-            if (ps_list->open_fds != -1)
-                mvwprintw(ps_window, cur_y, LINE_X + LFDS, "%d", ps_list->open_fds);
-            else
-                mvwprintw(ps_window, cur_y, LINE_X + LFDS, "N/A");
-
-            if (ps_list->invol_sw != NULL)
-                mvwprintw(ps_window, cur_y++, LINE_X + LINVOL, "%s", ps_list->invol_sw);
-            else
-                mvwprintw(ps_window, cur_y++, LINE_X + LINVOL, "N/A");
-            
-//            if (ps_list->ps->thrcnt != NULL)
-//                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "%s", ps_list->ps->thrcnt);
- //           else
-//                mvwprintw(ps_window, cur_y++, LINE_X + LTHRDS, "N/A");
+                mvwprintw(ps_window, cur_y, LFDS, "%d", ps_list->open_fds);
+            mvwprintw(ps_window, cur_y++, LNLWP, "%d", ps->nlwp);
         } else 
             process_line_num--;
 
@@ -145,6 +107,7 @@ void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
     wrefresh(ps_window);
 }
 
+// rename - have a fieldbar depending on the current screen
 char *build_fieldbar(void)
 {
     unsigned int max_x = getmaxx(stdscr);
@@ -156,13 +119,14 @@ char *build_fieldbar(void)
 
     unsigned i, head; 
     // maintain a `head` of the string to avoid repeated calls to `strlen`
-    for (i=0, head=0; i < fieldattr_size; i++) {
-        add_space(fieldbar, fieldattrs[i], head, attrspace[i]);    
-        head += (strlen(fieldattrs[i]) + attrspace[i]);
+    for (i=0, head=0; i < default_attrsize; i++) {
+        add_space(fieldbar, default_attrs[i], head, default_attrspace[i]);
+        head += (strlen(default_attrs[i]) + default_attrspace[i]);
         // check one ahead if the next field attribute with space will go
         // beyond the width of the screen.  the array is padded with zeroes
         // @ the end to account for out of bounds references.
-        if ((head + strlen(fieldattrs[i+1]) + attrspace[i+1]) >= max_x)
+        if ((head + strlen(default_attrs[i+1]) + 
+                    default_attrspace[i+1]) >= max_x)
             break;
     }
 

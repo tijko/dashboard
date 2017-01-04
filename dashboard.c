@@ -96,6 +96,7 @@ static Board *init_board(void)
         board->system->fstype = "Unavailable";
     board->system->max_pids = max_pid_count;
     getmaxyx(stdscr, board->max_y, board->max_x);
+    board->screen = 'd';
     board->prev_x = 0;
     board->prev_y = 0;
     board->fieldbar = build_fieldbar();
@@ -184,72 +185,96 @@ static void dashboard_mainloop(char attr_sort)
                 break;
 
             case (KEY_C):
+                if (dashboard->screen != 'c')
+                    break;
                 if (attr_sort != KEY_C)
                     wclear(process_window);
                 attr_sort = KEY_C;
                 break;
 
             case (KEY_D):
+                if (dashboard->screen != 'd')
+                    break;
                 if (attr_sort != KEY_D)
                     wclear(process_window);
                 attr_sort = KEY_D;
                 break;
 
             case (KEY_E):
+                if (dashboard->screen != 'm')
+                    break;
                 if (attr_sort != KEY_E)
                     wclear(process_window);
                 attr_sort = KEY_E;
                 break;
 
             case (KEY_I):
+                if (dashboard->screen != 'h')
+                    break;
                 if (attr_sort != KEY_I)
                     wclear(process_window);
                 attr_sort = KEY_I;
                 break;
 
             case (KEY_M):
+                if (dashboard->screen != 'm')
+                    break;
                 if (attr_sort != KEY_M)
                     wclear(process_window);
                 attr_sort = KEY_M;
                 break;
 
             case (KEY_N):
+                if (dashboard->screen != 'c')
+                    break;
                 if (attr_sort != KEY_N)
                     wclear(process_window);
                 attr_sort = KEY_N;
                 break;
 
             case (KEY_O):
+                if (dashboard->screen != 'h')
+                    break;
                 if (attr_sort != KEY_O)
                     wclear(process_window);
                 attr_sort = KEY_O;
                 break;
 
             case (KEY_P):
+                if (dashboard->screen != 'd')
+                    break;
                 if (attr_sort != KEY_P)
                     wclear(process_window);
                 attr_sort = KEY_P;
                 break;
 
             case (KEY_R):
+                if (dashboard->screen != 'm')
+                    break;
                 if (attr_sort != KEY_R)
                     wclear(process_window);
                 attr_sort = KEY_R;
                 break;
 
             case (KEY_S):
+                if (dashboard->screen != 'c')
+                    break;
                 if (attr_sort != KEY_S)
                     wclear(process_window);
                 attr_sort = KEY_S;
                 break;
 
             case (KEY_T):
+                if (dashboard->screen != 'd')
+                    break;
                 if (attr_sort != KEY_T)
                     wclear(process_window);
                 attr_sort = KEY_T;
                 break;
 
             case (KEY_V):
+                if (dashboard->screen != 'm')
+                    break;
                 if (attr_sort != KEY_V)
                     wclear(process_window);
                 attr_sort = KEY_V;
@@ -274,6 +299,10 @@ static void dashboard_mainloop(char attr_sort)
         ps_list = NULL;
         tree_to_list(dashboard->process_tree, dashboard->process_tree->root);
         dashboard->process_list = get_head(ps_list);
+
+        if (attr_sort)
+            dashboard->process_list = sort_by_field(dashboard->process_list, 
+                              attr_sort, dashboard->process_tree->ps_number);
 
         delay_output(REFRESH_RATE);
 
@@ -324,6 +353,9 @@ int main(int argc, char *argv[])
                 break;
         }
     }
+
+    // XXX attr_sort will alter the screen dashboard is dropped into
+    attr_sort = 0; // temp
 
     dashboard_mainloop(attr_sort);
 
