@@ -29,7 +29,6 @@ typedef struct process_node {
     int cpuset;
     int open_fds;
     char *ioprio;
-    //char *thrcnt; ? nlwp 0
     char *io_read;
     char *io_write;
     char *invol_sw;

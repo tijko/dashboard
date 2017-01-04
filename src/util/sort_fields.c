@@ -14,7 +14,7 @@ ps_node *sort_by_field(ps_node *procs, int field, int nproc)
 
     nproc = init_ps_array(ps_array, procs, nproc);
  
-    for (int i=0; i < nproc; i++) {
+    for (int i=0; i < nproc - 1; i++) {
         ps_node *cur = ps_array[i + 1];
         int j = i;
         cur_fields(ps_array, cur, j, field, cmp_fields);
@@ -80,10 +80,10 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
                             0 : atoll(ps_array[ps_idx]->invol_sw);
             break;
 
-    //    case (KEY_T):
-    //        cmp_fields[0] = atoi(cur->ps->thrcnt);
-    //        cmp_fields[1] = atoi(ps_array[ps_idx]->thrcnt);
-    //        break;
+        case (KEY_T):
+            cmp_fields[0] = cur->ps->nlwp;
+            cmp_fields[1] = ps_array[ps_idx]->ps->nlwp;
+            break;
 
         case (KEY_V):
             cmp_fields[0] = cur->ps->size;
@@ -108,7 +108,7 @@ ps_node *reorder(ps_node *ps_array[], int nproc)
 
 int init_ps_array(ps_node *ps_array[], ps_node *procs, int nproc)
 {
-    for (int i=0; i < nproc + 1; i++) {
+    for (int i=0; i < nproc; i++) {
         ps_array[i] = procs;
         procs = procs->next;
     }

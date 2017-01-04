@@ -61,7 +61,6 @@ void get_process_stats(ps_node *process, sysaux *system,
     process->cpuset = current_cpus(process->ps->tid);
     process->ioprio = ioprio_class(process->ps->tid);
     char path[STAT_PATHMAX];
-    //process->thrcnt = get_thread_count(process->pidstr);
     memset(path, 0, STAT_PATHMAX - 1); 
     snprintf(path, STAT_PATHMAX - 1, FD, process->ps->tid);
     process->open_fds = current_fds(path);
@@ -444,7 +443,6 @@ ps_node *init_proc_node(void)
     node->cpuset = 0;
     node->open_fds = 0;
     node->ioprio = NULL;
-    //node->thrcnt = NULL;
     node->io_read = NULL;
     node->io_write = NULL;
     node->invol_sw = NULL;
@@ -490,8 +488,6 @@ void free_ps_fields(ps_node *node)
         freeproc(node->ps);
     if (node->ioprio != NULL)
         free(node->ioprio);
-    //if (node->thrcnt != NULL)
-    //    free(node->thrcnt);
     if (node->invol_sw != NULL)
         free(node->invol_sw);
     if (node->io_read != NULL)
@@ -506,8 +502,6 @@ void free_process_list(ps_node *process_list)
         process_list = process_list->next;
         if (tmp->ioprio)
             free(tmp->ioprio);
-        //if (tmp->thrcnt)
-        //    free(tmp->thrcnt);
         if (tmp->io_read)
             free(tmp->io_read);
         if (tmp->io_write)

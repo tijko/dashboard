@@ -11,6 +11,7 @@ typedef struct {
     int max_y;
     int prev_x;
     int prev_y;
+    char screen;
     char *fieldbar;
     sysaux *system;
     struct nl_session *nls;
