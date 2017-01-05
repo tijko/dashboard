@@ -31,6 +31,7 @@ typedef struct {
     uid_t euid;
     int max_pids;
     long memtotal;
+    long clk_tcks;
 } sysaux;
 
 void build_sys_info(WINDOW *system_window, char *fstype);

@@ -13,6 +13,9 @@ typedef struct {
     int prev_y;
     char screen;
     char *fieldbar;
+    char *(*construct_fieldbar)(void);
+    void (*display_window)(WINDOW *ps_window, ps_node const *ps_list,
+               char const *fieldbar, int process_list_num, int max_y);
     sysaux *system;
     struct nl_session *nls;
     ps_node *process_list;

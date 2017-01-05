@@ -19,28 +19,16 @@
 #define LINE_Y 9
 #define PROC_LINE_SIZE 4 
 
-enum {
-    LCPU   = 36,
-    LLNICE = 42,
-    LMNICE = 43,
-    LNNICE = 43,
-    LPRIO  = 49,
-    LSTATE = 57,
-    LVMEM  = 63,
-    LRSS   = 77,
-    LREAD  = 91,
-    LWRITE = 109,
-    LINVOL = 144,
-    LTHRDS = 157
-};
-
-// LUPTM or uptime display on proc specific screen
-
+// static
 enum {
     LCMD  = 3,
     LPID  = 19,
     LPPID = 27,
-    LUSER = 36,
+    LUSER = 36
+};
+
+// default
+enum {
     LTTY  = 50,
     LUTM  = 57,
     LSTM  = 67,
@@ -48,35 +36,49 @@ enum {
     LNLWP = 90
 };
 
+// memory
+enum {
+    LSIZE  = 50,
+    LRSS   = 58,
+    LSHR   = 66,
+    LLCK   = 76,
+    LDATA  = 90,
+    LSWAP  = 103,
+    LLIB   = 117
+};
+
+// LUPTM or uptime display on proc specific screen
 
 #define DELAY 1 
-
-#define FIELDS 14
 
 #define ALLOC_ALIGNTO 8L
 #define ALLOC_ALIGN(size) (size + ALLOC_ALIGNTO - 1) & ~(ALLOC_ALIGNTO - 1)
 
-/*
- * Separate into groups based off of screen type
- */
+#define ATTRSIZE(attrs) (sizeof attrs / (sizeof( __typeof__(attrs[0]) ))) - 1
 
-static char const *default_attrs[] = {"  CMD", "PID", "PPID", "USER", "TTY",
-                                      "UTIME", "STIME", "FDS","NLWP", ""};
+static char const *default_attrs[] = { "  CMD", "PID", "PPID", "USER", "TTY",
+                                       "UTIME", "STIME", "FDS","NLWP", "" };
 
-static const unsigned int default_attrsize = (sizeof default_attrs / 
-                                              sizeof(
-                                              __typeof__(default_attrs[0]) ))
-                                                                          -1;
+static char const *memory_attrs[] = { "  CMD", "PID", "PPID", "USER", 
+                                      "SIZE", "RSS", "SHARE", "LOCK", 
+                                      "DATA", "SWAP", "LIB", "" };
 
-static const int default_attrspace[] = {13, 5, 5, 10, 4, 5, 5, 10, 12};
+static const int default_attrspace[] = { 13, 5, 5, 10, 4, 5, 5, 10, 12 };
+
+static const int memory_attrspace[] = { 13, 5, 5, 10, 4, 5, 5, 10, 9, 10, 5 };
 
 void init_windows(WINDOW **windows);
 
 void update_system_window(WINDOW *system_window, sysaux *sys);
 
-void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
-                           char const *fieldbar, int process_line_num, int max_y);
+void update_default_window(WINDOW *ps_window, ps_node const *ps_list,
+               char const *fieldbar, int process_line_num, int max_y);
 
-char *build_fieldbar(void);
+void update_memory_window(WINDOW *ps_window, ps_node const *ps_list,
+              char const *fieldbar, int process_line_num, int max_y);
+
+char *build_default_fieldbar(void);
+
+char *build_memory_fieldbar(void);
 
 #endif

@@ -95,11 +95,14 @@ static Board *init_board(void)
     if (!board->system->fstype)
         board->system->fstype = "Unavailable";
     board->system->max_pids = max_pid_count;
+    board->system->clk_tcks = sysconf(_SC_CLK_TCK);
     getmaxyx(stdscr, board->max_y, board->max_x);
     board->screen = 'd';
     board->prev_x = 0;
     board->prev_y = 0;
-    board->fieldbar = build_fieldbar();
+    board->display_window = update_default_window;
+    board->construct_fieldbar = build_default_fieldbar;
+    board->fieldbar = board->construct_fieldbar();
     board->process_tree = build_process_tree(board->system, board->nls); 
     ps_list = NULL;
     tree_to_list(board->process_tree, board->process_tree->root);
@@ -147,7 +150,8 @@ static void dashboard_mainloop(char attr_sort)
 
         if (dashboard->max_x ^ dashboard->prev_x) {
             free(dashboard->fieldbar);
-            dashboard->fieldbar = build_fieldbar();
+            werase(process_window);
+            dashboard->fieldbar = dashboard->construct_fieldbar();
         }
 
         // `xor` the current line positions against the previous
@@ -162,9 +166,8 @@ static void dashboard_mainloop(char attr_sort)
         dashboard->prev_x = dashboard->max_x;
         prev_ps_ln_number = ps_ln_number;
 
-        update_process_window(process_window, dashboard->process_list,
-                              dashboard->fieldbar, ps_ln_number, 
-                              dashboard->max_y);
+        dashboard->display_window(process_window, dashboard->process_list,
+                      dashboard->fieldbar, ps_ln_number, dashboard->max_y);
 
         int key = wgetch(stdscr);
         wrefresh(system_window);
@@ -217,51 +220,14 @@ static void dashboard_mainloop(char attr_sort)
                 break;
 
             case (KEY_M):
-                if (dashboard->screen != 'm')
-                    break;
-                if (attr_sort != KEY_M)
-                    wclear(process_window);
-                attr_sort = KEY_M;
-                break;
+                if (dashboard->screen != 'm') {
+                    dashboard->screen = 'm';
+                    dashboard->construct_fieldbar = build_memory_fieldbar;
+                    free(dashboard->fieldbar); 
+                    dashboard->fieldbar = dashboard->construct_fieldbar();
+                    dashboard->display_window = update_memory_window;
+                }
 
-            case (KEY_N):
-                if (dashboard->screen != 'c')
-                    break;
-                if (attr_sort != KEY_N)
-                    wclear(process_window);
-                attr_sort = KEY_N;
-                break;
-
-            case (KEY_O):
-                if (dashboard->screen != 'h')
-                    break;
-                if (attr_sort != KEY_O)
-                    wclear(process_window);
-                attr_sort = KEY_O;
-                break;
-
-            case (KEY_P):
-                if (dashboard->screen != 'd')
-                    break;
-                if (attr_sort != KEY_P)
-                    wclear(process_window);
-                attr_sort = KEY_P;
-                break;
-
-            case (KEY_R):
-                if (dashboard->screen != 'm')
-                    break;
-                if (attr_sort != KEY_R)
-                    wclear(process_window);
-                attr_sort = KEY_R;
-                break;
-
-            case (KEY_S):
-                if (dashboard->screen != 'c')
-                    break;
-                if (attr_sort != KEY_S)
-                    wclear(process_window);
-                attr_sort = KEY_S;
                 break;
 
             case (KEY_T):
