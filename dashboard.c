@@ -196,11 +196,13 @@ static void dashboard_mainloop(char attr_sort)
                 break;
 
             case (KEY_D):
-                if (dashboard->screen != 'd')
-                    break;
-                if (attr_sort != KEY_D)
-                    wclear(process_window);
-                attr_sort = KEY_D;
+                if (dashboard->screen != 'd') {
+                    dashboard->screen = 'd';
+                    dashboard->construct_fieldbar = build_default_fieldbar;
+                    free(dashboard->fieldbar);
+                    dashboard->fieldbar = dashboard->construct_fieldbar();
+                    dashboard->display_window = update_default_window;
+                }
                 break;
 
             case (KEY_E):
@@ -211,8 +213,16 @@ static void dashboard_mainloop(char attr_sort)
                 attr_sort = KEY_E;
                 break;
 
+            case (KEY_H):
+                if (dashboard->screen != 'd')
+                    break;
+                if (attr_sort != KEY_H)
+                    wclear(process_window);
+                attr_sort = KEY_H;
+                break;
+
             case (KEY_I):
-                if (dashboard->screen != 'h')
+                if (dashboard->screen != 'p')
                     break;
                 if (attr_sort != KEY_I)
                     wclear(process_window);
