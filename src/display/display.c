@@ -71,9 +71,11 @@ static inline void add_space(char *curbar, char const *field,
     curbar[strterm + space] = '\0';
 }
 
-void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
+void update_default_window(WINDOW *ps_window, ps_node const *ps_list,
                            char const *fieldbar, int process_line_num, int max_y)
 {
+    werase(ps_window);
+
     int cur_y = 1;
 
     wattron(ps_window, A_REVERSE);
@@ -107,9 +109,47 @@ void update_process_window(WINDOW *ps_window, ps_node const *ps_list,
     wrefresh(ps_window);
 }
 
-// rename - have a fieldbar depending on the current screen
-char *build_fieldbar(void)
+void update_memory_window(WINDOW *ps_window, ps_node const *ps_list,
+                          char const *fieldbar, int process_line_num, int max_y)
 {
+    werase(ps_window);
+
+    int cur_y = 1;
+
+    wattron(ps_window, A_REVERSE);
+    mvwprintw(ps_window, cur_y++, 1, fieldbar);
+    wattroff(ps_window, A_REVERSE);
+
+    while (ps_list && cur_y < max_y) {
+        proc_t *ps = ps_list->ps;
+        if (process_line_num == 0) {
+            mvwprintw(ps_window, cur_y, LCMD, "%s", ps->cmd);
+            mvwprintw(ps_window, cur_y, LPID, "%d", ps->tid);
+            mvwprintw(ps_window, cur_y, LPPID, "%d", ps->ppid);
+            mvwprintw(ps_window, cur_y, LUSER, "%s", ps->ruser);
+
+            mvwprintw(ps_window, cur_y, LSIZE, "%lu", ps->size);
+            mvwprintw(ps_window, cur_y, LRSS, "%lu", ps->resident);
+            mvwprintw(ps_window, cur_y, LSHR, "%lu", ps->share);
+            mvwprintw(ps_window, cur_y, LLCK, "%lu", ps->vm_lock);
+            mvwprintw(ps_window, cur_y, LDATA, "%lu", ps->vm_data);
+            mvwprintw(ps_window, cur_y, LSWAP, "%lu", ps->vm_swap);
+            mvwprintw(ps_window, cur_y++, LLIB, "%lu", ps->vm_lib);
+
+
+        } else 
+            process_line_num--;
+
+        ps_list = ps_list->next;
+    }
+
+    box(ps_window, 0, 0);
+    wrefresh(ps_window);
+}
+
+char *build_default_fieldbar(void)
+{
+    unsigned int default_attrsize = ATTRSIZE(default_attrs);
     unsigned int max_x = getmaxx(stdscr);
     char *fieldbar;
 
@@ -134,6 +174,35 @@ char *build_fieldbar(void)
 
     if (max_x > head) {
         spaceleft = max_x - head; // check if blank bar space is needed to fill
+        add_space(fieldbar, "", head, spaceleft);
+    }
+
+    return fieldbar;
+}
+    
+char *build_memory_fieldbar(void)
+{
+    unsigned int memory_attrsize = ATTRSIZE(memory_attrs);
+    unsigned int max_x = getmaxx(stdscr);
+    char *fieldbar;
+
+    if ((fieldbar = calloc(sizeof(char) * (ALLOC_ALIGN(max_x)) + 1, 
+                                           sizeof(char))) == NULL)
+        return NULL;
+
+    unsigned i, head; 
+    for (i=0, head=0; i < memory_attrsize; i++) {
+        add_space(fieldbar, memory_attrs[i], head, memory_attrspace[i]);
+        head += (strlen(memory_attrs[i]) + memory_attrspace[i]);
+        if ((head + strlen(memory_attrs[i+1]) + 
+                    memory_attrspace[i+1]) >= max_x)
+            break;
+    }
+
+    unsigned int spaceleft;
+
+    if (max_x > head) {
+        spaceleft = max_x - head;
         add_space(fieldbar, "", head, spaceleft);
     }
 

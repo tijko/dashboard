@@ -9,6 +9,7 @@
 #define KEY_C 99
 #define KEY_D 100
 #define KEY_E 101
+#define KEY_H 104
 #define KEY_I 105
 #define KEY_M 109
 #define KEY_N 110

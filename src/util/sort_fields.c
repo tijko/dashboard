@@ -41,7 +41,7 @@ void cur_fields(ps_node *ps_array[], ps_node *cur, int ps_idx,
             cmp_fields[1] = ps_array[ps_idx]->cpuset;
             break;
 
-        case (KEY_D):
+        case (KEY_H):
             cmp_fields[0] = cur->open_fds < 0 ? 0 : cur->open_fds;
             cmp_fields[1] = ps_array[ps_idx]->open_fds < 0 ? 0 : 
                             ps_array[ps_idx]->open_fds;
