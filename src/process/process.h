@@ -72,8 +72,6 @@ char *proc_user(char *path);
 
 int get_current_pids(char **pid_list);
 
-char *get_process_name(char *process);
-
 void free_ps_fields(ps_node *ps);
 
 void insert_process(Tree *tree, ps_node *process, ps_node *new_process);
