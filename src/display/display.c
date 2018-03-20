@@ -44,7 +44,7 @@ void update_system_window(WINDOW *system_window, sysaux *sys)
     mvwprintw(system_window, 1, (max_x / 2) - 4, DASHBOARD);
     wattroff(system_window, A_BOLD);
 
-    build_sys_info(system_window, sys->fstype);
+    build_sys_info(system_window, sys->fstype, sys->fddir);
 
     box(system_window, 0, 0);
 }
