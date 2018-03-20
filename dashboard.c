@@ -81,10 +81,10 @@ static signed int calculate_ln_diff(Board *board, int ln, int prev_ln)
 static Board *init_board(void)
 {
     Board *board = malloc(sizeof *board);
-    board->system = malloc(sizeof *(board->system));
     if (board == NULL)
         return NULL;
 
+    board->system = malloc(sizeof *(board->system));
     board->system->euid = geteuid();
     board->nls = NULL;
     if (board->system->euid == 0)
@@ -96,6 +96,7 @@ static Board *init_board(void)
         board->system->fstype = "Unavailable";
     board->system->max_pids = max_pid_count;
     board->system->clk_tcks = sysconf(_SC_CLK_TCK);
+    board->system->fddir = opendir(PTS_DIR);
     getmaxyx(stdscr, board->max_y, board->max_x);
     board->screen = 'd';
     board->prev_x = 0;
@@ -132,11 +133,11 @@ static void dashboard_mainloop(char attr_sort)
     int ps_ln_number = 0, prev_ps_ln_number = 0;
 
     Board *restrict dashboard = init_board();
-    int prev_ps_number = dashboard->process_tree->ps_number;
-    update_system_window(system_window, dashboard->system);
-
     if (dashboard == NULL)
         return;
+
+    int prev_ps_number = dashboard->process_tree->ps_number;
+    update_system_window(system_window, dashboard->system);
 
     struct itimerspec *sys_timer = malloc(sizeof *sys_timer);
     if (sys_timer == NULL)

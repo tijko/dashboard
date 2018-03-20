@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -27,9 +28,9 @@ char *mem_avail(unsigned long memory, unsigned long base)
     return memsz;
 }
 
-void build_sys_info(WINDOW *system_window, char *fstype)
+void build_sys_info(WINDOW *system_window, char *fstype, DIR *pts)
 {
-    int ptys = nr_ptys();
+    int ptys = nr_ptys(pts);
     int max_x = getmaxx(system_window);
     int cur_y = 3;
     int cur_x = 2;
@@ -105,22 +106,15 @@ void current_uptime(WINDOW *system_window, unsigned long seconds, int y, int x)
                                     hour, minute, seconds); 
 }
 
-int nr_ptys(void)
+int nr_ptys(DIR *pts)
 {
-    char pty_buffer[PTY_BUFFER_SZ];
+    int ptys = 0;
 
-    int o_rd = open(NRPTYS, O_RDONLY);
-    if (o_rd == -1)
-        return -1;
+    for (struct dirent *dt; (dt = readdir(pts));)
+        if (isdigit(dt->d_name[0]))
+            ptys++;
 
-    int r_bytes = read(o_rd, pty_buffer, PTY_BUFFER_SZ - 1);
-    if (r_bytes == -1) {
-        close(o_rd);
-        return -1;
-    }
-
-    int ptys = strtol(pty_buffer, NULL, 10);
-    close(o_rd);
+    rewinddir(pts);
 
     return ptys;
 }

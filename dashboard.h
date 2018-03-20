@@ -6,6 +6,8 @@
 #include "src/process/process.h"
 #include "src/system/sys_stats.h"
 
+#define PTS_DIR "/dev/pts"
+
 typedef struct {
     int max_x;
     int max_y;

@@ -136,39 +136,6 @@ bool ps_tree_member(Tree *ps_tree, pid_t pid)
     return false;
 }
 
-char *get_process_name(char *process)
-{
-    size_t path_length = strlen(process) + COMM_LEN;
-    char *comm = malloc(sizeof(char) * path_length + 1);
-
-    snprintf(comm, path_length, COMM, process);
-
-    int comm_fd = open(comm, O_RDONLY);
-
-    if (comm_fd == -1) {
-        free(comm);
-        return NULL;
-    }
-
-    char *process_name = malloc(sizeof(char) * PROCNAME_MAX);
-    read(comm_fd, process_name, PROCNAME_MAX - 1);
-
-    char *newline = strchr(process_name, '\n');
-    if (newline == NULL) {
-        free(comm);
-        free(process_name);
-        close(comm_fd);
-        return NULL;
-    }
-
-    *newline = '\0';
-
-    free(comm);
-    close(comm_fd);
-
-    return process_name;
-} 
-
 char *proc_user(char *path)
 {
     char *uid = parse_proc(path, UID);

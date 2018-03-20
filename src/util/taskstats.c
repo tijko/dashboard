@@ -65,7 +65,7 @@ struct nl_session *create_nl_session(void)
 {
     struct sockaddr_nl nladdr;
     struct nl_session *nls = malloc(sizeof *nls);
-
+    nls->msg = calloc(1, sizeof(struct nl_msg));
     socklen_t nladdr_len = sizeof(struct sockaddr_nl);
     memset(&nladdr, 0, nladdr_len);
     nladdr.nl_family = AF_NETLINK;
@@ -187,7 +187,7 @@ uint64_t task_req(int pid, struct nl_session *nls, char field)
 {
     struct nl_msg req;
 
-    struct nl_msg *nlreq_msg = calloc(1, sizeof *nlreq_msg);
+    struct nl_msg *nlreq_msg = nls->msg;
     uint64_t tstat_reply_value = 0;
 
     build_req(nlreq_msg, nls->nl_family_id, TASKSTATS_CMD_GET, 
@@ -195,17 +195,14 @@ uint64_t task_req(int pid, struct nl_session *nls, char field)
 
     int req_len = GET_REQUEST_LENGTH(nlreq_msg);
     if (!nl_req(nls->nl_conn, (char *) nlreq_msg, req_len))
-        goto free_msg;
+        return -1;
 
     memset(&req, 0, sizeof(req));
 
     if (!nl_recv(nls->nl_conn, &req) || req.nlh.nlmsg_type == NLMSG_ERROR)
-        goto free_msg;
+        return -1;
 
     tstat_reply_value = taskstats_reply(&req, field);
-
-free_msg:
-        free(nlreq_msg);
 
     return tstat_reply_value; 
 }

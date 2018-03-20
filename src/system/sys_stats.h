@@ -23,24 +23,22 @@
 #define SYS_TIMER_EXPIRED_NSEC 0
 #define SYS_TIMER_LENGTH 1 
 
-#define PTY_BUFFER_SZ 64
-#define NRPTYS "/proc/sys/kernel/pty/nr"
-
 typedef struct {
     char *fstype;
     uid_t euid;
     int max_pids;
     long memtotal;
     long clk_tcks;
+    DIR *fddir;
 } sysaux;
 
-void build_sys_info(WINDOW *system_window, char *fstype);
+void build_sys_info(WINDOW *system_window, char *fstype, DIR *pts);
 
 char *mem_avail(unsigned long memory, unsigned long base);
 
 void current_uptime(WINDOW *system_window, unsigned long seconds, int y, int x);
 
-int nr_ptys(void);
+int nr_ptys(DIR *pts);
 
 bool is_sysfield_timer_expired(int sys_timer_fd);
 
