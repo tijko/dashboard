@@ -26,6 +26,7 @@ struct nl_msg {
 struct nl_session {
     int nl_conn;
     int nl_family_id;
+    struct nl_msg *msg;
 };
 
 #define GET_REQUEST_LENGTH(msg) (((struct nl_msg *) msg)->nlh.nlmsg_len)
