@@ -1,6 +1,8 @@
 dashboard
 =========
 
+![GitHub branch checks state](https://img.shields.io/github/checks-status/tijko/dashboard/master)
+
 Emulation of top command line tool
 
 ![ScreenShot](/screenshots/dashboard.jpg)
