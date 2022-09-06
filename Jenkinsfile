@@ -10,7 +10,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh "make install"
+                sh "sudo make install"
+                sh "make clean"
             }
         }
     }
