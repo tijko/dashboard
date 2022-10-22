@@ -1,7 +1,7 @@
 dashboard
 =========
 
-#XXX Building on Jenkins Agent
+#Building on Jenkins Agent
 
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/tijko/dashboard/master)
 
