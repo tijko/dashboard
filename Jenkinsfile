@@ -7,7 +7,7 @@ pipeline {
             steps {
                 sh " sudo apt-get install -y libprocps-dev"
                 sh " sudo apt-get install -y ncurses-dev"
-                sh " sudo make"
+                sh " make"
             }
         }
         stage('Deploy') {
