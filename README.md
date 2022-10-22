@@ -1,8 +1,6 @@
 dashboard
 =========
 
-#Building on Jenkins Agent
-
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/tijko/dashboard/master)
 
 Emulation of top command line tool
